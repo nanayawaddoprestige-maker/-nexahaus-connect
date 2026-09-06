@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { useAuth } from "@/lib/auth-context";
 import { BrandLockup } from "./brand";
 import { Button } from "./ui/button";
+import { NotificationBell } from "./notification-bell";
 
 const NAV: { href: string; label: string }[] = [
   { href: "/dashboard", label: "Dashboard" },
@@ -68,10 +69,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex flex-col">
         <header className="flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden">
           <BrandLockup subtle />
-          <Button variant="ghost" size="sm" onClick={() => void logout()}>
-            Sign out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Button variant="ghost" size="sm" onClick={() => void logout()}>
+              Sign out
+            </Button>
+          </div>
         </header>
+        <div className="hidden items-center justify-end border-b border-line bg-surface px-8 py-2.5 lg:flex">
+          <NotificationBell />
+        </div>
         <main className="mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>

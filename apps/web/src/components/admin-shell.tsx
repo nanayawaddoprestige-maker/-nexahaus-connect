@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { useAuth } from "@/lib/auth-context";
 import { BrandMark } from "./brand";
 import { Button } from "./ui/button";
+import { NotificationBell } from "./notification-bell";
 
 const NAV: { href: string; label: string }[] = [
   { href: "/admin/dashboard", label: "Dashboard" },
@@ -77,10 +78,16 @@ export function AdminShell({ children }: { children: ReactNode }) {
             <BrandMark className="h-6 w-6" />
             <span className="text-sm font-semibold text-white">Staff console</span>
           </div>
-          <Button variant="ghost" size="sm" className="text-navy-200" onClick={() => void logout()}>
-            Sign out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Button variant="ghost" size="sm" className="text-navy-200" onClick={() => void logout()}>
+              Sign out
+            </Button>
+          </div>
         </header>
+        <div className="hidden items-center justify-end border-b border-line bg-surface px-8 py-2.5 lg:flex">
+          <NotificationBell />
+        </div>
         <main className="mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
