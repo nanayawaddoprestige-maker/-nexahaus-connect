@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-surface-sunken text-ink;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-semibold tracking-tight text-navy-900;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-navy-500 ring-offset-2 ring-offset-surface;
+  }
+}
+
+@layer components {
+  .nx-card {
+    @apply rounded-xl border border-line bg-surface p-5 shadow-card;
+  }
+  .nx-label {
+    @apply text-xs font-medium uppercase tracking-wide text-ink-subtle;
+  }
+  .nx-stat {
+    @apply text-2xl font-semibold tabular-nums text-navy-900;
+  }
+}

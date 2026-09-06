@@ -70,10 +70,19 @@ A feature is done only when **all** of the following exist:
       admin, demo diaspora client + 5 fictional Accra properties with units,
       tenants, leases, 6 months of rent charges/payments, expenses, maintenance
       (with status history), inspections, health scores
-- [ ] `apps/web` Next.js bootstrap: design tokens (navy/gold), base component library,
-      auth pages, protected layout, TanStack Query + API client
-- [ ] **Vertical slice (web):** Owner login → dashboard → property list → property detail
+- [x] `apps/web` Next.js (App Router) bootstrap: navy/gold Tailwind design tokens,
+      component library (Button, Card, StatCard, StatusBadge, states: loading/empty/
+      error, PageHeader, BrandMark), typed API client with **in-memory access token +
+      silent refresh-and-retry** via the same-origin `/api` proxy rewrite, `AuthProvider`
+      + TanStack Query providers, protected `(owner)` layout + app shell nav
+- [x] **Vertical slice (web):** `/login` (with MFA step) → `/dashboard` (portfolio
+      stats + attention counters + expected-vs-collected chart, period filter) →
+      `/properties` (search + status filter + pagination, occupancy/collected/
+      outstanding per card) → `/properties/[id]` (diaspora "last inspected / last
+      rent / health" strip, finance stats, management terms + configurable fee, team,
+      latest inspection). Placeholder pages for the other nav sections.
 - [ ] Tests: auth flow, RBAC, **Owner A cannot read Owner B's property (403, no leak)**
+- [ ] Admin dashboard shell + admin overview
 
 ### Phase 2 — Core domain
 - Clients & client onboarding, Properties (full profile), Buildings/Floors/Units,
