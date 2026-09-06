@@ -1,0 +1,12 @@
+# Normalise line endings — the repo is authored on Windows but built on Linux CI/containers
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary
