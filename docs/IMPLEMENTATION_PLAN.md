@@ -31,19 +31,23 @@ A feature is done only when **all** of the following exist:
 
 ## 3. Phases
 
-### Phase 0 — Inspection & architecture  ✅ _in progress_
+### Phase 0 — Inspection & architecture  ✅ _complete_
 - [x] Repository inspection (greenfield; no existing code)
 - [x] Toolchain check (Node/pnpm/Docker absent on build machine — see §4)
 - [x] Core documentation: PRD, Architecture, Database, API, Security, Deployment, Testing, Compliance
-- [x] `.env.example`, `.gitignore`, `README`
-- [ ] Monorepo scaffold (pnpm workspaces + Turborepo) — _blocked on toolchain_
-- [ ] `docker-compose.yml` for local Postgres + Redis + MinIO
-- [ ] `git init` + first commit
+- [x] `.env.example`, `.gitignore`, `.gitattributes`, `README`
+- [x] Monorepo scaffold: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `tsconfig.base.json`, `.npmrc`
+- [x] `docker-compose.yml` for local Postgres + Redis + MinIO (+ bucket init)
+- [x] Shared packages: `typescript-config`, `eslint-config`, `types` (enums, Money, API/auth/permission contracts), `config` (fail-fast env schema), `validation` (Zod: common, auth, property)
+- [x] `git init` + commits
 
-### Phase 1 — Foundation
+  _Not runtime-verified — `pnpm install` / `tsc` cannot run until the toolchain (B1) is installed._
+
+### Phase 1 — Foundation  _in progress_
 - [ ] `apps/api` NestJS bootstrap: config module, structured logging (pino), global
       exception filter, response-envelope interceptor, health/ready endpoints, Swagger
 - [ ] Prisma schema for **identity, access, org/client, property, unit** domains
+      (full model already specified in [DATABASE.md](DATABASE.md))
 - [ ] Auth: register, verify email/phone (OTP), login, refresh-token rotation, logout,
       session/device list & revoke, optional TOTP 2FA. Argon2id hashing.
 - [ ] RBAC engine: roles, permissions, `@RequirePermission`, resource-scope guard

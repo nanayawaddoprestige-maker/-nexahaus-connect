@@ -1,0 +1,22 @@
+{
+  "name": "@nexahaus/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./next": "./next.js",
+    "./react-library": "./react-library.js"
+  },
+  "dependencies": {
+    "@eslint/js": "9.11.1",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-import": "2.30.0",
+    "typescript-eslint": "8.7.0",
+    "globals": "15.9.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}
