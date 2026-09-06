@@ -59,20 +59,21 @@ export class NotificationsService {
       push: pref?.push ?? DEFAULT_PREFS.push,
     };
 
-    const channels: string[] = [];
-    if (enabled.inApp) channels.push(NotificationChannel.IN_APP);
-
-    await this.prisma.notification.create({
-      data: {
-        userId: input.userId,
-        type: input.type,
-        title: input.title,
-        body: input.body,
-        data: (input.data ?? {}) as Prisma.InputJsonValue,
-        channels,
-        sourceEventId: input.sourceEventId ?? null,
-      },
-    });
+    // The in-app feed IS the Notification table: a user who turns off in-app
+    // delivery for a type stops seeing those rows in their feed.
+    if (enabled.inApp) {
+      await this.prisma.notification.create({
+        data: {
+          userId: input.userId,
+          type: input.type,
+          title: input.title,
+          body: input.body,
+          data: (input.data ?? {}) as Prisma.InputJsonValue,
+          channels: [NotificationChannel.IN_APP],
+          sourceEventId: input.sourceEventId ?? null,
+        },
+      });
+    }
 
     const user = await this.prisma.user.findUnique({
       where: { id: input.userId },

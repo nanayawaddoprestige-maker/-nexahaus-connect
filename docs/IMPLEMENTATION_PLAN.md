@@ -185,10 +185,31 @@ components).
 
 **Phase 4 complete.**
 
-### Phase 5 — Collaboration
-- Domain-event bus + outbox, Notification engine (in-app/email/SMS/WhatsApp/push
-  adapters) + per-user preferences, Communication centre (scoped threads),
-  Generic Approvals module + owner approval UX.
+### Phase 5 — Collaboration  ✅ _complete_
+- [x] **Outbox worker**: `OutboxService` `@Interval(5s)` drains unprocessed `DomainEvent`
+      rows → `NotificationEventHandler`; marks `processedAt`, bumps `attempts`/`lastError`
+      on failure, stops at 5 attempts. In-process (BullMQ in Phase 10); `DISABLE_SCHEDULERS`
+      gate for multi-instance.
+- [x] **Notification engine**: `Email/Sms/WhatsApp/Push` adapter interfaces (console/noop
+      impls); `NotificationsService.notify()` always writes the in-app row unless the
+      user disabled in-app for that type, then dispatches other channels per
+      `NotificationPreference`; `RecipientResolver`; one declarative `handle()` case per
+      `DomainEventType`. API: cursor feed + unread, mark-read/all, GET/PUT preferences.
+- [x] **Communication centre**: participation-scoped threads; `createThread` (owner-facing
+      auto-adds assigned staff + owner users), `postMessage` (emits `MESSAGE_RECEIVED`),
+      `markRead`. No messaging outside the participant set.
+- [x] **Scheduling**: `@Cron` daily 07:00 Accra — overdue rent (`RENT_OVERDUE`), lease
+      reminders (`LEASE_EXPIRING` + flip to EXPIRING), document-expiry reminders
+      (`DOCUMENT_EXPIRING`), preventive-maintenance due (raises the request +
+      `MAINTENANCE_CREATED`). Idempotent; `POST /scheduling/run` manual trigger.
+- [x] Generic Approvals module + owner approval UX — _delivered in Phase 3_.
+- [x] Web: `NotificationBell` (30s poll, dropdown, mark-read) in both shells;
+      `/notifications` (feed + channel-matrix preferences); `/messages` two-pane
+      conversation UI.
+- [x] Tests: `notifications.e2e-spec` — event → in-app notification for the right user;
+      mark-read/all clears unread; in-app-off suppresses the row; **message thread
+      visible only to participants (Owner B → 404, no leak)**; reply → `MESSAGE_RECEIVED`
+      notifies the other participant.
 
 ### Phase 6 — Intelligence
 - Property Health Score (configurable weights, historical, explainable),
