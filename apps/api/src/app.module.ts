@@ -39,6 +39,8 @@ import { DistributionsModule } from "./modules/distributions/distributions.modul
 import { NotificationsModule } from "./modules/notifications/notifications.module";
 import { MessagesModule } from "./modules/messages/messages.module";
 import { SchedulingModule } from "./modules/scheduling/scheduling.module";
+import { PropertyHealthModule } from "./modules/property-health/property-health.module";
+import { PropertyRescueModule } from "./modules/property-rescue/property-rescue.module";
 
 const config = loadConfig();
 
@@ -102,6 +104,8 @@ const config = loadConfig();
     DistributionsModule,
     MessagesModule,
     SchedulingModule,
+    PropertyHealthModule,
+    PropertyRescueModule,
     DashboardModule,
     AdminModule,
   ],

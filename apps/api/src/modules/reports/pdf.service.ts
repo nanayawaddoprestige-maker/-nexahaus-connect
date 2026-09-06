@@ -7,6 +7,17 @@ const INK = "#111827";
 const MUTED = "#6B7280";
 const LINE = "#E5E7EB";
 
+export interface RescueReportData {
+  ref: string;
+  propertyName: string;
+  propertyRef: string;
+  address: string;
+  assessedAt: string;
+  overallScore: number;
+  problems: string[];
+  recommendations: { title: string; detail: string; priority: string }[];
+}
+
 export interface StatementReportData {
   ref: string;
   ownerName: string;
@@ -132,6 +143,85 @@ export class PdfService {
       doc.fillColor(MUTED).fontSize(7).font("Helvetica").text(
         "This statement is generated from recorded transactions. Balances are reproducible and are not adjusted manually. " +
           "Contact NexaHaus with any query about a line item.",
+        50,
+        doc.page.height - 58,
+        { width: doc.page.width - 100, align: "center" },
+      );
+      doc.text(`NexaHaus Connect · Page ${i + 1} of ${range.count}`, 50, doc.page.height - 40, {
+        width: doc.page.width - 100,
+        align: "center",
+      });
+    }
+
+    doc.end();
+    return new Promise((resolve) => doc.on("end", () => resolve(Buffer.concat(chunks))));
+  }
+
+  rescueReport(data: RescueReportData): Promise<Buffer> {
+    const doc = new PDFDocument({ size: "A4", margin: 50, bufferPages: true });
+    const chunks: Buffer[] = [];
+    doc.on("data", (c: Buffer) => chunks.push(c));
+
+    doc.rect(0, 0, doc.page.width, 90).fill(NAVY);
+    doc.fillColor("#FFFFFF").fontSize(18).font("Helvetica-Bold").text("NexaHaus", 50, 30);
+    doc.fillColor(GOLD).fontSize(9).font("Helvetica").text("PROPERTIES & ASSET MANAGEMENT", 50, 54);
+    doc.fillColor("#FFFFFF").fontSize(13).font("Helvetica-Bold").text("Property Rescue Report", 50, 30, {
+      align: "right",
+      width: doc.page.width - 100,
+    });
+    doc.fillColor("#C8D2E6").fontSize(9).font("Helvetica").text(data.ref, 50, 54, {
+      align: "right",
+      width: doc.page.width - 100,
+    });
+
+    let y = 118;
+    doc.fillColor(INK).fontSize(12).font("Helvetica-Bold").text(data.propertyName, 50, y);
+    doc.fillColor(MUTED).fontSize(9).font("Helvetica").text(
+      `${data.propertyRef} · ${data.address} · assessed ${fmtDate(data.assessedAt)}`,
+      50,
+      y + 16,
+    );
+    y += 44;
+
+    // Score dial-ish
+    const scoreColor = data.overallScore >= 80 ? "#0F766E" : data.overallScore >= 60 ? "#B45309" : "#B91C1C";
+    doc.roundedRect(50, y, 150, 60, 8).fill("#F4F6FA");
+    doc.fillColor(MUTED).fontSize(8).font("Helvetica-Bold").text("OVERALL SCORE", 62, y + 12);
+    doc.fillColor(scoreColor).fontSize(26).font("Helvetica-Bold").text(`${data.overallScore}/100`, 62, y + 24);
+    y += 80;
+
+    doc.fillColor(NAVY).fontSize(12).font("Helvetica-Bold").text("Problems identified", 50, y);
+    y += 20;
+    for (const p of data.problems) {
+      doc.fillColor("#B91C1C").fontSize(9).text("•", 54, y);
+      doc.fillColor(INK).fontSize(9).font("Helvetica").text(p, 66, y, { width: doc.page.width - 120 });
+      y += 16;
+    }
+    if (data.problems.length === 0) {
+      doc.fillColor(MUTED).fontSize(9).text("No material problems detected.", 66, y);
+      y += 16;
+    }
+
+    y += 10;
+    doc.fillColor(NAVY).fontSize(12).font("Helvetica-Bold").text("Recommended actions", 50, y);
+    y += 20;
+    data.recommendations.forEach((r, i) => {
+      if (y > doc.page.height - 120) {
+        doc.addPage();
+        y = 60;
+      }
+      doc.fillColor(INK).fontSize(10).font("Helvetica-Bold").text(`${i + 1}. ${r.title}`, 50, y, { width: doc.page.width - 100 });
+      doc.fillColor(MUTED).fontSize(8).font("Helvetica-Bold").text(r.priority, 50, y + 13);
+      doc.fillColor(MUTED).fontSize(9).font("Helvetica").text(r.detail, 50, y + 26, { width: doc.page.width - 100 });
+      y += 52;
+    });
+
+    const range = doc.bufferedPageRange();
+    for (let i = 0; i < range.count; i += 1) {
+      doc.switchToPage(range.start + i);
+      doc.fillColor(MUTED).fontSize(7).font("Helvetica").text(
+        "This is a preliminary desk assessment based on the data held in NexaHaus Connect. It is not a professional valuation " +
+          "or structural survey. Where professional review is required this is noted against the relevant action.",
         50,
         doc.page.height - 58,
         { width: doc.page.width - 100, align: "center" },

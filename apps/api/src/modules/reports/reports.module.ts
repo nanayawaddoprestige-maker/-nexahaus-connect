@@ -1,9 +1,12 @@
 import { Global, Module } from "@nestjs/common";
 import { PdfService } from "./pdf.service";
+import { ReportsService } from "./reports.service";
+import { ReportsController } from "./reports.controller";
 
 @Global()
 @Module({
-  providers: [PdfService],
-  exports: [PdfService],
+  controllers: [ReportsController],
+  providers: [PdfService, ReportsService],
+  exports: [PdfService, ReportsService],
 })
 export class ReportsModule {}
