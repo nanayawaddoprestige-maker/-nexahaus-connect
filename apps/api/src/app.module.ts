@@ -24,6 +24,10 @@ import { TenantsModule } from "./modules/tenants/tenants.module";
 import { LeasesModule } from "./modules/leases/leases.module";
 import { StorageModule } from "./modules/storage/storage.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
+import { EventsModule } from "./modules/events/events.module";
+import { VendorsModule } from "./modules/vendors/vendors.module";
+import { ApprovalsModule } from "./modules/approvals/approvals.module";
+import { MaintenanceModule } from "./modules/maintenance/maintenance.module";
 
 const config = loadConfig();
 
@@ -63,6 +67,7 @@ const config = loadConfig();
     AuditModule,
     CommonModule,
     StorageModule,
+    EventsModule,
     AuthzModule,
     HealthModule,
     AuthModule,
@@ -72,6 +77,9 @@ const config = loadConfig();
     TenantsModule,
     LeasesModule,
     DocumentsModule,
+    VendorsModule,
+    ApprovalsModule,
+    MaintenanceModule,
     DashboardModule,
     AdminModule,
   ],
