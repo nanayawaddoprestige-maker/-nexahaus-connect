@@ -65,9 +65,12 @@ async function bootstrap(): Promise<void> {
     });
   }
 
-  await app.listen(config.api.port);
+  // Honour a platform-injected $PORT (Railway, Render, Fly, Heroku); fall back
+  // to API_PORT for local / compose deploys.
+  const port = Number(process.env.PORT) || config.api.port;
+  await app.listen(port, "0.0.0.0");
   // eslint-disable-next-line no-console
-  console.error(`NexaHaus Connect API listening on :${config.api.port}`);
+  console.error(`NexaHaus Connect API listening on :${port}`);
 }
 
 void bootstrap();

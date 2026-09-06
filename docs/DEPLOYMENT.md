@@ -86,6 +86,11 @@ lockfile; CI and the Docker builds use `--frozen-lockfile`. Likewise run
 `pnpm --filter @nexahaus/api prisma migrate dev --name init` once to create the initial
 migration under `apps/api/prisma/migrations/` — `migrate deploy` needs it.
 
+**Managed PaaS (Railway):** `railway.{api,worker,web}.json` in the repo root configure the
+three services against these Dockerfiles. Step-by-step in
+[runbooks/deploy-railway.md](runbooks/deploy-railway.md). Bring an S3-compatible bucket
+(R2 / S3 / B2) — Railway has no object storage.
+
 ## 6. CI/CD pipeline
 
 1. **install** — `pnpm install --frozen-lockfile` (Turbo remote cache).
