@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# Environment / secrets — NEVER commit real secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build output
+dist/
+build/
+.next/
+out/
+.expo/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/migrations/**/migration_lock.toml.bak
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+
+# Local infra data
+.docker-data/
+minio-data/
+pgdata/
+
+# Test artifacts
+playwright-report/
+test-results/
