@@ -19,11 +19,16 @@ export function isTenant(user: Pick<AuthUser, "roles"> | null | undefined): bool
   return !!user?.roles.includes("TENANT" as AuthUser["roles"][number]);
 }
 
+export function isVendor(user: Pick<AuthUser, "roles"> | null | undefined): boolean {
+  return !!user?.roles.includes("VENDOR" as AuthUser["roles"][number]);
+}
+
 /** Where to land a user after sign-in / on hitting the app root. */
 export function homePathForUser(
   user: Pick<AuthUser, "roles"> | null | undefined,
 ): string {
   if (isStaff(user)) return "/admin/dashboard";
   if (isTenant(user)) return "/tenant";
+  if (isVendor(user)) return "/vendor";
   return "/dashboard";
 }

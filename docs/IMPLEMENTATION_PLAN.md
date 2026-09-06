@@ -281,9 +281,35 @@ components).
 
 **Phase 8 complete.**
 
-### Phase 9 — Advanced integrations
-- Live Mobile Money / bank payment workflows, WhatsApp inbound, push at scale,
-  vendor portal, CSV import pipeline, analytics dashboards.
+### Phase 9 — Advanced integrations  ✅ _complete_
+- [x] **CSV import** (spec §105): two-phase `POST /imports` (validate every row vs the
+      entity's Zod schema, write nothing) → `POST /imports/:id/commit` (per-row
+      transactions, `allowPartial` for imports with validation errors), `GET :id/errors`
+      (CSV). Entities: CLIENT, PROPERTY (by `clientRef`), UNIT (by `propertyRef`), TENANT.
+      Dependency-free `common/csv` parser (unit-tested). Web: `/admin/imports`.
+- [x] **Vendor portal** (spec §44): `Vendor.userId` + `AuthUser.vendorId`; `/vendor/*`
+      bound to the caller's own vendor — work orders (own only), start
+      (ISSUED→IN_PROGRESS, drags the request), complete (actual cost + notes + invoice +
+      after-photos → request COMPLETED, `MAINTENANCE_COMPLETED`). Blocked while
+      `AWAITING_APPROVAL`. Web: `app/vendor/` shell + list/detail.
+- [x] **Payment initiation**: `PaymentProvider.initiate()` (manual → instructions;
+      generic → mock hosted-checkout URL); `POST /payments/initiate` reachable by a
+      tenant on the lease or staff/owner in scope; the webhook still confirms.
+- [x] **WhatsApp inbound**: `POST /integrations/whatsapp/webhook` — signature-verified
+      over the raw body, deduped on `(provider, providerMsgId)`; a message from a known
+      phone is routed into that user's NexaHaus thread (+ support staff) and emits
+      `MESSAGE_RECEIVED`; unknown numbers stored for triage.
+- [x] **Analytics abstraction**: `POST /integrations/analytics/event` persists an
+      `AnalyticsEvent` and forwards to the configured provider (noop until wired);
+      `IntegrationsService.track()` for server-side events.
+- [x] Seed: demo vendor (`vendor.demo@nexahaus.example`) with a live work order.
+- [x] Tests: `csv` (unit); `imports.e2e-spec` (validate reports per-row errors + writes
+      nothing; commit refused with errors then succeeds with `allowPartial`;
+      unknown `clientRef` → per-row commit failure → PARTIALLY_COMPLETED); **`vendor-
+      portal.e2e-spec`** (vendor sees own WOs only, 404 on another vendor's, start+
+      complete drives the request + emits the event, 403 on owner/admin).
+
+**Phase 9 complete.**
 
 ### Phase 10 — Production hardening
 - Load/performance passes, security review & pen-test checklist, backup/DR drills,
