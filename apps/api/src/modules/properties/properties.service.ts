@@ -12,9 +12,30 @@ import { RefService } from "../../common/ref.service";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
 import { paginate, pageParams, parseSort } from "../../common/pagination";
 import { propertyScopeWhere, propertyInScope } from "../authz/scope.util";
+import { AuthUserService } from "../authz/auth-user.service";
 import { periodRange, type FinancePeriod } from "../finance/period.util";
 
 const SORTABLE = ["createdAt", "name", "ref", "status", "city", "region"] as const;
+
+interface AgreementInput {
+  feeType: "PERCENT_OF_COLLECTED" | "PERCENT_OF_EXPECTED" | "FIXED_MONTHLY" | "CUSTOM";
+  feePercent?: number;
+  feeFixedMinor?: string;
+  feeCurrency: string;
+  startDate: string;
+  endDate?: string;
+  inspectionFrequency: "MONTHLY" | "QUARTERLY" | "BIANNUAL" | "ANNUAL" | "CUSTOM";
+  maintenanceApprovalThresholdMinor: string;
+  thresholdCurrency: string;
+  documentId?: string;
+}
+
+interface AssignManagerInput {
+  userId: string;
+  role: "PROPERTY_MANAGER" | "MAINTENANCE_OFFICER" | "INSPECTOR" | "LEASING_OFFICER" | "SUPPORT_STAFF";
+  startDate: string;
+  endDate?: string;
+}
 
 @Injectable()
 export class PropertiesService {
@@ -22,6 +43,7 @@ export class PropertiesService {
     private readonly prisma: PrismaService,
     private readonly refs: RefService,
     private readonly audit: AuditService,
+    private readonly authUsers: AuthUserService,
   ) {}
 
   // --------------------------------------------------------------------------
@@ -384,6 +406,217 @@ export class PropertiesService {
       after: { name: updated.name, status: updated.status, type: updated.type },
     });
     return serializeProperty(updated);
+  }
+
+  // --------------------------------------------------------------------------
+  // Management agreement (configurable fee — spec §98)
+  // --------------------------------------------------------------------------
+
+  async setAgreement(
+    user: AuthUser,
+    propertyId: string,
+    input: AgreementInput,
+    ctx: AuditContext,
+  ) {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
+      select: { id: true, clientId: true },
+    });
+    if (!property || !propertyInScope(user, property)) {
+      throw AppError.notFound("property");
+    }
+
+    const agreement = await this.prisma.$transaction(async (tx) => {
+      // Supersede the current active agreement rather than editing it.
+      await tx.managementAgreement.updateMany({
+        where: { propertyId, status: "ACTIVE" },
+        data: { status: "EXPIRED", endDate: new Date(input.startDate) },
+      });
+      const created = await tx.managementAgreement.create({
+        data: {
+          propertyId,
+          feeType: input.feeType,
+          feePercent: input.feePercent ?? null,
+          feeFixedMinor: input.feeFixedMinor ? BigInt(input.feeFixedMinor) : null,
+          feeCurrency: input.feeCurrency,
+          startDate: new Date(input.startDate),
+          endDate: input.endDate ? new Date(input.endDate) : null,
+          inspectionFrequency: input.inspectionFrequency,
+          maintenanceApprovalThresholdMinor: BigInt(
+            input.maintenanceApprovalThresholdMinor,
+          ),
+          thresholdCurrency: input.thresholdCurrency,
+          documentId: input.documentId ?? null,
+          status: "ACTIVE",
+          createdById: ctx.actorUserId ?? null,
+        },
+      });
+      await this.audit.record(
+        {
+          ...ctx,
+          action: "property.agreement.set",
+          resourceType: "property",
+          resourceId: propertyId,
+          after: {
+            agreementId: created.id,
+            feeType: created.feeType,
+            feePercent: created.feePercent ? Number(created.feePercent) : null,
+          },
+        },
+        tx,
+      );
+      return created;
+    });
+    return serializeAgreement(agreement);
+  }
+
+  // --------------------------------------------------------------------------
+  // Staff assignment (drives the staff authorization scope)
+  // --------------------------------------------------------------------------
+
+  async assignManager(
+    user: AuthUser,
+    propertyId: string,
+    input: AssignManagerInput,
+    ctx: AuditContext,
+  ) {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
+      select: { id: true, clientId: true },
+    });
+    if (!property || !propertyInScope(user, property)) {
+      throw AppError.notFound("property");
+    }
+    const staff = await this.prisma.user.findFirst({
+      where: { id: input.userId, deletedAt: null, status: "ACTIVE" },
+      select: { id: true, fullName: true },
+    });
+    if (!staff) throw AppError.validation("That staff member could not be found.");
+
+    const assignment = await this.prisma.propertyAssignment.upsert({
+      where: {
+        propertyId_userId_role: {
+          propertyId,
+          userId: input.userId,
+          role: input.role,
+        },
+      },
+      create: {
+        propertyId,
+        userId: input.userId,
+        role: input.role,
+        startDate: new Date(input.startDate),
+        endDate: input.endDate ? new Date(input.endDate) : null,
+      },
+      update: {
+        startDate: new Date(input.startDate),
+        endDate: input.endDate ? new Date(input.endDate) : null,
+      },
+    });
+
+    // The user's cached scope now includes this property.
+    await this.authUsers.invalidate(input.userId);
+
+    await this.audit.record({
+      ...ctx,
+      action: "property.assignment.set",
+      resourceType: "property",
+      resourceId: propertyId,
+      after: { userId: input.userId, role: input.role },
+    });
+    return {
+      id: assignment.id,
+      role: assignment.role,
+      user: staff,
+      startDate: assignment.startDate.toISOString(),
+      endDate: assignment.endDate?.toISOString() ?? null,
+    };
+  }
+
+  async endAssignment(
+    user: AuthUser,
+    propertyId: string,
+    assignmentId: string,
+    ctx: AuditContext,
+  ) {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
+      select: { id: true, clientId: true },
+    });
+    if (!property || !propertyInScope(user, property)) {
+      throw AppError.notFound("property");
+    }
+    const assignment = await this.prisma.propertyAssignment.findFirst({
+      where: { id: assignmentId, propertyId },
+    });
+    if (!assignment) throw AppError.notFound("assignment");
+
+    await this.prisma.propertyAssignment.update({
+      where: { id: assignmentId },
+      data: { endDate: new Date() },
+    });
+    await this.authUsers.invalidate(assignment.userId);
+    await this.audit.record({
+      ...ctx,
+      action: "property.assignment.end",
+      resourceType: "property",
+      resourceId: propertyId,
+      before: { userId: assignment.userId, role: assignment.role },
+    });
+    return { ended: true };
+  }
+
+  // --------------------------------------------------------------------------
+  // Co-ownership
+  // --------------------------------------------------------------------------
+
+  async setOwners(
+    user: AuthUser,
+    propertyId: string,
+    owners: { clientId: string; sharePercent: number; isPrimary?: boolean }[],
+    ctx: AuditContext,
+  ) {
+    const property = await this.prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
+      select: { id: true, clientId: true },
+    });
+    if (!property || !propertyInScope(user, property)) {
+      throw AppError.notFound("property");
+    }
+    const totalShare = owners.reduce((s, o) => s + o.sharePercent, 0);
+    if (Math.abs(totalShare - 100) > 0.01) {
+      throw AppError.validation("Ownership shares must total 100%.");
+    }
+    const clientIds = owners.map((o) => o.clientId);
+    const found = await this.prisma.client.count({
+      where: { id: { in: clientIds }, deletedAt: null },
+    });
+    if (found !== new Set(clientIds).size) {
+      throw AppError.validation("One or more owner clients could not be found.");
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.propertyOwner.deleteMany({ where: { propertyId } });
+      await tx.propertyOwner.createMany({
+        data: owners.map((o, i) => ({
+          propertyId,
+          clientId: o.clientId,
+          sharePercent: o.sharePercent,
+          isPrimary: o.isPrimary ?? i === 0,
+        })),
+      });
+      await this.audit.record(
+        {
+          ...ctx,
+          action: "property.owners.set",
+          resourceType: "property",
+          resourceId: propertyId,
+          after: { owners: owners.map((o) => ({ clientId: o.clientId, share: o.sharePercent })) },
+        },
+        tx,
+      );
+    });
+    return { owners };
   }
 
   // --------------------------------------------------------------------------

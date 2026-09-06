@@ -1,3 +1,6 @@
 export * from "./common.js";
 export * from "./auth.js";
 export * from "./property.js";
+export * from "./client.js";
+export * from "./tenant.js";
+export * from "./lease.js";

@@ -18,6 +18,8 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { PropertiesModule } from "./modules/properties/properties.module";
 import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { AdminModule } from "./modules/admin/admin.module";
+import { ClientsModule } from "./modules/clients/clients.module";
+import { UnitsModule } from "./modules/units/units.module";
 
 const config = loadConfig();
 
@@ -59,7 +61,9 @@ const config = loadConfig();
     AuthzModule,
     HealthModule,
     AuthModule,
+    ClientsModule,
     PropertiesModule,
+    UnitsModule,
     DashboardModule,
     AdminModule,
   ],
