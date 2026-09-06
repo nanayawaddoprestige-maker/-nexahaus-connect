@@ -233,10 +233,31 @@ components).
       methodology version**, Rescue produces findings + recommendations + a downloadable
       CLEAN PDF.
 
-### Phase 7 — Growth
-- CRM (leads, activities, lead scoring/grades), Property Owner Survey (configurable),
-  Property Health Check lead magnet (public), Early Access / Founding 100,
-  Public marketing website.
+### Phase 7 — Growth  ✅ _complete_
+- [x] **Lead scoring**: configurable A/B/C/D engine (`lead-scoring.util`, unit-tested to
+      §74) — property count (banded), diaspora (flag or location-inferred), stated
+      management need, assessment completion, consultation booked, engagement (capped),
+      configurable grade thresholds.
+- [x] **CRM**: `GET /leads` (+ `/pipeline` stage counts, `/score-config` versioned),
+      `/leads/:id` (activities + health checks + surveys), create/update (re-scores;
+      logs `STATUS_CHANGE`), `:id/activities` (re-scores), **`:id/convert`** → creates
+      an `ONBOARDING` Client + carries the marketing consent, marks lead `WON`.
+- [x] **Public funnel** (`/api/v1/public/*`, unauthenticated, throttled 5/min, consent
+      captured): `property-health-check` (deterministic self-reported preliminary score
+      + `PropertyHealthCheck` + Lead + `ConsentRecord`; response labels it preliminary,
+      not professional), `early-access` (+ Founding 100), `GET/POST surveys/:key`.
+      All entry points upsert a Lead by email and re-score.
+- [x] Seed: **Property Owner Survey** (§38, 15 questions), PUBLISHED.
+- [x] Web admin: `/admin/leads` (pipeline stage bar + grade filters + table),
+      `/admin/leads/[id]` (score ring + breakdown, stage mover, activity log, convert).
+- [x] **Public marketing website** (`app/(public)/`): navy/gold layout + footer; home
+      (`/welcome`), interactive `/health-check` lead magnet (preliminary-score result +
+      disclaimer), `/early-access`, service pages (property-management, asset-management,
+      diaspora, property-rescue-service), `/about`, `/resources`, `/contact`, `/privacy`,
+      `/terms`. Root `/` sends unauthenticated visitors to `/welcome`.
+- [x] Tests: `lead-scoring.util` (unit); `crm.e2e-spec` — public health check → scored
+      lead + consent; repeat email updates, no duplicate; consultation raises the score;
+      convert → `ONBOARDING` client + consent carried + second convert is 409.
 
 ### Phase 8 — Tenant portal
 - Tenant dashboard, lease, rent & receipts, maintenance reporting, messaging,

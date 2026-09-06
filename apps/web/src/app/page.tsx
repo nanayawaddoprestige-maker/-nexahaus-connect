@@ -11,7 +11,7 @@ export default function IndexPage() {
 
   useEffect(() => {
     if (status === "authenticated") router.replace(homePathForUser(user));
-    else if (status === "unauthenticated") router.replace("/login");
+    else if (status === "unauthenticated") router.replace("/welcome");
   }, [status, user, router]);
 
   return (
