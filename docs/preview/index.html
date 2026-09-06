@@ -1,0 +1,1400 @@
+<title>NexaHaus Connect Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+/>
+
+<style>
+  :root {
+    --navy-950: #06132b;
+    --navy-900: #0a1f44;
+    --navy-800: #0f1f3d;
+    --navy-700: #182d54;
+    --navy-100: #d3dbe9;
+    --navy-50: #eef1f7;
+    --gold-400: #c9a227;
+    --gold-100: #f2e7c4;
+
+    --ink: #111827;
+    --ink-muted: #4b5563;
+    --ink-subtle: #6b7280;
+
+    --surface: #ffffff;
+    --sunken: #f4f6fa;
+    --line: #e5e7eb;
+    --page: #e9ecf2;
+
+    --positive: #0f766e;
+    --positive-bg: #ecfdf5;
+    --warning: #b45309;
+    --warning-bg: #fff7ed;
+    --critical: #b91c1c;
+    --critical-bg: #fef2f2;
+    --info: #0369a1;
+    --info-bg: #eff6ff;
+
+    --shadow: 0 1px 2px rgba(10, 31, 68, 0.05), 0 10px 26px rgba(10, 31, 68, 0.07);
+    --radius: 12px;
+
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --navy-100: #22345c;
+      --navy-50: #172444;
+      --ink: #e9ecf4;
+      --ink-muted: #adb6ca;
+      --ink-subtle: #8a93a8;
+      --surface: #101a33;
+      --sunken: #0b1327;
+      --line: #24324f;
+      --page: #070d1c;
+      --positive-bg: #0b2b24;
+      --warning-bg: #2b2410;
+      --critical-bg: #2c1515;
+      --info-bg: #0b2135;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --navy-100: #22345c;
+    --navy-50: #172444;
+    --ink: #e9ecf4;
+    --ink-muted: #adb6ca;
+    --ink-subtle: #8a93a8;
+    --surface: #101a33;
+    --sunken: #0b1327;
+    --line: #24324f;
+    --page: #070d1c;
+    --positive-bg: #0b2b24;
+    --warning-bg: #2b2410;
+    --critical-bg: #2c1515;
+    --info-bg: #0b2135;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--navy-700);
+    outline-offset: 2px;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- deck chrome ---------------------------------------------------- */
+  .deck {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 24px 20px 72px;
+  }
+  .deck__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand__name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .brand__kicker {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .tab {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tab[aria-selected="true"] {
+    background: var(--navy-900);
+    border-color: var(--navy-900);
+    color: #fff;
+  }
+  .theme-toggle {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .deck__note {
+    margin: 14px 0 22px;
+    font-size: 13px;
+    color: var(--ink-subtle);
+    max-width: 68ch;
+  }
+  .deck__note b {
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .screen[hidden] {
+    display: none;
+  }
+  .screen__caption {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .screen__caption h2 {
+    font-size: 15px;
+  }
+  .screen__caption span {
+    font-size: 12.5px;
+    color: var(--ink-subtle);
+  }
+
+  /* ---- fake browser / app frame ------------------------------------- */
+  .frame {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+  }
+  .frame__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--sunken);
+    border-bottom: 1px solid var(--line);
+  }
+  .frame__dots {
+    display: flex;
+    gap: 6px;
+  }
+  .frame__dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--navy-100);
+  }
+  .frame__url {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-subtle);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 12px;
+    margin-left: 6px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 208px 1fr;
+    min-height: 560px;
+  }
+  @media (max-width: 720px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+    .side {
+      display: none;
+    }
+  }
+
+  /* owner sidebar (light) */
+  .side {
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+  }
+  .side__brand {
+    padding: 16px 16px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .side__nav {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+  .side__nav a {
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .side__nav a.is-active {
+    background: var(--navy-900);
+    color: #fff;
+  }
+  .side__foot {
+    border-top: 1px solid var(--line);
+    padding: 14px 16px;
+    font-size: 12px;
+  }
+  .side__foot b {
+    display: block;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .side__foot span {
+    color: var(--ink-subtle);
+  }
+
+  /* admin sidebar (navy) */
+  .side--admin {
+    background: var(--navy-900);
+    border-right-color: var(--navy-800);
+  }
+  .side--admin .side__brand {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .side--admin .side__brand b {
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    display: block;
+  }
+  .side--admin .side__brand span {
+    color: var(--navy-100);
+    font-size: 11px;
+  }
+  .side--admin .side__nav a {
+    color: #c8d2e6;
+  }
+  .side--admin .side__nav a.is-active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .side--admin .side__foot {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  .side--admin .side__foot b {
+    color: #fff;
+  }
+  .side--admin .side__foot span {
+    color: var(--navy-100);
+  }
+
+  .main {
+    padding: 24px;
+    background: var(--sunken);
+  }
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .page-head h1 {
+    font-size: 20px;
+  }
+  .page-head p {
+    margin: 4px 0 0;
+    font-size: 13.5px;
+    color: var(--ink-muted);
+  }
+
+  .segmented {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface);
+  }
+  .segmented span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-subtle);
+    padding: 4px 9px;
+    border-radius: 6px;
+  }
+  .segmented span.is-active {
+    background: var(--navy-900);
+    color: #fff;
+  }
+
+  /* grid + tiles */
+  .grid {
+    display: grid;
+    gap: 14px;
+  }
+  .grid.cols-5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .grid.cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 900px) {
+    .grid.cols-5,
+    .grid.cols-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .grid.cols-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 15px 16px;
+  }
+  .tile__label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .tile__value {
+    margin-top: 8px;
+    font-size: 23px;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .tile__value.pos {
+    color: var(--positive);
+  }
+  .tile__value.warn {
+    color: var(--warning);
+  }
+  .tile__value.crit {
+    color: var(--critical);
+  }
+  .tile__hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--ink-subtle);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .card__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .card__desc {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  /* status pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .pill i {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  .pill.pos {
+    color: var(--positive);
+    background: var(--positive-bg);
+    border-color: color-mix(in srgb, var(--positive) 22%, transparent);
+  }
+  .pill.warn {
+    color: var(--warning);
+    background: var(--warning-bg);
+    border-color: color-mix(in srgb, var(--warning) 22%, transparent);
+  }
+  .pill.crit {
+    color: var(--critical);
+    background: var(--critical-bg);
+    border-color: color-mix(in srgb, var(--critical) 22%, transparent);
+  }
+  .pill.info {
+    color: var(--info);
+    background: var(--info-bg);
+    border-color: color-mix(in srgb, var(--info) 22%, transparent);
+  }
+  .pill.neutral {
+    color: var(--ink-muted);
+    background: var(--navy-50);
+    border-color: var(--line);
+  }
+
+  /* alerts */
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .alert small {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .alert.crit {
+    color: var(--critical);
+    background: var(--critical-bg);
+    border-color: color-mix(in srgb, var(--critical) 20%, transparent);
+  }
+  .alert.warn {
+    color: var(--warning);
+    background: var(--warning-bg);
+    border-color: color-mix(in srgb, var(--warning) 20%, transparent);
+  }
+  .alert.info {
+    color: var(--info);
+    background: var(--info-bg);
+    border-color: color-mix(in srgb, var(--info) 20%, transparent);
+  }
+
+  /* property cards */
+  .prop {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .prop__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .prop__name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .prop__meta {
+    font-size: 12px;
+    color: var(--ink-subtle);
+    margin-top: 2px;
+  }
+  .prop__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .prop__stats dt {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .prop__stats dd {
+    margin: 3px 0 0;
+    font-weight: 600;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .prop__stats dd.warn {
+    color: var(--warning);
+  }
+
+  /* chart */
+  .chart {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .chart__plot {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    height: 168px;
+    padding: 0 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .chart__col {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    height: 100%;
+  }
+  .chart__bar {
+    width: 15px;
+    border-radius: 3px 3px 0 0;
+  }
+  .chart__bar.exp {
+    background: var(--navy-100);
+  }
+  .chart__bar.col {
+    background: var(--navy-900);
+  }
+  .chart__labels {
+    display: flex;
+    gap: 18px;
+    padding: 0 4px;
+  }
+  .chart__labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .legend b {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: -1px;
+  }
+
+  /* definition rows */
+  .dl {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 28px;
+    margin: 0;
+  }
+  @media (max-width: 640px) {
+    .dl {
+      grid-template-columns: 1fr;
+    }
+  }
+  .dl dt {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .dl dd {
+    margin: 3px 0 0;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 5px 0;
+  }
+  .row span {
+    color: var(--ink-muted);
+  }
+  .row b {
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 6px 0;
+  }
+
+  .diaspora {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 640px) {
+    .diaspora {
+      grid-template-columns: 1fr;
+    }
+  }
+  .diaspora dt {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .diaspora .big {
+    margin: 5px 0 1px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .diaspora .sub {
+    font-size: 11.5px;
+    color: var(--ink-subtle);
+  }
+
+  .back {
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  /* table */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .table th {
+    text-align: left;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+    font-weight: 500;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .table tr:last-child td {
+    border-bottom: 0;
+  }
+  .table .muted {
+    color: var(--ink-subtle);
+    font-size: 11.5px;
+  }
+
+  /* ---- sign-in screen -------------------------------------------------- */
+  .signin {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    min-height: 560px;
+  }
+  @media (max-width: 780px) {
+    .signin {
+      grid-template-columns: 1fr;
+    }
+    .signin__hero {
+      display: none;
+    }
+  }
+  .signin__hero {
+    background: var(--navy-900);
+    color: var(--navy-100);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .signin__hero h1 {
+    color: #fff;
+    font-size: 27px;
+    line-height: 1.25;
+    max-width: 15ch;
+  }
+  .signin__hero p {
+    margin: 14px 0 0;
+    max-width: 34ch;
+    font-size: 14px;
+  }
+  .signin__hero .foot {
+    font-size: 11.5px;
+    color: #8fa0c0;
+  }
+  .signin__panel {
+    background: var(--surface);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .signin__panel h2 {
+    font-size: 18px;
+  }
+  .signin__panel > p {
+    margin: 6px 0 22px;
+    font-size: 13.5px;
+    color: var(--ink-muted);
+  }
+  .field {
+    margin-bottom: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field .input {
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--ink-subtle);
+  }
+  .btn {
+    height: 40px;
+    border-radius: 9px;
+    background: var(--navy-900);
+    color: #fff;
+    font-weight: 500;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .signin__panel .hint {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--ink-subtle);
+  }
+
+  /* ---- phone -------------------------------------------------------- */
+  .phone-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+  }
+  .phone {
+    width: 320px;
+    border: 10px solid var(--navy-900);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--sunken);
+  }
+  .phone__status {
+    background: var(--navy-900);
+    height: 26px;
+  }
+  .phone__body {
+    padding: 18px 16px 20px;
+  }
+  .phone__h {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .phone__sub {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin: 3px 0 14px;
+  }
+  .phone .grid.cols-2 {
+    gap: 10px;
+  }
+  .phone .tile {
+    padding: 12px;
+  }
+  .phone .tile__value {
+    font-size: 17px;
+    margin-top: 5px;
+  }
+  .phone__tabbar {
+    display: flex;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .phone__tabbar span {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    padding: 10px 0;
+    color: var(--ink-subtle);
+  }
+  .phone__tabbar span.is-active {
+    color: var(--navy-900);
+    font-weight: 600;
+  }
+  :root[data-theme="dark"] .phone__tabbar span.is-active,
+  .phone__tabbar span.is-active {
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+</style>
+
+<div class="deck">
+  <header class="deck__bar">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#0a1f44" />
+        <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2" fill="none" stroke-linejoin="round" />
+        <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2" fill="none" />
+      </svg>
+      <div>
+        <div class="brand__name">NexaHaus Connect</div>
+        <div class="brand__kicker">Product preview &middot; Phase 1</div>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Screens">
+      <button class="tab" role="tab" aria-selected="true" data-target="owner">Owner dashboard</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="property">Property</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="admin">Staff console</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="mobile">Mobile</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="signin">Sign&nbsp;in</button>
+    </nav>
+    <button class="theme-toggle" type="button" id="themeToggle" aria-label="Toggle theme">◐</button>
+  </header>
+
+  <p class="deck__note">
+    Static render of the screens built in Phase 1, using the navy/gold design system and
+    data shapes from the codebase. Figures are <b>representative demo data</b> for the
+    fictional diaspora owner <b>Kwesi Mensah</b> and five Accra properties from the seed
+    script &mdash; not live. The running app needs Node&nbsp;+&nbsp;Docker installed.
+  </p>
+
+  <!-- ============================ OWNER DASHBOARD ==================== -->
+  <section class="screen" data-screen="owner">
+    <div class="screen__caption">
+      <h2>Owner portal &mdash; Dashboard</h2>
+      <span>/dashboard &middot; apps/web</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/dashboard</span>
+      </div>
+      <div class="app">
+        <aside class="side">
+          <div class="side__brand">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="#0a1f44" />
+                <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.2" fill="none" stroke-linejoin="round" />
+                <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.2" fill="none" />
+              </svg>
+              <b style="font-size:13px;color:var(--ink)">NexaHaus Connect</b>
+            </div>
+          </div>
+          <nav class="side__nav">
+            <a class="is-active" href="#">Dashboard</a>
+            <a href="#">My Properties</a>
+            <a href="#">Rent &amp; Finance</a>
+            <a href="#">Maintenance</a>
+            <a href="#">Inspections</a>
+            <a href="#">Documents</a>
+            <a href="#">Approvals</a>
+            <a href="#">Messages</a>
+          </nav>
+          <div class="side__foot">
+            <b>Kwesi Mensah</b>
+            <span>owner.demo@nexahaus.example</span>
+          </div>
+        </aside>
+
+        <div class="main">
+          <div class="page-head">
+            <div>
+              <h1>Good afternoon, Kwesi</h1>
+              <p>Here is where your portfolio stands today.</p>
+            </div>
+            <div class="segmented" aria-hidden="true">
+              <span class="is-active">This month</span><span>3 months</span
+              ><span>6 months</span><span>12 months</span>
+            </div>
+          </div>
+
+          <div class="grid cols-5" style="margin-bottom:14px">
+            <div class="tile">
+              <div class="tile__label">Properties</div>
+              <div class="tile__value num">5</div>
+              <div class="tile__hint">4 occupied &middot; 1 vacant</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Occupancy</div>
+              <div class="tile__value num">80%</div>
+              <div class="tile__hint">7 of 9 units</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Collected rent</div>
+              <div class="tile__value pos num">GHS&nbsp;24,500.00</div>
+              <div class="tile__hint">of GHS 28,500.00 expected</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Outstanding rent</div>
+              <div class="tile__value warn num">GHS&nbsp;4,000.00</div>
+              <div class="tile__hint">collection rate 86%</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Portfolio health</div>
+              <div class="tile__value num">81/100</div>
+              <div class="tile__hint">average across properties</div>
+            </div>
+          </div>
+
+          <div class="grid cols-3" style="margin-bottom:18px">
+            <div class="tile">
+              <div class="tile__label">Open maintenance</div>
+              <div class="tile__value crit num">5</div>
+              <div class="tile__hint">1 urgent</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Pending approvals</div>
+              <div class="tile__value warn num">1</div>
+              <div class="tile__hint">awaiting your decision</div>
+            </div>
+            <div class="tile">
+              <div class="tile__label">Inspections due</div>
+              <div class="tile__value num">2</div>
+              <div class="tile__hint">scheduled or assigned</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__title">Rent &mdash; expected vs collected</div>
+            <div class="card__desc">Monthly, across your portfolio</div>
+            <div class="chart">
+              <div class="chart__plot">
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:88%"></div></div>
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:88%"></div></div>
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:84%"></div></div>
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:88%"></div></div>
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:80%"></div></div>
+                <div class="chart__col"><div class="chart__bar exp" style="height:88%"></div><div class="chart__bar col" style="height:75%"></div></div>
+              </div>
+              <div class="chart__labels">
+                <span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span>
+              </div>
+            </div>
+            <div class="legend">
+              <span><b style="background:var(--navy-100)"></b>Expected</span>
+              <span><b style="background:var(--navy-900)"></b>Collected</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PROPERTY DETAIL ==================== -->
+  <section class="screen" data-screen="property" hidden>
+    <div class="screen__caption">
+      <h2>Owner portal &mdash; Property detail</h2>
+      <span>/properties/[id]</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/properties/NH-000001</span>
+      </div>
+      <div class="app">
+        <aside class="side">
+          <div class="side__brand">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="#0a1f44" />
+                <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.2" fill="none" stroke-linejoin="round" />
+                <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.2" fill="none" />
+              </svg>
+              <b style="font-size:13px;color:var(--ink)">NexaHaus Connect</b>
+            </div>
+          </div>
+          <nav class="side__nav">
+            <a href="#">Dashboard</a>
+            <a class="is-active" href="#">My Properties</a>
+            <a href="#">Rent &amp; Finance</a>
+            <a href="#">Maintenance</a>
+            <a href="#">Inspections</a>
+            <a href="#">Documents</a>
+            <a href="#">Approvals</a>
+            <a href="#">Messages</a>
+          </nav>
+          <div class="side__foot"><b>Kwesi Mensah</b><span>owner.demo@nexahaus.example</span></div>
+        </aside>
+
+        <div class="main">
+          <a class="back" href="#">&larr; All properties</a>
+          <div class="page-head">
+            <div>
+              <h1 style="display:flex;align-items:center;gap:12px">
+                Cantonments Apartment
+                <span class="pill pos"><i></i>Occupied</span>
+              </h1>
+              <p><span class="mono">NH-000001</span> &middot; Apartment &middot; Cantonments Apartment, Accra</p>
+            </div>
+          </div>
+
+          <dl class="diaspora">
+            <div>
+              <dt>Last inspected</dt>
+              <div class="big">3 September 2027</div>
+              <div class="sub">3 days ago</div>
+            </div>
+            <div>
+              <dt>Last rent received</dt>
+              <div class="big">1 September 2027</div>
+              <div class="sub">5 days ago</div>
+            </div>
+            <div>
+              <dt>Property health</dt>
+              <div class="big">91/100</div>
+              <div class="sub">scored 3 days ago</div>
+            </div>
+          </dl>
+
+          <div class="grid cols-4" style="margin-bottom:18px">
+            <div class="tile"><div class="tile__label">Occupancy</div><div class="tile__value num">100%</div><div class="tile__hint">4/4 units</div></div>
+            <div class="tile"><div class="tile__label">Expected rent (mo.)</div><div class="tile__value num">GHS&nbsp;8,000.00</div></div>
+            <div class="tile"><div class="tile__label">Collected (mo.)</div><div class="tile__value pos num">GHS&nbsp;8,000.00</div></div>
+            <div class="tile"><div class="tile__label">Outstanding</div><div class="tile__value num">GHS&nbsp;0.00</div></div>
+          </div>
+
+          <div class="grid cols-3">
+            <div class="card" style="grid-column:span 2">
+              <div class="card__title" style="margin-bottom:14px">Management</div>
+              <dl class="dl">
+                <div><dt>Managing client</dt><dd>Kwesi Mensah (<span class="mono">CL-000001</span>)</dd></div>
+                <div><dt>Management fee</dt><dd>10% of collected rent</dd></div>
+                <div><dt>Maintenance approval threshold</dt><dd class="num">GHS 1,500.00</dd></div>
+                <div><dt>Inspection frequency</dt><dd>Quarterly</dd></div>
+                <div><dt>Estimated value</dt><dd class="num">GHS 1,760,000.00</dd></div>
+                <div><dt>Agreement</dt><dd>Active &mdash; from 1 January 2027</dd></div>
+              </dl>
+              <div class="divider" style="margin:16px 0 12px"></div>
+              <div class="tile__label" style="margin-bottom:8px">NexaHaus team</div>
+              <div class="row"><span>Ama Boateng</span><span style="color:var(--ink-subtle)">Property Manager</span></div>
+            </div>
+
+            <div class="card">
+              <div class="card__title" style="margin-bottom:12px">Latest inspection</div>
+              <div style="font-weight:600;color:var(--ink)">Routine inspection</div>
+              <div style="font-size:12px;color:var(--ink-subtle)" class="mono">INS-000001</div>
+              <dl class="dl" style="grid-template-columns:1fr;margin-top:12px">
+                <div><dt>Completed</dt><dd>3 September 2027</dd></div>
+                <div><dt>Overall condition</dt><dd>Good</dd></div>
+              </dl>
+              <div class="divider" style="margin:14px 0 10px"></div>
+              <div class="row"><span>Open maintenance</span><b>1</b></div>
+              <div class="row"><span>Units</span><b>4</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ STAFF CONSOLE ===================== -->
+  <section class="screen" data-screen="admin" hidden>
+    <div class="screen__caption">
+      <h2>Staff console &mdash; Operations overview</h2>
+      <span>/admin/dashboard</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/admin/dashboard</span>
+      </div>
+      <div class="app">
+        <aside class="side side--admin">
+          <div class="side__brand">
+            <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="7" fill="#0a1f44" />
+              <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.4" fill="none" stroke-linejoin="round" />
+              <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.4" fill="none" />
+            </svg>
+            <div><b>NexaHaus</b><span>Staff console</span></div>
+          </div>
+          <nav class="side__nav">
+            <a class="is-active" href="#">Dashboard</a>
+            <a href="#">Clients</a>
+            <a href="#">Leads</a>
+            <a href="#">Properties</a>
+            <a href="#">Tenants</a>
+            <a href="#">Maintenance</a>
+            <a href="#">Inspections</a>
+            <a href="#">Payments</a>
+            <a href="#">Approvals</a>
+            <a href="#">Audit Logs</a>
+            <a href="#">Settings</a>
+          </nav>
+          <div class="side__foot"><b>Ama Boateng</b><span>SUPER_ADMIN, PROPERTY_MANAGER</span></div>
+        </aside>
+
+        <div class="main">
+          <div class="page-head">
+            <div>
+              <h1>Operations overview</h1>
+              <p>Portfolio-wide status for the NexaHaus team.</p>
+            </div>
+          </div>
+
+          <div class="stack" style="gap:8px;margin-bottom:20px">
+            <div class="alert crit"><small>URGENT</small> 1 urgent maintenance request</div>
+            <div class="alert warn"><small>ACTION</small> 1 owner approval awaiting a decision</div>
+            <div class="alert info"><small>WARNING</small> 3 rent charges overdue</div>
+          </div>
+
+          <div class="grid cols-4" style="margin-bottom:16px">
+            <div class="tile"><div class="tile__label">Properties managed</div><div class="tile__value num">5</div><div class="tile__hint">4 occupied &middot; 1 vacant</div></div>
+            <div class="tile"><div class="tile__label">Occupancy</div><div class="tile__value num">80%</div></div>
+            <div class="tile"><div class="tile__label">Collected this month</div><div class="tile__value pos num">GHS&nbsp;24,500.00</div><div class="tile__hint">86% of expected</div></div>
+            <div class="tile"><div class="tile__label">Outstanding rent</div><div class="tile__value warn num">GHS&nbsp;4,000.00</div></div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <div class="card__title" style="margin-bottom:14px">Operational load</div>
+            <div class="grid cols-5" style="gap:16px">
+              <div><div class="tile__label">Open maintenance</div><div class="tile__value num" style="font-size:19px">5</div></div>
+              <div><div class="tile__label">Urgent issues</div><div class="tile__value crit num" style="font-size:19px">1</div></div>
+              <div><div class="tile__label">Pending approvals</div><div class="tile__value warn num" style="font-size:19px">1</div></div>
+              <div><div class="tile__label">Inspections due</div><div class="tile__value num" style="font-size:19px">2</div></div>
+              <div><div class="tile__label">Overdue charges</div><div class="tile__value crit num" style="font-size:19px">3</div></div>
+            </div>
+          </div>
+
+          <div class="grid cols-2" style="max-width:420px">
+            <div class="tile"><div class="tile__label">Active clients</div><div class="tile__value num">1</div></div>
+            <div class="tile"><div class="tile__label">New leads (30d)</div><div class="tile__value num">0</div></div>
+          </div>
+
+          <div class="card" style="margin-top:16px;padding:0;overflow:hidden">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--line)" class="card__title">Clients</div>
+            <div style="overflow-x:auto">
+              <table class="table">
+                <thead>
+                  <tr><th>Client</th><th>Segment</th><th>Package</th><th>Properties</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div style="font-weight:600">Kwesi Mensah</div>
+                      <div class="muted mono">CL-000001 &middot; owner.demo@nexahaus.example</div>
+                    </td>
+                    <td style="color:var(--ink-muted)">Diaspora</td>
+                    <td style="color:var(--ink-muted)">Premium</td>
+                    <td class="num">5</td>
+                    <td><span class="pill pos"><i></i>Active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ MOBILE ============================ -->
+  <section class="screen" data-screen="mobile" hidden>
+    <div class="screen__caption">
+      <h2>Mobile owner app &mdash; Home</h2>
+      <span>apps/mobile &middot; Expo</span>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone__status"></div>
+        <div class="phone__body">
+          <div class="phone__h">Good day, Kwesi</div>
+          <div class="phone__sub">Here is where your portfolio stands today.</div>
+          <div class="grid cols-2">
+            <div class="tile"><div class="tile__label">Properties</div><div class="tile__value num">5</div></div>
+            <div class="tile"><div class="tile__label">Occupancy</div><div class="tile__value num">80%</div></div>
+            <div class="tile"><div class="tile__label">Collected</div><div class="tile__value num">GHS&nbsp;24,500.00</div></div>
+            <div class="tile"><div class="tile__label">Outstanding</div><div class="tile__value warn num">GHS&nbsp;4,000.00</div></div>
+          </div>
+          <div class="card" style="margin-top:14px;padding:14px">
+            <div class="card__title" style="margin-bottom:8px">Needs attention</div>
+            <div class="row"><span>Open maintenance</span><b>5</b></div>
+            <div class="row"><span>Urgent</span><b style="color:var(--critical)">1</b></div>
+            <div class="row"><span>Pending approvals</span><b style="color:var(--warning)">1</b></div>
+            <div class="row"><span>Inspections due</span><b>2</b></div>
+          </div>
+          <div class="card" style="margin-top:12px;padding:14px">
+            <div class="card__title" style="margin-bottom:6px">Portfolio health</div>
+            <div style="font-size:26px;font-weight:700;color:var(--ink)" class="num">81 / 100</div>
+          </div>
+        </div>
+        <div class="phone__tabbar">
+          <span class="is-active">Home</span><span>Properties</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ SIGN IN ========================== -->
+  <section class="screen" data-screen="signin" hidden>
+    <div class="screen__caption">
+      <h2>Sign in</h2>
+      <span>/login &middot; shared by owner &amp; staff</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/login</span>
+      </div>
+      <div class="signin">
+        <div class="signin__hero">
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="7" fill="#0a1f44" />
+              <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.2" fill="none" stroke-linejoin="round" />
+              <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.2" fill="none" />
+            </svg>
+            <b style="color:#fff">NexaHaus Connect</b>
+          </div>
+          <div>
+            <h1>Know exactly what is happening with your property &mdash; wherever you are.</h1>
+            <p>
+              Status, tenants, rent, maintenance, inspections, documents and performance
+              for every property in your portfolio, in one secure place.
+            </p>
+          </div>
+          <div class="foot">NexaHaus Properties &amp; Asset Management Ltd. &middot; Accra</div>
+        </div>
+        <div class="signin__panel">
+          <h2>Sign in</h2>
+          <p>Use the email or phone number registered with NexaHaus.</p>
+          <div class="field">
+            <label>Email or phone</label>
+            <div class="input">owner.demo@nexahaus.example</div>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="input">••••••••••••••••</div>
+          </div>
+          <div class="btn">Sign in</div>
+          <p class="hint">Trouble signing in? Contact your NexaHaus property manager.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+    var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+    function show(target) {
+      tabs.forEach(function (t) {
+        t.setAttribute("aria-selected", String(t.dataset.target === target));
+      });
+      screens.forEach(function (s) {
+        s.hidden = s.dataset.screen !== target;
+      });
+    }
+    tabs.forEach(function (t) {
+      t.addEventListener("click", function () {
+        show(t.dataset.target);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    var root = document.documentElement;
+    var toggle = document.getElementById("themeToggle");
+    toggle.addEventListener("click", function () {
+      var current =
+        root.getAttribute("data-theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      root.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+    });
+  })();
+</script>
