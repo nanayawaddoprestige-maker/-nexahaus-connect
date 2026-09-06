@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import type { Request, Response } from "express";
+import * as Sentry from "@sentry/node";
 import { ApiErrorCode, type ErrorResponse } from "@nexahaus/types";
 import { AppError } from "./app-error";
 
@@ -58,6 +59,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         { requestId, err: exception, path: req.url, method: req.method },
         "Unhandled error",
       );
+      // No-op unless Sentry.init() ran (SENTRY_DSN set). The body/headers are
+      // never attached here — only the correlation id and coarse route.
+      Sentry.captureException(exception, {
+        tags: { requestId, http_status: String(status) },
+        extra: { method: req.method, path: req.url },
+      });
     } else {
       this.logger.warn({ requestId, code: body.code, path: req.url }, body.message);
     }

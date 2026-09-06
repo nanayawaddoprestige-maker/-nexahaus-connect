@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "./instrumentation";
 import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 import { loadConfig } from "@nexahaus/config";

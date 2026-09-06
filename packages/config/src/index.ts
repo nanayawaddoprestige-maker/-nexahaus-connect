@@ -48,7 +48,13 @@ export interface AppConfig {
     callbackUrl: string;
   };
   analytics: { provider: string; apiKey: string; host: string };
-  monitoring: { sentryDsn: string; otelEndpoint: string };
+  monitoring: {
+    sentryDsn: string;
+    sentryTracesSampleRate: number;
+    otelEndpoint: string;
+    otelServiceName: string;
+    release: string;
+  };
   demo: { seed: boolean; ownerEmail: string; adminEmail: string; password: string };
 }
 
@@ -158,7 +164,13 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
       apiKey: e.ANALYTICS_API_KEY,
       host: e.ANALYTICS_HOST ?? "",
     },
-    monitoring: { sentryDsn: e.SENTRY_DSN, otelEndpoint: e.OTEL_EXPORTER_OTLP_ENDPOINT },
+    monitoring: {
+      sentryDsn: e.SENTRY_DSN,
+      sentryTracesSampleRate: e.SENTRY_TRACES_SAMPLE_RATE,
+      otelEndpoint: e.OTEL_EXPORTER_OTLP_ENDPOINT,
+      otelServiceName: e.OTEL_SERVICE_NAME,
+      release: e.APP_RELEASE,
+    },
     demo: {
       seed: e.SEED_DEMO_DATA,
       ownerEmail: e.DEMO_OWNER_EMAIL,

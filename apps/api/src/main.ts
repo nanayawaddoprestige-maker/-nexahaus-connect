@@ -1,4 +1,7 @@
 import "reflect-metadata";
+// Must load before @nestjs/core and any db/redis client so OpenTelemetry can
+// patch http/express/pg/ioredis. Inert unless SENTRY_DSN / OTEL endpoint is set.
+import "./instrumentation";
 import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 import helmet from "helmet";

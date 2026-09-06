@@ -10,6 +10,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { RedisModule } from "./redis/redis.module";
 import { AuditModule } from "./audit/audit.module";
 import { CommonModule } from "./common/common.module";
+import { TelemetryModule } from "./common/observability/telemetry.module";
 import { HealthModule } from "./health/health.module";
 import { AuthzModule } from "./modules/authz/authz.module";
 import { AuthGuard } from "./modules/authz/auth.guard";
@@ -93,6 +94,7 @@ const config = loadConfig();
     RedisModule,
     AuditModule,
     CommonModule,
+    TelemetryModule,
     StorageModule,
     EventsModule,
     QueueModule,

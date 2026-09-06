@@ -97,8 +97,13 @@ export const envSchema = z.object({
   ANALYTICS_API_KEY: z.string().optional().default(""),
   ANALYTICS_HOST: z.string().url().optional().or(z.literal("")),
 
+  // Observability. Both stacks are strictly opt-in: with neither SENTRY_DSN nor
+  // OTEL_EXPORTER_OTLP_ENDPOINT set, apps/api/src/instrumentation.ts is inert.
   SENTRY_DSN: z.string().optional().default(""),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional().default(""),
+  OTEL_SERVICE_NAME: nonEmpty.default("nexahaus-api"),
+  APP_RELEASE: z.string().optional().default(""),
 
   SEED_DEMO_DATA: bool.default("false"),
   DEMO_OWNER_EMAIL: z.string().email().default("owner.demo@nexahaus.example"),
