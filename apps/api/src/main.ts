@@ -1,7 +1,4 @@
 import "reflect-metadata";
-// Must load before @nestjs/core and any db/redis client so OpenTelemetry can
-// patch http/express/pg/ioredis. Inert unless SENTRY_DSN / OTEL endpoint is set.
-import "./instrumentation";
 import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 import helmet from "helmet";
@@ -10,9 +7,12 @@ import { loadConfig } from "@nexahaus/config";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/http-exception.filter";
 import { ResponseInterceptor } from "./common/response.interceptor";
+import { startTelemetry } from "./instrumentation";
 
 async function bootstrap(): Promise<void> {
   const config = loadConfig();
+  // Before Nest / any DB or Redis client, so OpenTelemetry can patch them.
+  await startTelemetry();
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,

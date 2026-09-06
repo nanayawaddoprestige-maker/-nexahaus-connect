@@ -1,94 +1,105 @@
 /**
  * Observability bootstrap — Sentry (errors + perf) and OpenTelemetry (traces).
  *
- * This module MUST be the first application import in main.ts / worker.ts, ahead
- * of `@nestjs/core` and any database/redis client, so OpenTelemetry can patch
- * `http`, `express`, `pg` and `ioredis` before they are required.
+ * `startTelemetry()` is awaited at the very top of bootstrap() in main.ts /
+ * worker.ts, before Nest and any DB/Redis client are created, so OpenTelemetry
+ * auto-instrumentation can patch `http`, `express`, `pg` and `ioredis`.
  *
- * Both stacks are strictly opt-in and add zero overhead when unconfigured:
- *   - Sentry starts only when SENTRY_DSN is set.
- *   - OpenTelemetry starts only when OTEL_EXPORTER_OTLP_ENDPOINT is set.
+ * Both stacks are strictly opt-in and add zero cost when unconfigured:
+ *   - Sentry loads + starts only when SENTRY_DSN is set.
+ *   - OpenTelemetry loads + starts only when OTEL_EXPORTER_OTLP_ENDPOINT is set.
+ * The heavy SDKs are imported dynamically so a process (or a test run) that
+ * doesn't use them never pulls them in.
  *
  * Privacy (docs/COMPLIANCE.md — Data Protection Act 843): request bodies,
- * cookies and auth headers are stripped from every event before it leaves the
- * process; `sendDefaultPii` is off.
+ * cookies, query strings and all headers except user-agent are stripped from
+ * every event before it leaves the process; `sendDefaultPii` is off.
  */
-import * as Sentry from "@sentry/node";
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import {
-  ATTR_SERVICE_NAME,
-  ATTR_SERVICE_VERSION,
-} from "@opentelemetry/semantic-conventions";
 import { loadConfig } from "@nexahaus/config";
 
-const config = loadConfig();
-const release = config.monitoring.release || undefined;
+type SentryLike = {
+  captureException: (e: unknown, hint?: unknown) => void;
+  close: (timeoutMs?: number) => Promise<boolean>;
+};
 
-let otelSdk: NodeSDK | undefined;
+let sentry: SentryLike | undefined;
+let otelSdk: { shutdown: () => Promise<void> } | undefined;
 let started = false;
 
-export function startTelemetry(): void {
+export async function startTelemetry(): Promise<void> {
   if (started) return;
   started = true;
+  const config = loadConfig();
+  const release = config.monitoring.release || undefined;
 
   if (config.monitoring.sentryDsn) {
+    const Sentry = (await import("@sentry/node")) as unknown as SentryLike & {
+      init: (o: Record<string, unknown>) => void;
+    };
     Sentry.init({
       dsn: config.monitoring.sentryDsn,
       environment: config.env,
       release,
       tracesSampleRate: config.monitoring.sentryTracesSampleRate,
       sendDefaultPii: false,
-      beforeSend(event) {
-        if (event.request) {
-          delete event.request.data;
-          delete event.request.cookies;
-          const ua = event.request.headers?.["user-agent"];
-          event.request.headers = ua ? { "user-agent": ua } : undefined;
-          if (event.request.query_string) delete event.request.query_string;
+      beforeSend(event: unknown) {
+        const e = event as { request?: Record<string, unknown> };
+        const req = e.request;
+        if (req) {
+          delete req.data;
+          delete req.cookies;
+          delete req.query_string;
+          const headers = req.headers as Record<string, string> | undefined;
+          const ua = headers?.["user-agent"];
+          req.headers = ua ? { "user-agent": ua } : undefined;
         }
         return event;
       },
     });
+    sentry = Sentry;
   }
 
   if (config.monitoring.otelEndpoint) {
-    otelSdk = new NodeSDK({
-      resource: resourceFromAttributes({
-        [ATTR_SERVICE_NAME]: config.monitoring.otelServiceName,
-        [ATTR_SERVICE_VERSION]: release ?? "0.0.0",
+    const [{ NodeSDK }, { OTLPTraceExporter }, { getNodeAutoInstrumentations }, resources, sc] =
+      await Promise.all([
+        import("@opentelemetry/sdk-node"),
+        import("@opentelemetry/exporter-trace-otlp-http"),
+        import("@opentelemetry/auto-instrumentations-node"),
+        import("@opentelemetry/resources"),
+        import("@opentelemetry/semantic-conventions"),
+      ]);
+    const sdk = new NodeSDK({
+      resource: resources.resourceFromAttributes({
+        [sc.ATTR_SERVICE_NAME]: config.monitoring.otelServiceName,
+        [sc.ATTR_SERVICE_VERSION]: release ?? "0.0.0",
         "deployment.environment": config.env,
       }),
       traceExporter: new OTLPTraceExporter({
         url: `${config.monitoring.otelEndpoint.replace(/\/$/, "")}/v1/traces`,
       }),
       instrumentations: [
-        getNodeAutoInstrumentations({
-          // Noisy and low-signal for a web service.
-          "@opentelemetry/instrumentation-fs": { enabled: false },
-        }),
+        getNodeAutoInstrumentations({ "@opentelemetry/instrumentation-fs": { enabled: false } }),
       ],
     });
-    otelSdk.start();
+    sdk.start();
+    otelSdk = sdk;
   }
+}
+
+/** No-op until Sentry has been initialised. Safe to call from anywhere. */
+export function captureException(err: unknown, hint?: unknown): void {
+  sentry?.captureException(err, hint);
 }
 
 export async function stopTelemetry(): Promise<void> {
   try {
     await otelSdk?.shutdown();
   } catch {
-    /* shutting down — best effort */
+    /* best effort on shutdown */
   }
   try {
-    await Sentry.close(2_000);
+    await sentry?.close(2_000);
   } catch {
     /* best effort */
   }
 }
-
-// Self-start on import so instrumentation is in place before Nest boots.
-startTelemetry();
-
-export { Sentry };

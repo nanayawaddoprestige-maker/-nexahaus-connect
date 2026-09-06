@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import "./instrumentation";
 import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 import { loadConfig } from "@nexahaus/config";
 import { AppModule } from "./app.module";
+import { startTelemetry } from "./instrumentation";
 
 /**
  * Background worker entrypoint. Runs the same DI container as the API but starts
@@ -16,6 +16,7 @@ import { AppModule } from "./app.module";
  */
 async function bootstrapWorker(): Promise<void> {
   const config = loadConfig();
+  await startTelemetry();
   const app = await NestFactory.createApplicationContext(AppModule, {
     bufferLogs: true,
   });
