@@ -13,6 +13,7 @@ async function bootstrap(): Promise<void> {
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    rawBody: true, // payment webhook verifies the signature over the raw bytes
     cors: {
       origin: [config.urls.app],
       credentials: true,
