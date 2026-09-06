@@ -259,9 +259,27 @@ components).
       lead + consent; repeat email updates, no duplicate; consultation raises the score;
       convert → `ONBOARDING` client + consent carried + second convert is 409.
 
-### Phase 8 — Tenant portal
-- Tenant dashboard, lease, rent & receipts, maintenance reporting, messaging,
-  documents. Strict isolation from owner financials.
+### Phase 8 — Tenant portal  ✅ _complete_
+- [x] **API** (`/tenant/*`, gated by `tenant:self:*`, bound to the caller's own
+      `tenantId`): `me` (profile + current tenancy — no owner figures), `lease` (terms,
+      deposit, co-tenants, lease doc), `rent` (per-period paid/outstanding + summary +
+      payment instructions — **no management fee, no owner aggregates**), `payments`
+      (own history), `documents` (TENANT/LEASE-scoped CLEAN docs only).
+- [x] Maintenance list for a tenant now also includes requests on their leased unit(s).
+- [x] Seed: first demo tenant linked to `tenant.demo@nexahaus.example`;
+      `tenant.paymentInstructions` setting.
+- [x] **Web** (`app/tenant/`): role-gated shell; home, lease, rent (schedule + how-to-pay
+      + history), maintenance (list + inline "Report an issue"), documents, messages,
+      notifications. Shared `<MessagesView>` (owner `/messages` now uses it too).
+- [x] Tests: **`tenant-portal.e2e-spec`** (release-blocking) — `/tenant/rent` contains
+      **no** owner-level key (`managementFee`, `netOwner`, `grossRental`, `distribution`,
+      `closingBalance`, …) and only this tenant's 600,000 charges (never the co-tenant's
+      700,000); `/tenant/payments` is own-only; a tenant gets **403** on
+      `/dashboard/owner`, `/admin/overview`, `/statements` and **403/404** on
+      `/clients/:id` and `/properties/:id/financials`; a tenant can report + list
+      maintenance; the owner's own view is unaffected.
+
+**Phase 8 complete.**
 
 ### Phase 9 — Advanced integrations
 - Live Mobile Money / bank payment workflows, WhatsApp inbound, push at scale,
