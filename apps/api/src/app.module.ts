@@ -22,6 +22,8 @@ import { ClientsModule } from "./modules/clients/clients.module";
 import { UnitsModule } from "./modules/units/units.module";
 import { TenantsModule } from "./modules/tenants/tenants.module";
 import { LeasesModule } from "./modules/leases/leases.module";
+import { StorageModule } from "./modules/storage/storage.module";
+import { DocumentsModule } from "./modules/documents/documents.module";
 
 const config = loadConfig();
 
@@ -60,6 +62,7 @@ const config = loadConfig();
     RedisModule,
     AuditModule,
     CommonModule,
+    StorageModule,
     AuthzModule,
     HealthModule,
     AuthModule,
@@ -68,6 +71,7 @@ const config = loadConfig();
     UnitsModule,
     TenantsModule,
     LeasesModule,
+    DocumentsModule,
     DashboardModule,
     AdminModule,
   ],

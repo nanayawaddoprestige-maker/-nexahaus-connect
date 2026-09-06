@@ -4,3 +4,6 @@ export * from "./property.js";
 export * from "./client.js";
 export * from "./tenant.js";
 export * from "./lease.js";
+export * from "./document.js";
+export * from "./maintenance.js";
+export * from "./inspection.js";
