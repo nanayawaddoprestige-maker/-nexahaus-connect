@@ -8,7 +8,7 @@ import type { NotificationItem } from "@/lib/collab-resources";
 import { relativeDays } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export function NotificationBell() {
+export function NotificationBell({ viewAllHref = "/notifications" }: { viewAllHref?: string }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -112,7 +112,7 @@ export function NotificationBell() {
             )}
           </div>
           <Link
-            href="/notifications"
+            href={viewAllHref}
             onClick={() => setOpen(false)}
             className="block border-t border-line px-4 py-2.5 text-center text-sm font-medium text-navy-700 hover:bg-surface-sunken"
           >
