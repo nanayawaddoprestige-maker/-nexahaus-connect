@@ -211,10 +211,27 @@ components).
       visible only to participants (Owner B → 404, no leak)**; reply → `MESSAGE_RECEIVED`
       notifies the other participant.
 
-### Phase 6 — Intelligence
-- Property Health Score (configurable weights, historical, explainable),
-  Property Rescue (assessment + recommendations + PDF), Owner & Management reports
-  (filters, date ranges, CSV/PDF export), Asset performance metrics.
+### Phase 6 — Intelligence  ✅ _complete_
+- [x] **Property Health Score**: pure weighted-sum engine (unit-tested to §11); admin
+      GET/PUT `/property-health/config` (versioned, must sum to 1); recompute gathers 8
+      factors from live data, stores an **explainable** score (each component carries
+      `basis` + `confidence` actual/estimate/assumption), emits `HEALTH_SCORE_UPDATED`;
+      latest + history + recompute-all.
+- [x] **Property Rescue**: deeper analysis (vacancy, rent vs recorded market, collection,
+      revenue leakage, maintenance backlog + age, condition, documents) → overall score,
+      findings by severity, ranked recommendations from the §12 action set, branded PDF,
+      `PROPERTY_RESCUE_READY` event; recommendation status tracking.
+- [x] **Reports**: `GET /reports/owner/:kind` (7 kinds, scoped, `?period=`/`?propertyId=`/
+      `?format=csv`), `GET /reports/management/:kind` (4 kinds, scope-exempt).
+      **Asset performance** labels actual vs estimate vs manually-entered valuation (§31).
+- [x] Web: `/property-health` (per-property component bars + basis + recommendations),
+      `/property-rescue` (score ring, findings, recommendation status toggle, PDF),
+      `/reports` (kind/period picker, table, CSV download); `ScoreRing` component; owner
+      nav updated.
+- [x] Tests: `health-score.util` (unit); `property-health.e2e-spec` — explainable score,
+      `HEALTH_SCORE_UPDATED` event, **config-weight change moves the score + bumps the
+      methodology version**, Rescue produces findings + recommendations + a downloadable
+      CLEAN PDF.
 
 ### Phase 7 — Growth
 - CRM (leads, activities, lead scoring/grades), Property Owner Survey (configurable),
