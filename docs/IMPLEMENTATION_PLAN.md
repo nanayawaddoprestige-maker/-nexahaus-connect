@@ -44,15 +44,19 @@ A feature is done only when **all** of the following exist:
   _Not runtime-verified — `pnpm install` / `tsc` cannot run until the toolchain (B1) is installed._
 
 ### Phase 1 — Foundation  _in progress_
-- [ ] `apps/api` NestJS bootstrap: config module, structured logging (pino), global
-      exception filter, response-envelope interceptor, health/ready endpoints, Swagger
-- [ ] Prisma schema for **identity, access, org/client, property, unit** domains
-      (full model already specified in [DATABASE.md](DATABASE.md))
-- [ ] Auth: register, verify email/phone (OTP), login, refresh-token rotation, logout,
-      session/device list & revoke, optional TOTP 2FA. Argon2id hashing.
-- [ ] RBAC engine: roles, permissions, `@RequirePermission`, resource-scope guard
-      (client assignment + property assignment), tenant-isolation query layer
-- [ ] AuditLog service (append-only) + interceptor
+- [x] `apps/api` NestJS bootstrap: config module, structured logging (pino) with secret
+      redaction, global exception filter (standard envelope), response-envelope
+      interceptor, `/health` + `/ready`, Swagger (non-prod), global throttler
+- [x] Prisma schema — **full model, all 14 domains** (`apps/api/prisma/schema.prisma`)
+- [x] Auth: register, verify email/phone (OTP), login (with lockout + timing-safe
+      failure), refresh-token **rotation with chain revocation on reuse**, logout,
+      logout-all, session list & revoke, TOTP 2FA setup/enable, password forgot/reset
+      (session-invalidating). Argon2id hashing.
+- [x] RBAC: `AuthGuard` → `PermissionGuard` (`@RequirePermission`) → `ResourceScopeGuard`
+      (`@ScopedResource` + `ScopeResolverService`), `AuthUserService` (Redis-cached scope
+      resolution from `ClientUser` / `PropertyAssignment` — never from request input)
+- [x] `AuditService` (append-only) wired into auth flows
+- [x] Unit tests: `Money` (add/subtract/percentage/allocate/format/JSON, no-drift), `PermissionGuard`
 - [ ] `packages/types`, `packages/validation`, `packages/config`
 - [ ] `apps/web` Next.js bootstrap: design tokens (navy/gold), base component library,
       auth pages, protected layout, TanStack Query + API client

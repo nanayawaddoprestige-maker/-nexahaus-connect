@@ -68,6 +68,7 @@ model User {
   tasksAssigned         Task[]                 @relation("TaskAssignee")
   accountManagedClients Client[]               @relation("ClientAccountManager")
   ownedLeads            Lead[]                 @relation("LeadOwner")
+  tenantProfile         Tenant?                @relation("TenantLoginUser")
 
   @@index([status])
   @@map("users")
@@ -737,6 +738,7 @@ enum TenantStatus {
 model Tenant {
   id                    String       @id @default(uuid(7))
   ref                   String       @unique
+  userId                String?      @unique
   fullName              String
   phone                 String
   email                 String?
@@ -750,6 +752,7 @@ model Tenant {
   updatedAt             DateTime     @updatedAt
   deletedAt             DateTime?
 
+  loginUser           User?        @relation("TenantLoginUser", fields: [userId], references: [id], onDelete: SetNull)
   leaseParties        LeaseParty[]
   payments            Payment[]
   transactions        Transaction[]

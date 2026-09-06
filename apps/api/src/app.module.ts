@@ -9,6 +9,11 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { RedisModule } from "./redis/redis.module";
 import { AuditModule } from "./audit/audit.module";
 import { HealthModule } from "./health/health.module";
+import { AuthzModule } from "./modules/authz/authz.module";
+import { AuthGuard } from "./modules/authz/auth.guard";
+import { PermissionGuard } from "./modules/authz/permission.guard";
+import { ResourceScopeGuard } from "./modules/authz/resource-scope.guard";
+import { AuthModule } from "./modules/auth/auth.module";
 
 const config = loadConfig();
 
@@ -23,9 +28,9 @@ const config = loadConfig();
           paths: [
             "req.headers.authorization",
             "req.headers.cookie",
-            'req.body.password',
-            'req.body.mfaCode',
-            'req.body.code',
+            "req.body.password",
+            "req.body.mfaCode",
+            "req.body.code",
             'res.headers["set-cookie"]',
           ],
           remove: true,
@@ -46,8 +51,16 @@ const config = loadConfig();
     PrismaModule,
     RedisModule,
     AuditModule,
+    AuthzModule,
     HealthModule,
+    AuthModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    // Order matters: rate-limit, then authenticate, then permission, then scope.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useExisting: AuthGuard },
+    { provide: APP_GUARD, useExisting: PermissionGuard },
+    { provide: APP_GUARD, useExisting: ResourceScopeGuard },
+  ],
 })
 export class AppModule {}
