@@ -187,9 +187,10 @@ components).
 
 ### Phase 5 — Collaboration  ✅ _complete_
 - [x] **Outbox worker**: `OutboxService` `@Interval(5s)` drains unprocessed `DomainEvent`
-      rows → `NotificationEventHandler`; marks `processedAt`, bumps `attempts`/`lastError`
-      on failure, stops at 5 attempts. In-process (BullMQ in Phase 10); `DISABLE_SCHEDULERS`
-      gate for multi-instance.
+      rows; marks `processedAt`. `DISABLE_SCHEDULERS` gate for multi-instance.
+      _(Phase 10: the relay now publishes to a BullMQ `domain-event` queue consumed by the
+      dedicated worker via `EventConsumer`; `drainForTests()` keeps the synchronous path
+      for e2e.)_
 - [x] **Notification engine**: `Email/Sms/WhatsApp/Push` adapter interfaces (console/noop
       impls); `NotificationsService.notify()` always writes the in-app row unless the
       user disabled in-app for that type, then dispatches other channels per
@@ -311,9 +312,53 @@ components).
 
 **Phase 9 complete.**
 
-### Phase 10 — Production hardening
-- Load/performance passes, security review & pen-test checklist, backup/DR drills,
-  observability (Sentry + OTel dashboards), CI/CD to staging + production, runbooks.
+### Phase 10 — Production hardening  ✅ _complete_
+
+- **Dedicated background worker.** `apps/api/src/modules/queue/` — `QueueService`
+  (BullMQ producer, one `Queue` per name, bulk enqueue) + `EventConsumer` (BullMQ
+  `Worker` on the `domain-event` queue, concurrency 8, BullMQ retry/backoff; a job that
+  exhausts its attempts writes `DomainEvent.lastError`). The consumer is created only
+  when `WORKER_ENABLED`. `OutboxService` is now a relay: its `@Interval` poller claims a
+  batch of unprocessed `DomainEvent` rows, publishes them to the queue and marks
+  `processedAt`; gated by `DISABLE_SCHEDULERS`. `drainForTests()` dispatches synchronously
+  in-process for e2e. `apps/api/src/worker.ts` boots an application context (no HTTP) and
+  documents the prod topology (API: `WORKER_ENABLED=false` + `DISABLE_SCHEDULERS=true`;
+  worker: defaults). New env: `WORKER_ENABLED`, `DISABLE_SCHEDULERS`, `QUEUE_PREFIX`.
+- **Auth rate-limit bucket.** A named `auth` `ThrottlerModule` bucket (`AUTH_RATE_LIMIT_MAX`)
+  applied to the whole `AuthController` via `@Throttle({ auth: {} })`.
+- **Observability.** `apps/api/src/instrumentation.ts` — `startTelemetry()` awaited at the
+  top of `bootstrap()`/`bootstrapWorker()`. Sentry and OpenTelemetry SDKs are imported
+  **dynamically** and start only when `SENTRY_DSN` / `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+  `beforeSend` strips request body, cookies, query string and every header except
+  user-agent; `sendDefaultPii` off. `TelemetryModule` (global) flushes both on shutdown.
+  `HttpExceptionFilter` reports 5xx to Sentry with only the correlation id + coarse route.
+  New env: `SENTRY_TRACES_SAMPLE_RATE`, `OTEL_SERVICE_NAME`, `APP_RELEASE`.
+- **CI/CD.** `.github/workflows/ci.yml` — `static` (lint · typecheck · format · `prisma
+  validate` · `pnpm audit --prod`) → `test` (unit with coverage gates + seed + e2e incl.
+  the release-blocking isolation / tenant-portal / vendor-portal / statement-reproduction /
+  payment-webhook suites, against ephemeral Postgres + Redis) → `build` (all apps + both
+  Docker images).
+- **Containers.** Multi-stage `apps/api/Dockerfile` (non-root; one image runs API and
+  worker via a command override; `HEALTHCHECK` → `/health`) and `apps/web/Dockerfile`
+  (Next.js `standalone`, non-root). `prisma` moved to `@nexahaus/api` runtime deps so the
+  image runs `migrate deploy`. `docker-compose.prod.yml` — postgres/redis + one-shot
+  `migrate` gate + api + worker + web. Shared packages (`config`/`types`/`validation`) now
+  emit a CJS `dist` with dual `main`(dist)/`types`(src) + `exports` conditions, so
+  `node dist/main.js` resolves them as compiled JS; jest maps them to `src`, web dev keeps
+  resolving them from source.
+- **Hardening.** Production Helmet CSP locked to `default-src 'none'` (+ `frame-ancestors`,
+  `base-uri`, `form-action` none), HSTS preload, `no-referrer`, same-site CORP.
+- **Docs.** `SECURITY_CHECKLIST.md` (release gate — every row mapped to enforcing code +
+  the automated test that proves it, plus a per-release manual pen-test pass),
+  `runbooks/` (deploy · incident-response · disaster-recovery · backup-restore incl. the
+  quarterly drill · on-call), `PERFORMANCE.md` (SLOs, launch load model, scale design,
+  regression playbook), `scripts/backup.sh` + `scripts/restore.sh` (encrypted `pg_dump`
+  snapshot + guarded PITR restore with post-restore verification).
+
+**Phase 10 complete.** Remaining before a real deploy (needs Node/Docker on a machine,
+tracked as B1): run `pnpm install` once and commit `pnpm-lock.yaml`; create the initial
+Prisma migration (`prisma migrate dev --name init`); stand up staging and wire the
+image-push + deploy jobs to it; run the first load/soak pass and the first restore drill.
 
 ## 4. Current blockers
 
