@@ -24,10 +24,26 @@ async function bootstrap(): Promise<void> {
   });
 
   app.useLogger(app.get(Logger));
+  // The API returns JSON only; in production it renders no HTML at all (Swagger
+  // is dev-only), so lock the CSP right down. Dev keeps CSP off so Swagger UI
+  // can load its assets.
   app.use(
     helmet({
-      contentSecurityPolicy: config.isProduction ? undefined : false,
+      contentSecurityPolicy: config.isProduction
+        ? {
+            useDefaults: false,
+            directives: {
+              "default-src": ["'none'"],
+              "frame-ancestors": ["'none'"],
+              "base-uri": ["'none'"],
+              "form-action": ["'none'"],
+            },
+          }
+        : false,
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: "same-site" },
+      referrerPolicy: { policy: "no-referrer" },
+      hsts: { maxAge: 63_072_000, includeSubDomains: true, preload: true },
     }),
   );
   app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });

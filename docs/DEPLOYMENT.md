@@ -73,8 +73,18 @@ locally.
 
 ## 5. Containers
 
-Each app ships a multi-stage `Dockerfile` (deps → build → slim runtime, non-root user).
-Images tagged with the git SHA. `worker` reuses the api image with a different entrypoint.
+Each app ships a multi-stage `Dockerfile` (deps → build → slim runtime, non-root user):
+[`apps/api/Dockerfile`](../apps/api/Dockerfile), [`apps/web/Dockerfile`](../apps/web/Dockerfile)
+(Next.js `standalone` output). Images are tagged with the git SHA. `worker` reuses the api
+image with `command: ["node", "dist/worker.js"]`. A single-host reference stack is in
+[`docker-compose.prod.yml`](../docker-compose.prod.yml). `prisma` is a runtime dependency
+of `@nexahaus/api` so the image can run `prisma migrate deploy`.
+
+**One-time bootstrap:** the repo has no `pnpm-lock.yaml` yet (no Node on the build machine
+at authoring time). Run `pnpm install` once with Node 20 + pnpm 9 and commit the generated
+lockfile; CI and the Docker builds use `--frozen-lockfile`. Likewise run
+`pnpm --filter @nexahaus/api prisma migrate dev --name init` once to create the initial
+migration under `apps/api/prisma/migrations/` — `migrate deploy` needs it.
 
 ## 6. CI/CD pipeline
 
@@ -83,8 +93,10 @@ Images tagged with the git SHA. `worker` reuses the api image with a different e
 3. **test** — unit + integration (ephemeral Postgres + Redis services); coverage gates
    for `finance`, `authz`, `health-score` modules.
 4. **build** — `pnpm build` for all apps; build Docker images.
-5. **e2e** — Playwright against a compose stack with seeded data (incl. the cross-tenant
-   isolation suite).
+5. **e2e** — `pnpm --filter @nexahaus/api test:e2e` (Jest + supertest) against ephemeral
+   Postgres + Redis with the seed applied, incl. the release-blocking cross-tenant
+   isolation, tenant-portal, vendor-portal, statement-reproduction and payment-webhook
+   suites. Implemented in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
 6. **deploy staging** — on `main`: `migrate deploy` → rolling deploy → smoke tests.
 7. **deploy production** — on tagged release with manual approval: DB snapshot →
    `migrate deploy` → rolling deploy → smoke tests → notify.
