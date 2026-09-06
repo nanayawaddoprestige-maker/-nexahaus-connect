@@ -8,12 +8,15 @@ import { ConfigModule } from "./config/config.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { RedisModule } from "./redis/redis.module";
 import { AuditModule } from "./audit/audit.module";
+import { CommonModule } from "./common/common.module";
 import { HealthModule } from "./health/health.module";
 import { AuthzModule } from "./modules/authz/authz.module";
 import { AuthGuard } from "./modules/authz/auth.guard";
 import { PermissionGuard } from "./modules/authz/permission.guard";
 import { ResourceScopeGuard } from "./modules/authz/resource-scope.guard";
 import { AuthModule } from "./modules/auth/auth.module";
+import { PropertiesModule } from "./modules/properties/properties.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
 
 const config = loadConfig();
 
@@ -51,9 +54,12 @@ const config = loadConfig();
     PrismaModule,
     RedisModule,
     AuditModule,
+    CommonModule,
     AuthzModule,
     HealthModule,
     AuthModule,
+    PropertiesModule,
+    DashboardModule,
   ],
   providers: [
     // Order matters: rate-limit, then authenticate, then permission, then scope.

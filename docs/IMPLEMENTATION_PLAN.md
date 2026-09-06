@@ -57,12 +57,22 @@ A feature is done only when **all** of the following exist:
       resolution from `ClientUser` / `PropertyAssignment` — never from request input)
 - [x] `AuditService` (append-only) wired into auth flows
 - [x] Unit tests: `Money` (add/subtract/percentage/allocate/format/JSON, no-drift), `PermissionGuard`
-- [ ] `packages/types`, `packages/validation`, `packages/config`
+- [x] `packages/types`, `packages/validation`, `packages/config`
+- [x] API vertical slice (server side): `RefService` (sequence-based `NH-000001`),
+      pagination/scope helpers, `properties` module (scoped list with occupancy +
+      rent rollups, detail with diaspora "last inspected / last rent" + latest
+      inspection + health score, financials by period, create with onboarding
+      checklist, update), `dashboard/owner` portfolio summary (all figures within
+      scope), `finance/period.util`
+- [x] Seed: permissions + role matrix + org settings (branding, GHS, categories,
+      health-score config v1, lead-score config v1, approval threshold, reminder
+      offsets, regulatory feature flags), inspection template, demo owner + demo
+      admin, demo diaspora client + 5 fictional Accra properties with units,
+      tenants, leases, 6 months of rent charges/payments, expenses, maintenance
+      (with status history), inspections, health scores
 - [ ] `apps/web` Next.js bootstrap: design tokens (navy/gold), base component library,
       auth pages, protected layout, TanStack Query + API client
-- [ ] Seed: roles, permissions, demo owner + demo admin
-- [ ] **Vertical slice:** Owner login → Owner dashboard (portfolio summary from real
-      aggregates) → Property list → Property detail
+- [ ] **Vertical slice (web):** Owner login → dashboard → property list → property detail
 - [ ] Tests: auth flow, RBAC, **Owner A cannot read Owner B's property (403, no leak)**
 
 ### Phase 2 — Core domain
