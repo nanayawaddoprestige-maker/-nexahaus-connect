@@ -430,6 +430,7 @@ export class AuthService {
       clientIds: [],
       assignedPropertyIds: [],
       tenantId: null,
+      vendorId: null,
       scopeExempt: false,
       sessionId: "",
       mfaEnabled: true,

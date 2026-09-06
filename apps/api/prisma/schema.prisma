@@ -69,6 +69,7 @@ model User {
   accountManagedClients Client[]               @relation("ClientAccountManager")
   ownedLeads            Lead[]                 @relation("LeadOwner")
   tenantProfile         Tenant?                @relation("TenantLoginUser")
+  vendorProfile         Vendor?                @relation("VendorLoginUser")
 
   @@index([status])
   @@map("users")
@@ -1412,6 +1413,7 @@ enum VendorStatus {
 model Vendor {
   id                  String       @id @default(uuid(7))
   ref                 String       @unique
+  userId              String?      @unique
   name                String
   type                VendorType   @default(COMPANY)
   categories          String[]
@@ -1426,6 +1428,7 @@ model Vendor {
   updatedAt           DateTime     @updatedAt
   deletedAt           DateTime?
 
+  loginUser           User?        @relation("VendorLoginUser", fields: [userId], references: [id], onDelete: SetNull)
   propertyAssignments VendorPropertyAssignment[]
   documents           VendorDocument[]
   workOrders          WorkOrder[]
@@ -2396,4 +2399,72 @@ model Sequence {
   nextValue BigInt @default(1)
 
   @@map("sequences")
+}
+
+// ===========================================================================
+// Integrations
+// ===========================================================================
+
+enum ImportEntity {
+  CLIENT
+  PROPERTY
+  UNIT
+  TENANT
+}
+
+enum ImportStatus {
+  VALIDATED
+  COMMITTING
+  COMPLETED
+  PARTIALLY_COMPLETED
+  FAILED
+}
+
+model ImportJob {
+  id          String       @id @default(uuid(7))
+  ref         String       @unique
+  entity      ImportEntity
+  status      ImportStatus  @default(VALIDATED)
+  totalRows   Int
+  validRows   Int
+  errorRows   Int
+  /** [{ row: number, field?: string, message: string }] */
+  errors      Json
+  /** Committed row refs / ids, and any commit-time failures. */
+  result      Json?
+  createdById String?
+  createdAt   DateTime      @default(now())
+  committedAt DateTime?
+
+  @@index([entity, status])
+  @@map("import_jobs")
+}
+
+model WhatsAppInboundMessage {
+  id            String    @id @default(uuid(7))
+  provider      String
+  providerMsgId String
+  fromPhone     String
+  body          String
+  receivedAt    DateTime  @default(now())
+  matchedUserId String?
+  threadId      String?
+  processedAt   DateTime?
+
+  @@unique([provider, providerMsgId])
+  @@index([fromPhone])
+  @@map("whatsapp_inbound_messages")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid(7))
+  name      String
+  userId    String?
+  anonId    String?
+  props     Json?
+  occurredAt DateTime @default(now())
+
+  @@index([name, occurredAt])
+  @@index([userId])
+  @@map("analytics_events")
 }

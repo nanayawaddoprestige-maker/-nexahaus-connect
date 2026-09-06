@@ -88,6 +88,61 @@ export class PaymentsService {
   }
 
   // --------------------------------------------------------------------------
+  // Initiation (spec §15, §110) — begin a payment; the webhook confirms it.
+  // --------------------------------------------------------------------------
+
+  async initiate(
+    user: AuthUser,
+    leaseId: string,
+    amount: { minor: string; currency: string },
+  ) {
+    const lease = await this.prisma.lease.findUnique({
+      where: { id: leaseId },
+      select: {
+        id: true,
+        ref: true,
+        clientId: true,
+        propertyId: true,
+        rentCurrency: true,
+        parties: { select: { tenantId: true } },
+      },
+    });
+    if (!lease) throw AppError.notFound("lease");
+
+    const tenantOnLease =
+      user.tenantId != null && lease.parties.some((p) => p.tenantId === user.tenantId);
+    const staffOrOwner =
+      user.scopeExempt ||
+      user.clientIds.includes(lease.clientId) ||
+      (user.permissions.includes("payment:record") &&
+        user.assignedPropertyIds.includes(lease.propertyId));
+    if (!tenantOnLease && !staffOrOwner) throw AppError.forbidden();
+
+    const amountMinor = BigInt(amount.minor);
+    if (amountMinor <= 0n) throw AppError.validation("Amount must be positive.");
+    if (amount.currency !== lease.rentCurrency) {
+      throw AppError.validation(
+        `Payment currency (${amount.currency}) does not match the lease (${lease.rentCurrency}).`,
+      );
+    }
+
+    const result = await this.provider.initiate({
+      amountMinor,
+      currency: amount.currency,
+      reference: lease.ref,
+    });
+    return {
+      provider: this.provider.name,
+      leaseRef: lease.ref,
+      amount,
+      providerRef: result.providerRef,
+      redirectUrl: result.redirectUrl ?? null,
+      instructions: result.instructions,
+      expiresAt: result.expiresAt,
+    };
+  }
+
+  // --------------------------------------------------------------------------
   // Provider webhook
   // --------------------------------------------------------------------------
 

@@ -28,12 +28,32 @@ export interface ProviderPaymentEvent {
  * `manual`; real Mobile Money / bank adapters land in Phase 9 behind the same
  * interface.
  */
+export interface InitiateArgs {
+  amountMinor: bigint;
+  currency: string;
+  reference: string;
+  payerName?: string;
+  payerPhone?: string;
+}
+
+export interface InitiateResult {
+  /** The provider's payment reference to quote / poll. */
+  providerRef: string;
+  /** A hosted checkout URL, when the provider has one. */
+  redirectUrl?: string;
+  /** Human instructions to show the payer (always). */
+  instructions: string;
+  expiresAt: string;
+}
+
 export abstract class PaymentProvider {
   abstract readonly name: string;
   /** Whether this provider delivers webhooks at all. */
   abstract readonly supportsWebhook: boolean;
   abstract verifyWebhook(rawBody: Buffer, signatureHeader: string | undefined): boolean;
   abstract parseEvent(rawBody: Buffer): ProviderPaymentEvent | null;
+  /** Begin a payment. Confirmation still arrives via the webhook. */
+  abstract initiate(args: InitiateArgs): Promise<InitiateResult>;
 }
 
 /** Launch provider: payments are entered by a finance officer; no webhooks. */
@@ -46,6 +66,16 @@ export class ManualPaymentProvider extends PaymentProvider {
   }
   parseEvent(): null {
     return null;
+  }
+  initiate(args: InitiateArgs): Promise<InitiateResult> {
+    return Promise.resolve({
+      providerRef: args.reference,
+      instructions:
+        `Pay ${args.currency} ${(Number(args.amountMinor) / 100).toFixed(2)} via Mobile Money or bank transfer ` +
+        `using the details from your NexaHaus property manager, quoting reference ${args.reference}. ` +
+        `NexaHaus will confirm the payment once received.`,
+      expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+    });
   }
 }
 
@@ -60,9 +90,25 @@ export class GenericHmacPaymentProvider extends PaymentProvider {
   readonly supportsWebhook = true;
   private readonly secret: string;
 
+  private readonly callbackUrl: string;
+
   constructor(@Inject(APP_CONFIG) config: AppConfig) {
     super();
     this.secret = config.payments.webhookSecret;
+    this.callbackUrl = config.payments.callbackUrl;
+  }
+
+  initiate(args: InitiateArgs): Promise<InitiateResult> {
+    const ref = `mock_${args.reference}_${Date.now().toString(36)}`;
+    const base = this.callbackUrl.replace(/\/webhook$/, "");
+    return Promise.resolve({
+      providerRef: ref,
+      redirectUrl: `${base}/mock-checkout?ref=${encodeURIComponent(ref)}&amount=${args.amountMinor}`,
+      instructions:
+        `Complete your payment of ${args.currency} ${(Number(args.amountMinor) / 100).toFixed(2)} ` +
+        `on the checkout page. Your balance updates automatically once the provider confirms it.`,
+      expiresAt: new Date(Date.now() + 30 * 60_000).toISOString(),
+    });
   }
 
   verifyWebhook(rawBody: Buffer, signatureHeader: string | undefined): boolean {

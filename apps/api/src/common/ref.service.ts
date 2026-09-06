@@ -20,7 +20,8 @@ export type RefKind =
   | "approval"
   | "vendor"
   | "assessment"
-  | "rescue";
+  | "rescue"
+  | "import";
 
 const PREFIX: Record<RefKind, string> = {
   property: "NH",
@@ -41,6 +42,7 @@ const PREFIX: Record<RefKind, string> = {
   vendor: "VN",
   assessment: "PA",
   rescue: "PR",
+  import: "IMP",
 };
 
 /**

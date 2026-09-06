@@ -21,6 +21,8 @@ export interface AuthUser {
   assignedPropertyIds: string[];
   /** Tenant id when the user is a TENANT, else null. */
   tenantId: string | null;
+  /** Vendor id when the user is a VENDOR, else null. */
+  vendorId: string | null;
   /** True for SUPER_ADMIN / MANAGING_DIRECTOR — bypasses resource-scope checks. */
   scopeExempt: boolean;
   sessionId: string;

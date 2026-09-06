@@ -51,6 +51,7 @@ export class AuthUserService {
           select: { propertyId: true },
         },
         tenantProfile: { select: { id: true } },
+        vendorProfile: { select: { id: true } },
       },
     });
 
@@ -68,6 +69,7 @@ export class AuthUserService {
       clientIds: user.clientLinks.map((c) => c.clientId),
       assignedPropertyIds: user.propertyAssignments.map((p) => p.propertyId),
       tenantId: user.tenantProfile?.id ?? null,
+      vendorId: user.vendorProfile?.id ?? null,
       scopeExempt: roles.some((r) => SCOPE_EXEMPT_ROLES.includes(r)),
       mfaEnabled: user.mfaEnabled,
     };

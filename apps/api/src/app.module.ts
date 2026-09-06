@@ -44,6 +44,9 @@ import { PropertyRescueModule } from "./modules/property-rescue/property-rescue.
 import { CrmModule } from "./modules/crm/crm.module";
 import { PublicModule } from "./modules/public/public.module";
 import { TenantPortalModule } from "./modules/tenant-portal/tenant-portal.module";
+import { VendorPortalModule } from "./modules/vendor-portal/vendor-portal.module";
+import { ImportsModule } from "./modules/imports/imports.module";
+import { IntegrationsModule } from "./modules/integrations/integrations.module";
 
 const config = loadConfig();
 
@@ -112,6 +115,9 @@ const config = loadConfig();
     CrmModule,
     PublicModule,
     TenantPortalModule,
+    VendorPortalModule,
+    ImportsModule,
+    IntegrationsModule,
     DashboardModule,
     AdminModule,
   ],

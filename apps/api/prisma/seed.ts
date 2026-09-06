@@ -339,6 +339,31 @@ async function seedDemo(): Promise<void> {
 
   let firstTenantUserId: string | null = null;
 
+  // Demo vendor with a login: vendor.demo@nexahaus.example / DEMO_ACCOUNT_PASSWORD.
+  const demoVendorUserId = await upsertUser(
+    "vendor.demo@nexahaus.example",
+    "ABC Cooling Services (Demo Vendor)",
+    passwordHash,
+    [RoleKey.VENDOR],
+  );
+  const demoVendor = await prisma.vendor.upsert({
+    where: { ref: "VN-000001" },
+    create: {
+      ref: "VN-000001",
+      userId: demoVendorUserId,
+      name: "ABC Cooling Services",
+      type: "COMPANY",
+      categories: ["AIR_CONDITIONING", "ELECTRICAL"],
+      phone: "+233209998877",
+      email: "vendor.demo@nexahaus.example",
+      region: "Greater Accra",
+      status: "ACTIVE",
+    },
+    update: { userId: demoVendorUserId },
+  });
+  const demoVendorId = demoVendor.id;
+  let demoWorkOrderDone = false;
+
   for (const bp of blueprint) {
     const property = await prisma.property.create({
       data: {
@@ -506,7 +531,7 @@ async function seedDemo(): Promise<void> {
         paymentStatus: "PAID",
       },
     });
-    await prisma.maintenanceRequest.create({
+    const acRequest = await prisma.maintenanceRequest.create({
       data: {
         ref: await nextRef("maintenance", "MR"),
         propertyId: property.id,
@@ -528,6 +553,21 @@ async function seedDemo(): Promise<void> {
         },
       },
     });
+
+    // First occupied, healthy property → give the demo vendor a live work order.
+    if (demoVendorId && bp.health >= 70 && !demoWorkOrderDone) {
+      await prisma.workOrder.create({
+        data: {
+          ref: await nextRef("workorder", "WO"),
+          requestId: acRequest.id,
+          vendorId: demoVendorId,
+          status: "ISSUED",
+          currency: GHS,
+          scheduledFor: new Date("2027-09-12T10:00:00Z"),
+        },
+      });
+      demoWorkOrderDone = true;
+    }
 
     // Latest inspection + a health score with components.
     await prisma.inspection.create({

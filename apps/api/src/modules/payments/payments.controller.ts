@@ -70,6 +70,30 @@ export class PaymentsController {
     return this.payments.getById(user, id);
   }
 
+  // No @RequirePermission: reachable by a tenant on the lease OR staff/owner in
+  // scope — the service enforces which. AuthGuard still requires a valid session.
+  @ApiBearerAuth()
+  @Post("initiate")
+  initiate(
+    @CurrentUser() user: AuthUser,
+    @Body(
+      new ZodValidationPipe(
+        z
+          .object({
+            leaseId: z.string().uuid(),
+            amount: z.object({
+              minor: z.string().regex(/^\d+$/),
+              currency: z.string().length(3),
+            }),
+          })
+          .strict(),
+      ),
+    )
+    body: { leaseId: string; amount: { minor: string; currency: string } },
+  ) {
+    return this.payments.initiate(user, body.leaseId, body.amount);
+  }
+
   @ApiBearerAuth()
   @Post()
   @RequirePermission("payment:record")

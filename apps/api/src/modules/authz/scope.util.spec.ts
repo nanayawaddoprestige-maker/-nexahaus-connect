@@ -16,6 +16,7 @@ function user(partial: Partial<AuthUser>): AuthUser {
     clientIds: [],
     assignedPropertyIds: [],
     tenantId: null,
+    vendorId: null,
     scopeExempt: false,
     sessionId: "s1",
     mfaEnabled: false,
