@@ -13,6 +13,7 @@ export interface AppConfig {
   locale: { currency: string; locale: string; timezone: string };
   database: { url: string };
   redis: { url: string };
+  worker: { enabled: boolean; disableSchedulers: boolean; queuePrefix: string };
   auth: {
     accessSecret: string;
     refreshSecret: string;
@@ -103,6 +104,11 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
     },
     database: { url: e.DATABASE_URL },
     redis: { url: e.REDIS_URL },
+    worker: {
+      enabled: e.WORKER_ENABLED,
+      disableSchedulers: e.DISABLE_SCHEDULERS,
+      queuePrefix: e.QUEUE_PREFIX,
+    },
     auth: {
       accessSecret: e.JWT_ACCESS_SECRET,
       refreshSecret: e.JWT_REFRESH_SECRET,

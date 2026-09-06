@@ -37,6 +37,14 @@ export const envSchema = z.object({
     message: "REDIS_URL must be a redis:// connection string",
   }),
 
+  // Background processing. WORKER_ENABLED=true creates the BullMQ consumers in
+  // this process (dev / the dedicated worker); set it false on API-only
+  // instances that run alongside a separate worker. DISABLE_SCHEDULERS gates the
+  // outbox poller + daily cron.
+  WORKER_ENABLED: bool.default("true"),
+  DISABLE_SCHEDULERS: bool.default("false"),
+  QUEUE_PREFIX: nonEmpty.default("nexahaus"),
+
   JWT_ACCESS_SECRET: secret,
   JWT_REFRESH_SECRET: secret,
   JWT_ACCESS_TTL: seconds.default(900),

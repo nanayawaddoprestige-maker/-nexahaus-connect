@@ -10,6 +10,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 import {
   enableMfaSchema,
@@ -36,6 +37,7 @@ const REFRESH_COOKIE = "nexahaus_rt";
 const config = loadConfig();
 
 @ApiTags("auth")
+@Throttle({ auth: {} })
 @Controller("auth")
 export class AuthController {
   constructor(private readonly auth: AuthService) {}

@@ -26,6 +26,7 @@ import { LeasesModule } from "./modules/leases/leases.module";
 import { StorageModule } from "./modules/storage/storage.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
 import { EventsModule } from "./modules/events/events.module";
+import { QueueModule } from "./modules/queue/queue.module";
 import { ReportsModule } from "./modules/reports/reports.module";
 import { VendorsModule } from "./modules/vendors/vendors.module";
 import { ApprovalsModule } from "./modules/approvals/approvals.module";
@@ -79,6 +80,12 @@ const config = loadConfig();
         ttl: config.rateLimit.windowSec * 1000,
         limit: config.rateLimit.max,
       },
+      {
+        // Stricter bucket for credential endpoints (docs/SECURITY.md §6).
+        name: "auth",
+        ttl: config.rateLimit.windowSec * 1000,
+        limit: config.rateLimit.authMax,
+      },
     ]),
     ScheduleModule.forRoot(),
     ConfigModule,
@@ -88,6 +95,7 @@ const config = loadConfig();
     CommonModule,
     StorageModule,
     EventsModule,
+    QueueModule,
     ReportsModule,
     NotificationsModule,
     AuthzModule,

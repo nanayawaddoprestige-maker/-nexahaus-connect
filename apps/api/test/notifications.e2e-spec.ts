@@ -148,7 +148,7 @@ describe("Notifications & messaging (e2e)", () => {
       .send({ toStatus: "IN_PROGRESS", estimatedCost: { minor: "200000", currency: "GHS" } })
       .expect(201);
 
-    await outbox.pump();
+    await outbox.drainForTests();
 
     const feed = await request(app.getHttpServer())
       .get("/api/v1/notifications")
@@ -191,7 +191,7 @@ describe("Notifications & messaging (e2e)", () => {
         payload: { clientId: clientAId, propertyId: propertyAId, paymentId: "x", amountMinor: "1", currency: "GHS" },
       },
     });
-    await outbox.pump();
+    await outbox.drainForTests();
 
     const feed = await request(app.getHttpServer())
       .get("/api/v1/notifications")
@@ -242,7 +242,7 @@ describe("Notifications & messaging (e2e)", () => {
       .set("authorization", `Bearer ${ownerA}`)
       .send({ body: "A follow-up from the owner." })
       .expect(201);
-    await outbox.pump();
+    await outbox.drainForTests();
 
     const notif = await prisma.notification.findFirst({
       where: { userId: staffParticipant!.userId, type: "MESSAGE_RECEIVED" },
