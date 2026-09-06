@@ -11,7 +11,8 @@ const nextConfig = {
   // Self-contained server bundle for the production Docker image.
   output: "standalone",
   // Monorepo: trace files from the repo root so workspace deps are included.
-  outputFileTracingRoot: repoRoot,
+  // (Top-level in Next 15; still under `experimental` in 14.x.)
+  experimental: { outputFileTracingRoot: repoRoot },
   // In dev, resolve @nexahaus/* to their TS source (the "development" export
   // condition) so a cold `pnpm dev` needs no prior build of packages/*.
   // `next build` omits this and picks the compiled "default" entry (dist/).
