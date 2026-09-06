@@ -98,10 +98,30 @@ A feature is done only when **all** of the following exist:
 to create the initial migration; wire `packages/ui` (currently the web app owns its
 components).
 
-### Phase 2 — Core domain
-- Clients & client onboarding, Properties (full profile), Buildings/Floors/Units,
-  Property owners (incl. co-ownership), Management agreements (configurable fee),
-  Property-manager assignment, Tenants, Leases (+ expiry/renewal reminders).
+### Phase 2 — Core domain  _in progress_
+- [x] **Clients**: scoped CRUD, detail with 10-step onboarding progress + client users +
+      contacts, portfolio summary, invite portal user, advance onboarding (completion
+      activates the client). Web: `/admin/clients/[id]`.
+- [x] **Units / buildings / floors**: `GET/POST /properties/:id/units` (with active lease
+      + tenant), `GET/PATCH /units/:id`, `POST /properties/:id/buildings`; unit create
+      bumps `unitCount` in-tx. Web: Units & tenancies table on property detail.
+- [x] **Co-ownership**: `POST /properties/:id/owners` (shares must total 100%).
+- [x] **Management agreements**: `POST /properties/:id/agreement` — supersedes (never
+      edits) the active one; fee fully configurable.
+- [x] **Staff assignment**: `POST/DELETE /properties/:id/assignments` — drives staff
+      scope, invalidates the assigned user's cached scope.
+- [x] **Tenants**: scoped CRUD (visible only via a lease on an in-scope property),
+      tenancy history; ID-document ref AES-256-GCM encrypted at rest, never returned.
+      Web: `/admin/tenants`.
+- [x] **Leases**: scoped list (+ expiring filter), detail with full rent-charge ledger;
+      create (overlap-checked) → activate (occupies unit, **generates rent charges** via
+      `rentPeriods()`, schedules reminders) → renew (bills extra periods) → terminate
+      (waives future unpaid charges). All audited; illegal transitions rejected.
+      Web: `/admin/leases`. Unit tests: `rent-schedule.util`.
+- [ ] Web: client onboarding actions (advance step, invite user), unit create/edit forms,
+      lease create/activate/renew/terminate forms, tenant forms
+- [ ] Integration tests: lease lifecycle + rent-charge generation; tenant isolation for
+      the new resources
 
 ### Phase 3 — Operations
 - Maintenance (full lifecycle + status history + work orders + vendors),

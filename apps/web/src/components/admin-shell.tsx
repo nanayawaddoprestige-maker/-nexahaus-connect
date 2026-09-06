@@ -14,6 +14,7 @@ const NAV: { href: string; label: string }[] = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/properties", label: "Properties" },
   { href: "/admin/tenants", label: "Tenants" },
+  { href: "/admin/leases", label: "Leases" },
   { href: "/admin/maintenance", label: "Maintenance" },
   { href: "/admin/inspections", label: "Inspections" },
   { href: "/admin/payments", label: "Payments" },

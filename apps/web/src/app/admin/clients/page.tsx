@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { AdminClientRow } from "@/lib/admin-resources";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
 
 export default function AdminClientsPage() {
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
 
@@ -71,7 +73,11 @@ export default function AdminClientsPage() {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr key={c.id} className="border-b border-line last:border-0 hover:bg-surface-sunken">
+                <tr
+                  key={c.id}
+                  onClick={() => router.push(`/admin/clients/${c.id}`)}
+                  className="cursor-pointer border-b border-line last:border-0 hover:bg-surface-sunken"
+                >
                   <td className="px-4 py-3">
                     <p className="font-medium text-navy-900">{c.name}</p>
                     <p className="text-xs text-ink-subtle">

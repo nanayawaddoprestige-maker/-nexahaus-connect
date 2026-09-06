@@ -111,6 +111,26 @@ export interface PropertyDetail {
   healthScore: { score: number; scoredAt: string; methodologyVersion: number } | null;
 }
 
+export interface UnitRow {
+  id: string;
+  ref: string;
+  label: string;
+  status: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  floorAreaSqm: number | null;
+  building: { id: string; name: string } | null;
+  floor: { id: string; label: string; level: number } | null;
+  marketRent: MoneyView | null;
+  activeLease: {
+    id: string;
+    ref: string;
+    rent: MoneyView;
+    endDate: string;
+    tenant: { id: string; fullName: string } | null;
+  } | null;
+}
+
 export interface LoginResponse {
   user: AuthUser;
   tokens: {

@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
-import type { PropertyDetail } from "@/lib/resources";
+import type { PropertyDetail, UnitRow } from "@/lib/resources";
 import {
   formatDate,
   formatMinor,
@@ -25,6 +25,12 @@ export default function PropertyDetailPage() {
     queryKey: ["property", params.id],
     queryFn: () => api.get<PropertyDetail>(`/properties/${params.id}`),
     retry: false,
+  });
+
+  const units = useQuery({
+    queryKey: ["property", params.id, "units"],
+    queryFn: () => api.list<UnitRow>(`/properties/${params.id}/units`),
+    enabled: !!data,
   });
 
   if (isLoading) {
@@ -237,6 +243,62 @@ export default function PropertyDetailPage() {
           </div>
         </Card>
       </div>
+
+      <Card className="mt-6">
+        <CardHeader
+          title="Units & tenancies"
+          description={`${data.counts.units} unit${data.counts.units === 1 ? "" : "s"}`}
+        />
+        {units.isLoading ? (
+          <Skeleton className="h-24 w-full" />
+        ) : units.data && units.data.items.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-line text-left text-[10.5px] uppercase tracking-wide text-ink-subtle">
+                  <th className="py-2 pr-4 font-medium">Unit</th>
+                  <th className="py-2 pr-4 font-medium">Beds / baths</th>
+                  <th className="py-2 pr-4 font-medium">Tenant</th>
+                  <th className="py-2 pr-4 font-medium">Rent</th>
+                  <th className="py-2 pr-4 font-medium">Lease ends</th>
+                  <th className="py-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {units.data.items.map((u) => (
+                  <tr key={u.id} className="border-b border-line last:border-0">
+                    <td className="py-2.5 pr-4 font-medium text-navy-900">
+                      {u.label}
+                      <span className="ml-2 font-mono text-[10.5px] text-ink-subtle">{u.ref}</span>
+                    </td>
+                    <td className="py-2.5 pr-4 text-ink-muted">
+                      {u.bedrooms ?? "—"} / {u.bathrooms ?? "—"}
+                    </td>
+                    <td className="py-2.5 pr-4 text-navy-900">
+                      {u.activeLease?.tenant?.fullName ?? <span className="text-ink-subtle">Vacant</span>}
+                    </td>
+                    <td className="py-2.5 pr-4 tabular-nums text-navy-900">
+                      {u.activeLease
+                        ? formatMoney(u.activeLease.rent)
+                        : u.marketRent
+                          ? formatMoney(u.marketRent)
+                          : "—"}
+                    </td>
+                    <td className="py-2.5 pr-4 text-ink-muted">
+                      {u.activeLease ? formatDate(u.activeLease.endDate) : "—"}
+                    </td>
+                    <td className="py-2.5">
+                      <StatusBadge status={u.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-ink-subtle">No units recorded for this property yet.</p>
+        )}
+      </Card>
     </div>
   );
 }
