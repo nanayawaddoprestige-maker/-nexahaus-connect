@@ -169,10 +169,21 @@ components).
       gross rent, management fees (projected + flagged when unposted), maintenance vs
       other, net owner income, outstanding rent, vacancy loss, distributions. Web:
       `/finance` page.
-- [x] Tests: `allocation.util`, `management-fee.util` (unit); `payment-webhook.e2e-spec`
-      (valid → one payment; bad signature → nothing; duplicate → no-op; partial → §81).
-- [ ] Owner distributions endpoint + UI; admin payments/expenses/statements screens;
-      reconciliation workflow; statement-reproduction integration test
+- [x] **Owner distributions**: `distributions` module — create (PENDING) → approve → pay
+      (posts a negative `OWNER_DISTRIBUTION` transaction, links it). Scoped, audited.
+- [x] **Reconciliation**: `POST /payments/reconcile` locks a batch of payments + their
+      transactions (`RECONCILED`); `?reconciliationStatus=` filter; refund of a
+      reconciled payment requires `transaction:adjust` and still posts a `REVERSAL`
+      (`RECONCILED_RECORD_IMMUTABLE` otherwise).
+- [x] Admin web: `/admin/statements` (generate form + table), `/admin/payments` (record
+      form + batch-reconcile), `/admin/expenses` (filter + submit/approve/pay actions).
+- [x] Tests: `allocation.util`, `management-fee.util` (unit); `payment-webhook.e2e-spec`;
+      **`statement-reproduction.e2e-spec`** (totals reconcile — opening = pre-period net,
+      net = gross−fees−maintenance−other, closing = opening + credits − debits;
+      re-generate returns the identical statement + a single fee transaction; no
+      total-editing endpoint).
+
+**Phase 4 complete.**
 
 ### Phase 5 — Collaboration
 - Domain-event bus + outbox, Notification engine (in-app/email/SMS/WhatsApp/push
