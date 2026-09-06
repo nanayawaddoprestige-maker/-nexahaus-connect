@@ -1,0 +1,93 @@
+# Reference production-like stack (single host). Real production runs the same
+# images on an orchestrator — see docs/DEPLOYMENT.md §4. Use this for staging,
+# demos, and DR restore drills.
+#
+#   cp .env.example .env.prod   # fill real secrets; NODE_ENV=production
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#
+# `migrate` runs once on every `up` and must exit 0 before api/worker start.
+
+x-app-env: &app-env
+  env_file: [.env.prod]
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexahaus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-nexahaus}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nexahaus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    image: nexahaus-api:${TAG:-latest}
+    <<: *app-env
+    command: ["pnpm", "exec", "prisma", "migrate", "deploy"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    image: nexahaus-api:${TAG:-latest}
+    <<: *app-env
+    environment:
+      WORKER_ENABLED: "false"
+      DISABLE_SCHEDULERS: "true"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    ports:
+      - "${API_PORT:-4000}:4000"
+    restart: always
+    deploy:
+      replicas: 2
+
+  worker:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    image: nexahaus-api:${TAG:-latest}
+    <<: *app-env
+    command: ["node", "dist/worker.js"]
+    environment:
+      WORKER_ENABLED: "true"
+      DISABLE_SCHEDULERS: "false"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    restart: always
+
+  web:
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    image: nexahaus-web:${TAG:-latest}
+    environment:
+      NODE_ENV: production
+      API_ORIGIN: http://api:4000
+    depends_on:
+      api: { condition: service_started }
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    restart: always
+
+volumes:
+  pgdata:
+  redisdata:

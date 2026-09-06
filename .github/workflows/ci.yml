@@ -1,0 +1,130 @@
+# NexaHaus Connect CI. Mirrors docs/DEPLOYMENT.md §6.
+#
+# Bootstrap (one-time, needs Node 20 + pnpm 9 locally): run `pnpm install` at the
+# repo root and commit the generated `pnpm-lock.yaml`. `--frozen-lockfile` below
+# then holds every build to that exact tree.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20.17.0"
+  # Deterministic, non-secret values so packages/config passes its boot-time
+  # validation in CI. Never used against real infrastructure.
+  CI_ENV: >-
+    NODE_ENV=test
+    APP_URL=http://localhost:3000
+    API_URL=http://localhost:4000
+    DATABASE_URL=postgresql://nexahaus:nexahaus@localhost:5432/nexahaus_test?schema=public
+    REDIS_URL=redis://localhost:6379
+    JWT_ACCESS_SECRET=ci-access-secret-that-is-at-least-32-characters
+    JWT_REFRESH_SECRET=ci-refresh-secret-that-is-at-least-32-characters
+    PAYMENT_WEBHOOK_SECRET=ci-webhook-secret-that-is-at-least-32-chars
+    PAYMENT_PROVIDER=generic
+    STORAGE_ENDPOINT=http://localhost:9000
+    STORAGE_BUCKET=nexahaus-documents
+    STORAGE_ACCESS_KEY=minioadmin
+    STORAGE_SECRET_KEY=minioadmin
+    EMAIL_FROM=ci@nexahaus.example
+    WORKER_ENABLED=false
+    DISABLE_SCHEDULERS=true
+    SEED_DEMO_DATA=false
+
+jobs:
+  static:
+    name: Lint · Typecheck · Prisma · Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @nexahaus/api exec prisma generate
+      - run: pnpm --filter @nexahaus/api exec prisma validate
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm format:check
+      # Fails the job on a High/Critical advisory in the production tree.
+      - run: pnpm audit --prod --audit-level high
+
+  test:
+    name: Unit + integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: nexahaus
+          POSTGRES_PASSWORD: nexahaus
+          POSTGRES_DB: nexahaus_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U nexahaus" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Export CI env
+        run: echo "${CI_ENV}" | tr ' ' '\n' | sed '/^$/d' >> "$GITHUB_ENV"
+      # The seed script runs under tsx and resolves @nexahaus/* to compiled JS.
+      - name: Build shared packages
+        run: pnpm --filter "./packages/*" build
+      - run: pnpm --filter @nexahaus/api exec prisma generate
+      - name: Materialise schema on the ephemeral database
+        run: pnpm --filter @nexahaus/api exec prisma db push --skip-generate
+      - name: Unit tests (coverage-gated modules)
+        run: pnpm test
+      - name: Seed + e2e (incl. cross-tenant isolation suite)
+        run: |
+          pnpm --filter @nexahaus/api db:seed
+          pnpm --filter @nexahaus/api test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: apps/*/coverage
+          if-no-files-found: ignore
+
+  build:
+    name: Build apps + images
+    runs-on: ubuntu-latest
+    needs: [static, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @nexahaus/api exec prisma generate
+      - run: pnpm build
+      - name: Build API image
+        run: docker build -f apps/api/Dockerfile -t nexahaus-api:${{ github.sha }} .
+      - name: Build web image
+        run: docker build -f apps/web/Dockerfile -t nexahaus-web:${{ github.sha }} .
+      # Image push + staging/production deploy jobs run from here on protected
+      # refs once registry + cluster credentials are configured as secrets.
+      # See docs/DEPLOYMENT.md §6 and docs/runbooks/deploy.md.

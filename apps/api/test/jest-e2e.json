@@ -7,7 +7,8 @@
     "^.+\\.ts$": ["ts-jest", { "tsconfig": "<rootDir>/../tsconfig.json" }]
   },
   "moduleNameMapper": {
-    "^@/(.*)$": "<rootDir>/../src/$1"
+    "^@/(.*)$": "<rootDir>/../src/$1",
+    "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts"
   },
   "testTimeout": 30000
 }

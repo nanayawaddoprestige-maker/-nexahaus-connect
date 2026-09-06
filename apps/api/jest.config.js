@@ -8,6 +8,9 @@ module.exports = {
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    // Resolve workspace packages from TS source so unit tests never depend on a
+    // prior `pnpm build` of packages/*.
+    "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts",
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
   coverageDirectory: "../coverage",

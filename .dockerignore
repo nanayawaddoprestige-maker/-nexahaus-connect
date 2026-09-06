@@ -1,0 +1,13 @@
+# Keep the build context small and host-arch artefacts out of the image.
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.github
+**/*.log
+docs
