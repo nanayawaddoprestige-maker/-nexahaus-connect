@@ -20,6 +20,8 @@ import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { AdminModule } from "./modules/admin/admin.module";
 import { ClientsModule } from "./modules/clients/clients.module";
 import { UnitsModule } from "./modules/units/units.module";
+import { TenantsModule } from "./modules/tenants/tenants.module";
+import { LeasesModule } from "./modules/leases/leases.module";
 
 const config = loadConfig();
 
@@ -64,6 +66,8 @@ const config = loadConfig();
     ClientsModule,
     PropertiesModule,
     UnitsModule,
+    TenantsModule,
+    LeasesModule,
     DashboardModule,
     AdminModule,
   ],
