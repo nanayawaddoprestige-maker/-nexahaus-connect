@@ -20,4 +20,14 @@ export class DashboardController {
   ) {
     return this.dashboard.ownerSummary(user, period);
   }
+
+  /** Owner financial dashboard (spec §17). */
+  @Get("owner/financials")
+  @RequirePermission("owner:portfolio:read")
+  ownerFinancials(
+    @CurrentUser() user: AuthUser,
+    @Query("period") period: FinancePeriod = "this_month",
+  ) {
+    return this.dashboard.ownerFinancials(user, period);
+  }
 }

@@ -7,3 +7,5 @@ export * from "./lease.js";
 export * from "./document.js";
 export * from "./maintenance.js";
 export * from "./inspection.js";
+export * from "./expense.js";
+export * from "./statement.js";

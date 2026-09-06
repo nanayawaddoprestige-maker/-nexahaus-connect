@@ -3,6 +3,7 @@ import type { AuthUser } from "@nexahaus/types";
 import { PrismaService } from "../../prisma/prisma.service";
 import { propertyScopeWhere } from "../authz/scope.util";
 import { periodRange, monthsIn, type FinancePeriod } from "../finance/period.util";
+import { computeManagementFee } from "../finance/management-fee.util";
 
 /**
  * Owner dashboard aggregates (spec §8). Every figure is computed within the
@@ -128,6 +129,178 @@ export class DashboardService {
       },
       portfolioHealthScore: portfolioHealth,
       charts: { monthly: monthlySeries },
+    };
+  }
+
+  /**
+   * Owner financial dashboard (spec §17). Actuals from the transaction ledger;
+   * management fee is projected from each property's agreement where the fee
+   * transaction for the period has not been posted yet, and labelled as such.
+   */
+  async ownerFinancials(user: AuthUser, period: FinancePeriod = "this_month") {
+    const properties = await this.prisma.property.findMany({
+      where: propertyScopeWhere(user),
+      select: {
+        id: true,
+        agreements: {
+          where: { status: "ACTIVE" },
+          orderBy: { startDate: "desc" },
+          take: 1,
+        },
+      },
+    });
+    const propertyIds = properties.map((p) => p.id);
+    const range = periodRange(period);
+    const months = Math.max(
+      1,
+      (range.end.getUTCFullYear() - range.start.getUTCFullYear()) * 12 +
+        (range.end.getUTCMonth() - range.start.getUTCMonth()),
+    );
+
+    if (propertyIds.length === 0) {
+      return this.emptyFinancials(period, range);
+    }
+
+    const [rentPayments, feeTxns, expenseTxns, distributionTxns, rentCharges, vacantUnits] =
+      await Promise.all([
+        this.prisma.transaction.aggregate({
+          where: {
+            propertyId: { in: propertyIds },
+            type: "RENT_PAYMENT",
+            status: "POSTED",
+            occurredAt: { gte: range.start, lt: range.end },
+          },
+          _sum: { amountMinor: true },
+        }),
+        this.prisma.transaction.aggregate({
+          where: {
+            propertyId: { in: propertyIds },
+            type: "MANAGEMENT_FEE",
+            status: "POSTED",
+            occurredAt: { gte: range.start, lt: range.end },
+          },
+          _sum: { amountMinor: true },
+        }),
+        this.prisma.transaction.groupBy({
+          by: ["category"],
+          where: {
+            propertyId: { in: propertyIds },
+            type: "EXPENSE",
+            status: "POSTED",
+            occurredAt: { gte: range.start, lt: range.end },
+          },
+          _sum: { amountMinor: true },
+        }),
+        this.prisma.transaction.aggregate({
+          where: {
+            propertyId: { in: propertyIds },
+            type: "OWNER_DISTRIBUTION",
+            status: "POSTED",
+            occurredAt: { gte: range.start, lt: range.end },
+          },
+          _sum: { amountMinor: true },
+        }),
+        this.prisma.rentCharge.aggregate({
+          where: {
+            propertyId: { in: propertyIds },
+            dueDate: { gte: range.start, lt: range.end },
+            status: { not: "WAIVED" },
+          },
+          _sum: { amountMinor: true, paidMinor: true },
+        }),
+        this.prisma.unit.findMany({
+          where: {
+            propertyId: { in: propertyIds },
+            deletedAt: null,
+            status: { in: ["VACANT", "UNAVAILABLE"] },
+          },
+          select: { marketRentMinor: true },
+        }),
+      ]);
+
+    const MAINT = new Set([
+      "PLUMBING", "ELECTRICAL", "PAINTING", "AIR_CONDITIONING", "PEST_CONTROL",
+      "REPAIRS", "CLEANING", "LANDSCAPING",
+    ]);
+    let maintenanceMinor = 0n;
+    let otherExpensesMinor = 0n;
+    for (const row of expenseTxns) {
+      const abs =
+        (row._sum.amountMinor ?? 0n) < 0n
+          ? -(row._sum.amountMinor ?? 0n)
+          : (row._sum.amountMinor ?? 0n);
+      if (row.category && MAINT.has(row.category)) maintenanceMinor += abs;
+      else otherExpensesMinor += abs;
+    }
+
+    const grossRentalIncomeMinor = rentPayments._sum.amountMinor ?? 0n;
+    const expectedMinor = rentCharges._sum.amountMinor ?? 0n;
+    const collectedMinor = rentCharges._sum.paidMinor ?? 0n;
+    const outstandingRentMinor = expectedMinor - collectedMinor;
+
+    let managementFeesMinor = feeTxns._sum.amountMinor
+      ? -feeTxns._sum.amountMinor
+      : 0n;
+    let feeProjected = false;
+    if (managementFeesMinor === 0n) {
+      // Not yet posted for this period — project it so the owner sees a number.
+      feeProjected = true;
+      for (const p of properties) {
+        const a = p.agreements[0];
+        if (!a) continue;
+        managementFeesMinor += computeManagementFee(
+          {
+            feeType: a.feeType,
+            feePercent: a.feePercent ? Number(a.feePercent) : null,
+            feeFixedMinor: a.feeFixedMinor,
+            feeCurrency: a.feeCurrency,
+          },
+          { collectedMinor: grossRentalIncomeMinor, expectedMinor, months },
+        );
+      }
+    }
+
+    const vacancyLossMinor = vacantUnits.reduce(
+      (s, u) => s + (u.marketRentMinor ?? 0n) * BigInt(months),
+      0n,
+    );
+    const netOwnerIncomeMinor =
+      grossRentalIncomeMinor - managementFeesMinor - maintenanceMinor - otherExpensesMinor;
+    const distributionsMinor = distributionTxns._sum.amountMinor
+      ? -distributionTxns._sum.amountMinor
+      : 0n;
+
+    return {
+      period,
+      range: { start: range.start.toISOString(), end: range.end.toISOString() },
+      currency: "GHS",
+      grossRentalIncomeMinor: grossRentalIncomeMinor.toString(),
+      managementFeesMinor: managementFeesMinor.toString(),
+      managementFeesProjected: feeProjected,
+      maintenanceExpensesMinor: maintenanceMinor.toString(),
+      otherExpensesMinor: otherExpensesMinor.toString(),
+      netOwnerIncomeMinor: netOwnerIncomeMinor.toString(),
+      outstandingRentMinor: outstandingRentMinor.toString(),
+      vacancyLossMinor: vacancyLossMinor.toString(),
+      ownerDistributionMinor: distributionsMinor.toString(),
+    };
+  }
+
+  private emptyFinancials(period: FinancePeriod, range: { start: Date; end: Date }) {
+    const zero = "0";
+    return {
+      period,
+      range: { start: range.start.toISOString(), end: range.end.toISOString() },
+      currency: "GHS",
+      grossRentalIncomeMinor: zero,
+      managementFeesMinor: zero,
+      managementFeesProjected: false,
+      maintenanceExpensesMinor: zero,
+      otherExpensesMinor: zero,
+      netOwnerIncomeMinor: zero,
+      outstandingRentMinor: zero,
+      vacancyLossMinor: zero,
+      ownerDistributionMinor: zero,
     };
   }
 

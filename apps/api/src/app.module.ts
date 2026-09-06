@@ -32,6 +32,8 @@ import { MaintenanceModule } from "./modules/maintenance/maintenance.module";
 import { PreventiveModule } from "./modules/preventive/preventive.module";
 import { InspectionsModule } from "./modules/inspections/inspections.module";
 import { PaymentsModule } from "./modules/payments/payments.module";
+import { ExpensesModule } from "./modules/expenses/expenses.module";
+import { StatementsModule } from "./modules/statements/statements.module";
 
 const config = loadConfig();
 
@@ -88,6 +90,8 @@ const config = loadConfig();
     PreventiveModule,
     InspectionsModule,
     PaymentsModule,
+    ExpensesModule,
+    StatementsModule,
     DashboardModule,
     AdminModule,
   ],
