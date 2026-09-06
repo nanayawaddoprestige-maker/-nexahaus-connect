@@ -81,8 +81,22 @@ A feature is done only when **all** of the following exist:
       outstanding per card) → `/properties/[id]` (diaspora "last inspected / last
       rent / health" strip, finance stats, management terms + configurable fee, team,
       latest inspection). Placeholder pages for the other nav sections.
-- [ ] Tests: auth flow, RBAC, **Owner A cannot read Owner B's property (403, no leak)**
-- [ ] Admin dashboard shell + admin overview
+- [x] Tests: `scope.util` + `ResourceScopeGuard` (unit); `isolation.e2e-spec`
+      (release-blocking — Owner A ≠ Owner B across list/get/financials/PATCH/filter,
+      no leak, no mutation) + `auth.e2e-spec` (register→verify→login, refresh
+      rotation + chain revocation, generic credential failure)
+- [x] Admin dashboard: `GET /admin/overview` (portfolio + rent + operational load +
+      growth + prioritised alerts, staff-scoped), `GET /admin/clients`; web `/admin`
+      role-gated shell + overview + clients table
+- [x] Mobile (`apps/mobile`, Expo Router) skeleton: keychain-refresh auth client,
+      theming, splash → login (+MFA) → tab nav → dashboard + property list on real
+      API data; full 25-screen list documented for later phases
+
+**Phase 1 status: foundation + first vertical slice complete on all three surfaces
+(API, web, mobile).** Remaining before calling Phase 1 done: run the toolchain to
+`prisma generate` + `tsc` + `jest` and fix whatever surfaces; `prisma migrate dev`
+to create the initial migration; wire `packages/ui` (currently the web app owns its
+components).
 
 ### Phase 2 — Core domain
 - Clients & client onboarding, Properties (full profile), Buildings/Floors/Units,

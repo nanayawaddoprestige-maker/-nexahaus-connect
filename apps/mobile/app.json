@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "NexaHaus Connect",
+    "slug": "nexahaus-connect",
+    "scheme": "nexahaus",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#0A1F44",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ltd.nexahaus.connect"
+    },
+    "android": {
+      "package": "ltd.nexahaus.connect",
+      "adaptiveIcon": { "backgroundColor": "#0A1F44" }
+    },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "extra": {
+      "apiUrl": "http://localhost:4000"
+    }
+  }
+}

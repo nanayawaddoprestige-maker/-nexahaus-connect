@@ -1,0 +1,17 @@
+{
+  "extends": "@nexahaus/typescript-config/react-library.json",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "noEmit": true,
+    "composite": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["react", "expo"]
+  },
+  "include": ["app/**/*.ts", "app/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "expo-env.d.ts"],
+  "exclude": ["node_modules"]
+}
