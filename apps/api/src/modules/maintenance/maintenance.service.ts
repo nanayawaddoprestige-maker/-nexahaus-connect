@@ -41,6 +41,17 @@ export class MaintenanceService {
 
   async list(user: AuthUser, query: ListMaintenanceQuery) {
     const { skip, take, page, pageSize } = pageParams(query);
+
+    // A tenant also sees requests on the unit(s) they currently lease.
+    const tenantUnitIds = user.tenantId
+      ? (
+          await this.prisma.leaseParty.findMany({
+            where: { tenantId: user.tenantId },
+            select: { lease: { select: { unitId: true } } },
+          })
+        ).map((p) => p.lease.unitId)
+      : [];
+
     const scope: Prisma.MaintenanceRequestWhereInput = user.scopeExempt
       ? {}
       : {
@@ -52,6 +63,7 @@ export class MaintenanceService {
               ? { propertyId: { in: user.assignedPropertyIds } }
               : { id: "" },
             user.tenantId ? { reportedByTenantId: user.tenantId } : { id: "" },
+            tenantUnitIds.length ? { unitId: { in: tenantUnitIds } } : { id: "" },
           ],
         };
 

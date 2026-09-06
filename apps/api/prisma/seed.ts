@@ -96,6 +96,10 @@ async function seedSettings(): Promise<void> {
     },
     "lease.reminderOffsetsDays": [90, 60, 30, 7],
     "document.expiryReminderOffsetsDays": [60, 30, 7],
+    "tenant.paymentInstructions": {
+      text:
+        "Pay your rent via Mobile Money or bank transfer using the details your NexaHaus property manager has provided, quoting your lease reference (e.g. LS-000001). NexaHaus confirms every payment once received and updates your balance here.",
+    },
     "healthScore.activeConfigVersion": 1,
     "regulatory.features": {
       leasingEnabled: false,
@@ -333,6 +337,8 @@ async function seedDemo(): Promise<void> {
     { name: "Spintex Warehouse", type: "WAREHOUSE", city: "Accra", region: "Greater Accra", units: 1, rent: 15000, status: "OCCUPIED", occupiedUnits: 1, health: 83 },
   ] as const;
 
+  let firstTenantUserId: string | null = null;
+
   for (const bp of blueprint) {
     const property = await prisma.property.create({
       data: {
@@ -389,12 +395,31 @@ async function seedDemo(): Promise<void> {
 
       if (!occupied) continue;
 
+      // Link the very first demo tenant to a login user so the tenant portal
+      // is demoable: tenant.demo@nexahaus.example / DEMO_ACCOUNT_PASSWORD.
+      const isDemoTenant = firstTenantUserId === null;
+      let tenantUserId: string | null = null;
+      if (isDemoTenant) {
+        tenantUserId = await upsertUser(
+          "tenant.demo@nexahaus.example",
+          "Adjoa Test-Tenant (Demo Tenant)",
+          passwordHash,
+          [RoleKey.TENANT],
+        );
+        firstTenantUserId = tenantUserId;
+      }
+
       const tenant = await prisma.tenant.create({
         data: {
           ref: await nextRef("tenant", "TN"),
-          fullName: `${["Adjoa", "Kojo", "Efua", "Yaw", "Abena"][u % 5]} Test-Tenant`,
+          userId: tenantUserId,
+          fullName: isDemoTenant
+            ? "Adjoa Test-Tenant"
+            : `${["Adjoa", "Kojo", "Efua", "Yaw", "Abena"][u % 5]} Test-Tenant`,
           phone: `+23324${String(1000000 + u * 37).slice(0, 7)}`,
-          email: `tenant${property.ref}.${u}@nexahaus.example`,
+          email: isDemoTenant
+            ? "tenant.demo@nexahaus.example"
+            : `tenant${property.ref}.${u}@nexahaus.example`,
           status: "ACTIVE",
         },
       });

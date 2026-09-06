@@ -43,6 +43,7 @@ import { PropertyHealthModule } from "./modules/property-health/property-health.
 import { PropertyRescueModule } from "./modules/property-rescue/property-rescue.module";
 import { CrmModule } from "./modules/crm/crm.module";
 import { PublicModule } from "./modules/public/public.module";
+import { TenantPortalModule } from "./modules/tenant-portal/tenant-portal.module";
 
 const config = loadConfig();
 
@@ -110,6 +111,7 @@ const config = loadConfig();
     PropertyRescueModule,
     CrmModule,
     PublicModule,
+    TenantPortalModule,
     DashboardModule,
     AdminModule,
   ],
