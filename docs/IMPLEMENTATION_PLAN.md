@@ -123,10 +123,32 @@ components).
 - [ ] Integration tests: lease lifecycle + rent-charge generation; tenant isolation for
       the new resources
 
-### Phase 3 — Operations
-- Maintenance (full lifecycle + status history + work orders + vendors),
-  Preventive maintenance plans, Inspections (templates, items, media, PDF report),
-  Document Vault (private storage, signed URLs, versioning, expiry, access log).
+### Phase 3 — Operations  _in progress_
+- [x] **Document Vault**: `StorageService` (S3/MinIO, presigned PUT/GET, per-document
+      keys), `MalwareScanner` (noop dev / fail-closed prod), `DocumentScopeService`
+      (a doc inherits the access rules of what it hangs off). `upload-url` → `finalize`
+      (HEAD + scan + checksum + expiry reminders) → `download-url` (CLEAN-only, logs
+      every access). No public URLs. Web: inspection-report download button.
+- [x] **Events**: transactional-outbox `EventsService`.
+- [x] **Approvals** (generic): `createInTx()` for other modules, scoped list/detail,
+      `POST :id/decision` (APPROVED/DECLINED/INFO_REQUESTED) — owner-only decide,
+      propagates to maintenance/expense subjects, emits `APPROVAL_COMPLETED`. Web:
+      owner Approvals page with inline Approve / Decline / Request-info.
+- [x] **Vendors**: CRUD, category/status filters, property assignment.
+- [x] **Maintenance**: full lifecycle (`MAINTENANCE_TRANSITIONS`-guarded), reporter
+      type from caller (tenant self-service tenancy check), **cost over the property's
+      approval threshold auto-diverts to AWAITING_APPROVAL + raises an Approval**,
+      work orders (assign → complete with actual cost + invoice + after-photos), media,
+      status history + audit + domain events on every step. Web: owner list + detail
+      with timeline.
+- [x] **Inspections**: templates, create/assign, submit (inspector-only, item set +
+      condition + signature), review (manager renders the **branded PDF** via `PdfService`,
+      stores it as a CLEAN `INSPECTION_REPORT` document, emits `INSPECTION_COMPLETED`).
+      Web: owner list + detail (area-by-area findings, PDF download).
+- [x] **Preventive maintenance**: plan CRUD, `markRun` rolls `nextDueAt` forward.
+- [ ] Field-staff mobile capture (photos/video/notes/offline drafts)
+- [ ] Admin maintenance/inspections/documents screens; integration tests
+      (maintenance workflow §82, document access §83)
 
 ### Phase 4 — Finance
 - Ledger/transaction model, Rent charges & schedules, Payments + allocations +
