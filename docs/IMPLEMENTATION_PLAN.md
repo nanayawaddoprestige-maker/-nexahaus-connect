@@ -150,10 +150,29 @@ components).
 - [ ] Admin maintenance/inspections/documents screens; integration tests
       (maintenance workflow §82, document access §83)
 
-### Phase 4 — Finance
-- Ledger/transaction model, Rent charges & schedules, Payments + allocations +
-  webhook idempotency, Expenses + approvals, Owner statements (reproducible from
-  transactions) + PDF, Owner financial dashboard, Management-fee & distribution calc.
+### Phase 4 — Finance  _in progress_
+- [x] **Payments**: `PaymentProvider` abstraction (manual / generic-HMAC), oldest-first
+      & explicit allocation (`allocation.util`, unit-tested to spec §81), manual entry
+      (idempotent), **webhook with `(provider, providerEventId)` dedupe** (replay → 200
+      no-op), settlement in one tx (Transaction + Payment + allocations + charge updates
+      + outbox events + audit), refund (posts a REVERSAL, rolls back allocations).
+- [x] **Expenses**: CRUD → submit (over-threshold ⇒ EXPENSE Approval) → decision → pay
+      (posts a negative EXPENSE transaction + VendorPayment).
+- [x] **Statements** (spec §18): idempotent `generate` per (client, property, period);
+      posts the period MANAGEMENT_FEE transaction (`computeManagementFee`, unit-tested to
+      §98), then **recomputes every total from the ledger** — opening = net of prior
+      POSTED txns, gross/fees/maintenance/other/distributions from in-period txns,
+      one `StatementLine` per transaction; renders the branded PDF, stores it CLEAN.
+      No endpoint edits a total. Web: `/finance/statements/[id]` with the balance
+      waterfall + transaction table + PDF download.
+- [x] **Owner financial dashboard** (spec §17): `GET /dashboard/owner/financials` —
+      gross rent, management fees (projected + flagged when unposted), maintenance vs
+      other, net owner income, outstanding rent, vacancy loss, distributions. Web:
+      `/finance` page.
+- [x] Tests: `allocation.util`, `management-fee.util` (unit); `payment-webhook.e2e-spec`
+      (valid → one payment; bad signature → nothing; duplicate → no-op; partial → §81).
+- [ ] Owner distributions endpoint + UI; admin payments/expenses/statements screens;
+      reconciliation workflow; statement-reproduction integration test
 
 ### Phase 5 — Collaboration
 - Domain-event bus + outbox, Notification engine (in-app/email/SMS/WhatsApp/push
