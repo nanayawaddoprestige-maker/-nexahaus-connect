@@ -18,6 +18,9 @@ const NAV: { href: string; label: string }[] = [
   { href: "/documents", label: "Documents" },
   { href: "/approvals", label: "Approvals" },
   { href: "/messages", label: "Messages" },
+  { href: "/reports", label: "Reports" },
+  { href: "/property-health", label: "Property Health" },
+  { href: "/property-rescue", label: "Property Rescue" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
