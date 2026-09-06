@@ -39,6 +39,7 @@ export class PaymentsController {
     @Query("propertyId") propertyId?: string,
     @Query("leaseId") leaseId?: string,
     @Query("status") status?: string,
+    @Query("reconciliationStatus") reconciliationStatus?: string,
   ) {
     return this.payments.list(user, {
       page: page ? Number(page) : undefined,
@@ -46,7 +47,20 @@ export class PaymentsController {
       propertyId,
       leaseId,
       status,
+      reconciliationStatus,
     });
+  }
+
+  @ApiBearerAuth()
+  @Post("reconcile")
+  @RequirePermission("payment:record")
+  reconcile(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodValidationPipe(z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).strict()))
+    body: { ids: string[] },
+    @Req() req: Request,
+  ) {
+    return this.payments.reconcile(user, body.ids, auditCtxFromRequest(req, user));
   }
 
   @ApiBearerAuth()

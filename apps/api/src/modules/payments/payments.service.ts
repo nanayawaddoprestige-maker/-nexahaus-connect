@@ -339,7 +339,14 @@ export class PaymentsService {
 
   async list(
     user: AuthUser,
-    query: { page?: number; pageSize?: number; propertyId?: string; leaseId?: string; status?: string },
+    query: {
+      page?: number;
+      pageSize?: number;
+      propertyId?: string;
+      leaseId?: string;
+      status?: string;
+      reconciliationStatus?: string;
+    },
   ) {
     const { skip, take, page, pageSize } = pageParams(query);
     const scope: Prisma.PaymentWhereInput = user.scopeExempt
@@ -359,6 +366,9 @@ export class PaymentsService {
         query.propertyId ? { propertyId: query.propertyId } : {},
         query.leaseId ? { leaseId: query.leaseId } : {},
         query.status ? { status: query.status as never } : {},
+        query.reconciliationStatus
+          ? { reconciliationStatus: query.reconciliationStatus as never }
+          : {},
       ],
     };
     const [rows, totalItems] = await this.prisma.$transaction([
@@ -449,6 +459,45 @@ export class PaymentsService {
     };
   }
 
+  /** Mark payments (and their transactions) reconciled. Locks them from casual edits. */
+  async reconcile(user: AuthUser, ids: string[], ctx: AuditContext) {
+    const payments = await this.prisma.payment.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, propertyId: true, clientId: true, transactionId: true, reconciliationStatus: true },
+    });
+    for (const p of payments) {
+      if (
+        !user.scopeExempt &&
+        !user.clientIds.includes(p.clientId) &&
+        !user.assignedPropertyIds.includes(p.propertyId)
+      ) {
+        throw AppError.forbidden();
+      }
+    }
+    const toUpdate = payments.filter((p) => p.reconciliationStatus !== "RECONCILED");
+    await this.prisma.$transaction(async (tx) => {
+      await tx.payment.updateMany({
+        where: { id: { in: toUpdate.map((p) => p.id) } },
+        data: { reconciliationStatus: "RECONCILED" },
+      });
+      await tx.transaction.updateMany({
+        where: { id: { in: toUpdate.map((p) => p.transactionId).filter(Boolean) as string[] } },
+        data: { reconciliationStatus: "RECONCILED" },
+      });
+      await this.audit.record(
+        {
+          ...ctx,
+          action: "payment.reconcile",
+          resourceType: "payment",
+          resourceId: toUpdate.map((p) => p.id).join(","),
+          after: { count: toUpdate.length },
+        },
+        tx,
+      );
+    });
+    return { reconciled: toUpdate.length, alreadyReconciled: payments.length - toUpdate.length };
+  }
+
   async refund(user: AuthUser, id: string, reason: string, ctx: AuditContext) {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
@@ -463,6 +512,15 @@ export class PaymentsService {
     }
     if (payment.status === "REFUNDED") {
       throw AppError.conflict("This payment has already been refunded.");
+    }
+    // A reconciled payment is locked: correcting it requires the adjustment
+    // right, and the correction is still a REVERSAL (never an in-place edit).
+    if (
+      payment.reconciliationStatus === "RECONCILED" &&
+      !user.scopeExempt &&
+      !user.permissions.includes("transaction:adjust")
+    ) {
+      throw AppError.reconciledImmutable();
     }
 
     await this.prisma.$transaction(async (tx) => {

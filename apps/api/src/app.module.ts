@@ -34,6 +34,7 @@ import { InspectionsModule } from "./modules/inspections/inspections.module";
 import { PaymentsModule } from "./modules/payments/payments.module";
 import { ExpensesModule } from "./modules/expenses/expenses.module";
 import { StatementsModule } from "./modules/statements/statements.module";
+import { DistributionsModule } from "./modules/distributions/distributions.module";
 
 const config = loadConfig();
 
@@ -92,6 +93,7 @@ const config = loadConfig();
     PaymentsModule,
     ExpensesModule,
     StatementsModule,
+    DistributionsModule,
     DashboardModule,
     AdminModule,
   ],
