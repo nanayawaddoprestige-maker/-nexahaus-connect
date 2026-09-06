@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
+import { homePathForUser } from "@/lib/nav";
 import { Button } from "@/components/ui/button";
 import { BrandLockup } from "@/components/brand";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { status, login } = useAuth();
+  const { status, user, login } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [mfaCode, setMfaCode] = useState("");
@@ -18,8 +19,8 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated") router.replace("/dashboard");
-  }, [status, router]);
+    if (status === "authenticated") router.replace(homePathForUser(user));
+  }, [status, user, router]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,7 +31,7 @@ export default function LoginPage() {
       if (result.mfaRequired) {
         setMfaRequired(true);
       } else {
-        router.replace("/dashboard");
+        router.replace(homePathForUser(result.user));
       }
     } catch (err) {
       setError(

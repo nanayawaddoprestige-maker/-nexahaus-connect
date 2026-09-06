@@ -17,6 +17,7 @@ import { ResourceScopeGuard } from "./modules/authz/resource-scope.guard";
 import { AuthModule } from "./modules/auth/auth.module";
 import { PropertiesModule } from "./modules/properties/properties.module";
 import { DashboardModule } from "./modules/dashboard/dashboard.module";
+import { AdminModule } from "./modules/admin/admin.module";
 
 const config = loadConfig();
 
@@ -60,6 +61,7 @@ const config = loadConfig();
     AuthModule,
     PropertiesModule,
     DashboardModule,
+    AdminModule,
   ],
   providers: [
     // Order matters: rate-limit, then authenticate, then permission, then scope.
