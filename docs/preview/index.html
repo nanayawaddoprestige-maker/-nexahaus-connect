@@ -915,6 +915,94 @@
     color: var(--ink);
   }
 
+  /* ---- horizontal factor bars (health) --------------------------- */
+  .hbar {
+    position: relative;
+    height: 8px;
+    min-width: 110px;
+    border-radius: 999px;
+    background: var(--navy-50);
+    overflow: hidden;
+  }
+  .hbar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--navy-900);
+    border-radius: 999px;
+  }
+  .hbar.warn span {
+    background: var(--warning);
+  }
+  .hbar.crit span {
+    background: var(--critical);
+  }
+  .conf {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+
+  /* ---- statement reconciliation --------------------------------- */
+  .recon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 12px 14px;
+  }
+  .recon b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .recon .ok {
+    color: var(--positive);
+    font-weight: 600;
+  }
+  .ledger td.cr {
+    color: var(--positive);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger td.dr {
+    color: var(--critical);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger td.zero {
+    color: var(--ink-subtle);
+    text-align: right;
+  }
+
+  /* narrow single-column frame body (tenant / vendor portals) */
+  .portal {
+    padding: 24px;
+    background: var(--sunken);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .portal__head h1 {
+    font-size: 19px;
+  }
+  .portal__head p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .safe-note {
+    font-size: 11.5px;
+    color: var(--ink-subtle);
+    border-left: 2px solid var(--line);
+    padding-left: 10px;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * {
       transition: none !important;
@@ -932,12 +1020,16 @@
       </svg>
       <div>
         <div class="brand__name">NexaHaus Connect</div>
-        <div class="brand__kicker">Product preview &middot; Phase 1</div>
+        <div class="brand__kicker">Product preview &middot; Phases 1&ndash;10</div>
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Screens">
       <button class="tab" role="tab" aria-selected="true" data-target="owner">Owner dashboard</button>
       <button class="tab" role="tab" aria-selected="false" data-target="property">Property</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="statement">Owner statement</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="health">Property Health</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="tenant">Tenant portal</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="workorder">Vendor work order</button>
       <button class="tab" role="tab" aria-selected="false" data-target="admin">Staff console</button>
       <button class="tab" role="tab" aria-selected="false" data-target="mobile">Mobile</button>
       <button class="tab" role="tab" aria-selected="false" data-target="signin">Sign&nbsp;in</button>
@@ -946,10 +1038,14 @@
   </header>
 
   <p class="deck__note">
-    Static render of the screens built in Phase 1, using the navy/gold design system and
-    data shapes from the codebase. Figures are <b>representative demo data</b> for the
-    fictional diaspora owner <b>Kwesi Mensah</b> and five Accra properties from the seed
-    script &mdash; not live. The running app needs Node&nbsp;+&nbsp;Docker installed.
+    Static render of a <b>subset</b> of the screens, using the navy/gold design system and
+    data shapes from the codebase. The backend now spans phases 1&ndash;10 (auth &amp; RBAC,
+    properties/units/leases, rent &amp; payments, maintenance &amp; work orders, inspections,
+    owner statements, Property Health &amp; Rescue, CRM, tenant &amp; vendor portals, CSV
+    import, notifications, a BullMQ worker, observability and CI/CD). Figures are
+    <b>representative demo data</b> for the fictional diaspora owner <b>Kwesi Mensah</b> and
+    five Accra properties from the seed script &mdash; not live. The running app needs
+    Node&nbsp;+&nbsp;Docker installed.
   </p>
 
   <!-- ============================ OWNER DASHBOARD ==================== -->
@@ -1364,6 +1460,301 @@
           <div class="btn">Sign in</div>
           <p class="hint">Trouble signing in? Contact your NexaHaus property manager.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ OWNER STATEMENT ================== -->
+  <section class="screen" data-screen="statement" hidden>
+    <div class="screen__caption">
+      <h2>Owner portal &mdash; Statement</h2>
+      <span>/statements/[id] &middot; totals recomputed from the transaction ledger</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/statements/ST-000004</span>
+      </div>
+      <div class="app">
+        <aside class="side">
+          <div class="side__brand">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="#0a1f44" />
+                <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.2" fill="none" stroke-linejoin="round" />
+                <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.2" fill="none" />
+              </svg>
+              <b style="font-size:13px;color:var(--ink)">NexaHaus Connect</b>
+            </div>
+          </div>
+          <nav class="side__nav">
+            <a href="#">Dashboard</a>
+            <a href="#">My Properties</a>
+            <a class="is-active" href="#">Rent &amp; Finance</a>
+            <a href="#">Maintenance</a>
+            <a href="#">Inspections</a>
+            <a href="#">Documents</a>
+            <a href="#">Approvals</a>
+            <a href="#">Messages</a>
+          </nav>
+          <div class="side__foot"><b>Kwesi Mensah</b><span>owner.demo@nexahaus.example</span></div>
+        </aside>
+
+        <div class="main">
+          <a class="back" href="#">&larr; All statements</a>
+          <div class="page-head">
+            <div>
+              <h1 style="display:flex;align-items:center;gap:12px">
+                September 2027 statement
+                <span class="pill pos"><i></i>Issued</span>
+              </h1>
+              <p><span class="mono">ST-000004</span> &middot; Kwesi Mensah &middot; portfolio (5 properties) &middot; 1&ndash;30 Sep 2027</p>
+            </div>
+            <div class="btn" style="width:auto;padding:0 16px">Download PDF</div>
+          </div>
+
+          <div class="grid cols-4" style="margin-bottom:16px">
+            <div class="tile"><div class="tile__label">Gross rental income</div><div class="tile__value pos num">GHS&nbsp;24,500.00</div><div class="tile__hint">rent collected in period</div></div>
+            <div class="tile"><div class="tile__label">Management fees</div><div class="tile__value num">&minus;GHS&nbsp;2,300.00</div><div class="tile__hint">10% / 8% of collected</div></div>
+            <div class="tile"><div class="tile__label">Maintenance</div><div class="tile__value num">&minus;GHS&nbsp;1,850.00</div><div class="tile__hint">1 completed work order</div></div>
+            <div class="tile"><div class="tile__label">Net to owner</div><div class="tile__value pos num">GHS&nbsp;20,350.00</div><div class="tile__hint">gross &minus; fees &minus; costs</div></div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--line)" class="card__title">Ledger lines</div>
+            <div style="overflow-x:auto">
+              <table class="table ledger">
+                <thead>
+                  <tr><th>Date</th><th>Description</th><th>Property</th><th style="text-align:right">Credit</th><th style="text-align:right">Debit</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>03 Sep</td><td>Rent payment &mdash; MoMo</td><td>Cantonments Apartment</td><td class="cr">8,000.00</td><td class="zero">&mdash;</td></tr>
+                  <tr><td>04 Sep</td><td>Rent payment &mdash; MoMo</td><td>East Legon Townhouse</td><td class="cr">12,000.00</td><td class="zero">&mdash;</td></tr>
+                  <tr><td>06 Sep</td><td>Rent payment &mdash; bank transfer</td><td>Airport Residential Flat</td><td class="cr">4,500.00</td><td class="zero">&mdash;</td></tr>
+                  <tr><td>12 Sep</td><td>Work order WO-000001 &mdash; AC repair</td><td>Cantonments Apartment</td><td class="zero">&mdash;</td><td class="dr">1,850.00</td></tr>
+                  <tr><td>30 Sep</td><td>Management fee &mdash; September</td><td>Portfolio</td><td class="zero">&mdash;</td><td class="dr">2,300.00</td></tr>
+                  <tr><td>30 Sep</td><td>Owner distribution &mdash; MoMo payout</td><td>Portfolio</td><td class="zero">&mdash;</td><td class="dr">20,000.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="recon">
+            <span>closing</span> <b>GHS&nbsp;3,550.00</b> <span>=</span>
+            <span>opening</span> <b>GHS&nbsp;3,200.00</b> <span>+</span>
+            <span>credits</span> <b>GHS&nbsp;24,500.00</b> <span>&minus;</span>
+            <span>debits</span> <b>GHS&nbsp;24,150.00</b>
+            <span class="ok">&#10003; reconciles</span>
+          </div>
+          <p class="safe-note" style="margin-top:12px">
+            No total is editable. Re-generating this client + period returns the identical
+            statement; the management fee is posted once as its own ledger transaction.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PROPERTY HEALTH ================= -->
+  <section class="screen" data-screen="health" hidden>
+    <div class="screen__caption">
+      <h2>Owner portal &mdash; Property Health</h2>
+      <span>/property-health/[id] &middot; explainable weighted score</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/properties/NH-000004/health</span>
+      </div>
+      <div class="app">
+        <aside class="side">
+          <div class="side__brand">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="#0a1f44" />
+                <path d="M8 22V11l8-4 8 4v11" stroke="#c9a227" stroke-width="2.2" fill="none" stroke-linejoin="round" />
+                <path d="M12 22v-6h8v6" stroke="#c9a227" stroke-width="2.2" fill="none" />
+              </svg>
+              <b style="font-size:13px;color:var(--ink)">NexaHaus Connect</b>
+            </div>
+          </div>
+          <nav class="side__nav">
+            <a href="#">Dashboard</a>
+            <a class="is-active" href="#">My Properties</a>
+            <a href="#">Rent &amp; Finance</a>
+            <a href="#">Maintenance</a>
+            <a href="#">Inspections</a>
+            <a href="#">Documents</a>
+            <a href="#">Approvals</a>
+            <a href="#">Messages</a>
+          </nav>
+          <div class="side__foot"><b>Kwesi Mensah</b><span>owner.demo@nexahaus.example</span></div>
+        </aside>
+
+        <div class="main">
+          <a class="back" href="#">&larr; Osu Retail Unit</a>
+          <div class="page-head">
+            <div>
+              <h1 style="display:flex;align-items:center;gap:12px">
+                Property Health
+                <span class="pill crit"><i></i>Needs attention</span>
+              </h1>
+              <p><span class="mono">NH-000004</span> &middot; Osu Retail Unit &middot; methodology v1 &middot; scored 3 Sep 2027</p>
+            </div>
+          </div>
+
+          <div class="grid cols-3" style="margin-bottom:18px">
+            <div class="tile"><div class="tile__label">Overall score</div><div class="tile__value crit num">64<span style="font-size:14px;color:var(--ink-subtle)">/100</span></div><div class="tile__hint">down 5 since June</div></div>
+            <div class="tile"><div class="tile__label">Biggest drag</div><div class="tile__value num" style="font-size:18px">Occupancy</div><div class="tile__hint">0 of 1 units let</div></div>
+            <div class="tile"><div class="tile__label">Rescue</div><div class="tile__value warn num" style="font-size:18px">Eligible</div><div class="tile__hint">score below 70</div></div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--line)" class="card__title">Component breakdown</div>
+            <div style="overflow-x:auto">
+              <table class="table">
+                <thead>
+                  <tr><th>Factor</th><th>Value</th><th style="width:180px">&nbsp;</th><th>Weight</th><th>Weighted</th><th>Basis</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Occupancy</td><td class="num">0</td><td><div class="hbar crit"><span style="width:2%"></span></div></td><td class="num">0.20</td><td class="num">0.0</td><td><span class="conf">actual</span></td></tr>
+                  <tr><td>Rent collection</td><td class="num">90</td><td><div class="hbar"><span style="width:90%"></span></div></td><td class="num">0.20</td><td class="num">18.0</td><td><span class="conf">actual</span></td></tr>
+                  <tr><td>Maintenance</td><td class="num">60</td><td><div class="hbar warn"><span style="width:60%"></span></div></td><td class="num">0.15</td><td class="num">9.0</td><td><span class="conf">actual</span></td></tr>
+                  <tr><td>Condition</td><td class="num">64</td><td><div class="hbar warn"><span style="width:64%"></span></div></td><td class="num">0.15</td><td class="num">9.6</td><td><span class="conf">estimate</span></td></tr>
+                  <tr><td>Tenant satisfaction</td><td class="num">85</td><td><div class="hbar"><span style="width:85%"></span></div></td><td class="num">0.10</td><td class="num">8.5</td><td><span class="conf">estimate</span></td></tr>
+                  <tr><td>Documentation</td><td class="num">95</td><td><div class="hbar"><span style="width:95%"></span></div></td><td class="num">0.10</td><td class="num">9.5</td><td><span class="conf">actual</span></td></tr>
+                  <tr><td>Security</td><td class="num">90</td><td><div class="hbar"><span style="width:90%"></span></div></td><td class="num">0.05</td><td class="num">4.5</td><td><span class="conf">assumption</span></td></tr>
+                  <tr><td>Financial</td><td class="num">64</td><td><div class="hbar warn"><span style="width:64%"></span></div></td><td class="num">0.05</td><td class="num">3.2</td><td><span class="conf">estimate</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid cols-2">
+            <div class="card">
+              <div class="card__title" style="margin-bottom:10px">Ranked recommendations</div>
+              <div class="row"><span>1 &middot; Reduce vacancy &mdash; review pricing &amp; marketing</span><span class="pill crit" style="border:0"><i></i>high</span></div>
+              <div class="row"><span>2 &middot; Clear the maintenance backlog</span><span class="pill warn" style="border:0"><i></i>med</span></div>
+              <div class="row"><span>3 &middot; Refresh exterior paint (inspection flag)</span><span class="pill warn" style="border:0"><i></i>med</span></div>
+            </div>
+            <div class="card">
+              <div class="card__title" style="margin-bottom:10px">Property Rescue</div>
+              <p class="card__desc" style="margin-bottom:12px">Score is below 70, so this property qualifies for a Rescue assessment &mdash; a deeper diagnostic with a costed turnaround plan and a branded PDF.</p>
+              <div class="btn" style="width:auto;padding:0 16px">Start Property Rescue</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ TENANT PORTAL =================== -->
+  <section class="screen" data-screen="tenant" hidden>
+    <div class="screen__caption">
+      <h2>Tenant portal &mdash; Rent</h2>
+      <span>/tenant/rent &middot; tenancy-scoped &middot; no owner figures</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/tenant/rent</span>
+      </div>
+      <div class="portal">
+        <div class="portal__head">
+          <h1>Rent &amp; payments</h1>
+          <p>Adjoa Test-Tenant &middot; Cantonments Apartment &middot; Unit 101 &middot; lease <span class="mono">LS-000001</span></p>
+        </div>
+
+        <div class="grid cols-3">
+          <div class="tile"><div class="tile__label">Monthly rent</div><div class="tile__value num">GHS&nbsp;8,000.00</div><div class="tile__hint">due on the 1st</div></div>
+          <div class="tile"><div class="tile__label">Paid to date</div><div class="tile__value pos num">GHS&nbsp;36,800.00</div><div class="tile__hint">of GHS 48,000.00 billed</div></div>
+          <div class="tile"><div class="tile__label">Outstanding</div><div class="tile__value crit num">GHS&nbsp;11,200.00</div><div class="tile__hint">2 charges behind</div></div>
+        </div>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--line)" class="card__title">Rent charges</div>
+          <div style="overflow-x:auto">
+            <table class="table">
+              <thead>
+                <tr><th>Period</th><th>Due</th><th style="text-align:right">Amount</th><th style="text-align:right">Paid</th><th style="text-align:right">Outstanding</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Sep 2027</td><td>01 Sep 2027</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">0.00</td><td class="num" style="text-align:right">8,000.00</td><td><span class="pill crit"><i></i>Overdue</span></td></tr>
+                <tr><td>Aug 2027</td><td>01 Aug 2027</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">4,800.00</td><td class="num" style="text-align:right">3,200.00</td><td><span class="pill warn"><i></i>Partially paid</span></td></tr>
+                <tr><td>Jul 2027</td><td>01 Jul 2027</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">0.00</td><td><span class="pill pos"><i></i>Paid</span></td></tr>
+                <tr><td>Jun 2027</td><td>01 Jun 2027</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">0.00</td><td><span class="pill pos"><i></i>Paid</span></td></tr>
+                <tr><td>May 2027</td><td>01 May 2027</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">8,000.00</td><td class="num" style="text-align:right">0.00</td><td><span class="pill pos"><i></i>Paid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title" style="margin-bottom:6px">How to pay</div>
+          <p class="card__desc">
+            Pay via the Mobile Money or bank details your NexaHaus property manager has
+            provided, quoting your lease reference <b class="mono">LS-000001</b>. Payments
+            are confirmed by NexaHaus once received.
+          </p>
+        </div>
+        <p class="safe-note">
+          This portal shows only your tenancy. Management fees, owner income, owner
+          statements and other units are never shown here.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ VENDOR WORK ORDER ============== -->
+  <section class="screen" data-screen="workorder" hidden>
+    <div class="screen__caption">
+      <h2>Vendor portal &mdash; Work order</h2>
+      <span>/vendor/work-orders/[id] &middot; bound to the vendor account</span>
+    </div>
+    <div class="frame">
+      <div class="frame__bar">
+        <div class="frame__dots"><i></i><i></i><i></i></div>
+        <span class="frame__url">connect.nexahaus.com/vendor/work-orders/WO-000001</span>
+      </div>
+      <div class="portal">
+        <div class="portal__head">
+          <h1 style="display:flex;align-items:center;gap:12px">
+            AC not cooling in the main room
+            <span class="pill info"><i></i>Issued</span>
+          </h1>
+          <p><span class="mono">WO-000001</span> &middot; ABC Cooling Services (<span class="mono">VN-000001</span>) &middot; scheduled 12 Sep 2027, 10:00</p>
+        </div>
+
+        <div class="grid cols-3">
+          <div class="tile"><div class="tile__label">Category</div><div class="tile__value num" style="font-size:16px">Air conditioning</div></div>
+          <div class="tile"><div class="tile__label">Priority</div><div class="tile__value warn num" style="font-size:16px">Medium</div></div>
+          <div class="tile"><div class="tile__label">Estimate</div><div class="tile__value num">GHS&nbsp;1,850.00</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card__title" style="margin-bottom:12px">Job details</div>
+          <dl class="dl">
+            <div><dt>Request</dt><dd><span class="mono">MR-000001</span> &middot; reported by tenant</dd></div>
+            <div><dt>Location</dt><dd>Cantonments Apartment, Accra</dd></div>
+            <div><dt>Description</dt><dd>Tenant reports the split unit runs but does not cool.</dd></div>
+            <div><dt>Access</dt><dd>NexaHaus manager on site from 10:00</dd></div>
+          </dl>
+          <div class="divider" style="margin:14px 0 12px"></div>
+          <div class="tile__label" style="margin-bottom:8px">Reported photos</div>
+          <div style="display:flex;gap:8px">
+            <div style="width:96px;height:72px;border-radius:8px;background:var(--navy-50);border:1px solid var(--line)"></div>
+            <div style="width:96px;height:72px;border-radius:8px;background:var(--navy-50);border:1px solid var(--line)"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="btn" style="width:auto;padding:0 18px">Start job</div>
+          <div class="btn" style="width:auto;padding:0 18px;background:var(--surface);color:var(--ink-muted);border:1px solid var(--line)">Mark complete &amp; enter actual cost</div>
+        </div>
+        <p class="safe-note">
+          A vendor sees only their assigned work orders. Owner finances, statements,
+          rent and tenant contact details are not exposed in this portal.
+        </p>
       </div>
     </div>
   </section>
