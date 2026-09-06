@@ -41,6 +41,8 @@ import { MessagesModule } from "./modules/messages/messages.module";
 import { SchedulingModule } from "./modules/scheduling/scheduling.module";
 import { PropertyHealthModule } from "./modules/property-health/property-health.module";
 import { PropertyRescueModule } from "./modules/property-rescue/property-rescue.module";
+import { CrmModule } from "./modules/crm/crm.module";
+import { PublicModule } from "./modules/public/public.module";
 
 const config = loadConfig();
 
@@ -106,6 +108,8 @@ const config = loadConfig();
     SchedulingModule,
     PropertyHealthModule,
     PropertyRescueModule,
+    CrmModule,
+    PublicModule,
     DashboardModule,
     AdminModule,
   ],

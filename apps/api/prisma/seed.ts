@@ -150,6 +150,46 @@ async function seedSettings(): Promise<void> {
   });
 }
 
+async function seedSurvey(): Promise<void> {
+  console.error("· property owner survey");
+  const existing = await prisma.survey.findUnique({ where: { key: "property-owner" } });
+  if (existing) return;
+  const questions: { type: string; prompt: string; options?: unknown; required?: boolean }[] = [
+    { type: "NUMBER", prompt: "How many properties do you own?", required: true },
+    { type: "TEXT", prompt: "Where are they located?", required: true },
+    { type: "SINGLE", prompt: "What type of property?", options: ["Apartment", "House", "Commercial", "Land", "Mixed"], required: true },
+    { type: "BOOLEAN", prompt: "Are they currently occupied?" },
+    { type: "SINGLE", prompt: "Who currently manages them?", options: ["I do", "A caretaker", "A company", "No one"] },
+    { type: "TEXT", prompt: "What is your biggest property management problem?", required: true },
+    { type: "SINGLE", prompt: "Do tenants pay on time?", options: ["Always", "Usually", "Sometimes", "Rarely"] },
+    { type: "SINGLE", prompt: "How often do you inspect?", options: ["Monthly", "Quarterly", "Yearly", "Never"] },
+    { type: "BOOLEAN", prompt: "Do you receive regular financial reports?" },
+    { type: "BOOLEAN", prompt: "Do you live in Ghana?", required: true },
+    { type: "TEXT", prompt: "If outside Ghana, what is your biggest challenge?" },
+    { type: "BOOLEAN", prompt: "Would you use professional property management?" },
+    { type: "MULTI", prompt: "Which services interest you?", options: ["Property management", "Asset management", "Facilities", "Leasing", "Property rescue", "Advisory"] },
+    { type: "TEXT", prompt: "What would you expect from a professional property manager?" },
+    { type: "TEXT", prompt: "What would make you trust a property management company?" },
+  ];
+  await prisma.survey.create({
+    data: {
+      key: "property-owner",
+      name: "Property Owner Survey",
+      status: "PUBLISHED",
+      version: 1,
+      questions: {
+        create: questions.map((q, i) => ({
+          sortOrder: i,
+          type: q.type as never,
+          prompt: q.prompt,
+          options: (q.options ?? undefined) as never,
+          required: q.required ?? false,
+        })),
+      },
+    },
+  });
+}
+
 async function seedInspectionTemplate(): Promise<void> {
   console.error("· inspection template");
   const existing = await prisma.inspectionTemplate.findFirst({
@@ -532,6 +572,7 @@ async function main(): Promise<void> {
   await seedRbac();
   await seedSettings();
   await seedInspectionTemplate();
+  await seedSurvey();
 
   if (process.env.SEED_DEMO_DATA === "true" && process.env.NODE_ENV !== "production") {
     await seedDemo();

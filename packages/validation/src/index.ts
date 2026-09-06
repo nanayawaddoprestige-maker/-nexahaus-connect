@@ -9,3 +9,4 @@ export * from "./maintenance.js";
 export * from "./inspection.js";
 export * from "./expense.js";
 export * from "./statement.js";
+export * from "./crm.js";
