@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
+import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { loadConfig } from "@nexahaus/config";
 import { ConfigModule } from "./config/config.module";
@@ -35,6 +36,9 @@ import { PaymentsModule } from "./modules/payments/payments.module";
 import { ExpensesModule } from "./modules/expenses/expenses.module";
 import { StatementsModule } from "./modules/statements/statements.module";
 import { DistributionsModule } from "./modules/distributions/distributions.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { MessagesModule } from "./modules/messages/messages.module";
+import { SchedulingModule } from "./modules/scheduling/scheduling.module";
 
 const config = loadConfig();
 
@@ -68,6 +72,7 @@ const config = loadConfig();
         limit: config.rateLimit.max,
       },
     ]),
+    ScheduleModule.forRoot(),
     ConfigModule,
     PrismaModule,
     RedisModule,
@@ -76,6 +81,7 @@ const config = loadConfig();
     StorageModule,
     EventsModule,
     ReportsModule,
+    NotificationsModule,
     AuthzModule,
     HealthModule,
     AuthModule,
@@ -94,6 +100,8 @@ const config = loadConfig();
     ExpensesModule,
     StatementsModule,
     DistributionsModule,
+    MessagesModule,
+    SchedulingModule,
     DashboardModule,
     AdminModule,
   ],
