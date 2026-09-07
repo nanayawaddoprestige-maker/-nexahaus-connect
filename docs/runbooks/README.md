@@ -7,6 +7,7 @@ under pressure: numbered steps, copy-pasteable commands, explicit success checks
 |---|---|
 | [deploy.md](deploy.md) | Shipping a release to staging or production |
 | [deploy-railway.md](deploy-railway.md) | First deploy to Railway (managed Postgres + Redis, 3 services) |
+| [deploy-vercel-web.md](deploy-vercel-web.md) | Hosting `apps/web` on Vercel/Netlify (API + worker still need a container host) |
 | [incident-response.md](incident-response.md) | Suspected outage, data exposure, or abuse |
 | [disaster-recovery.md](disaster-recovery.md) | Region / cluster / database loss |
 | [backup-restore.md](backup-restore.md) | Taking or restoring a backup; the quarterly drill |

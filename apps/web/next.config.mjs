@@ -8,8 +8,9 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@nexahaus/types", "@nexahaus/validation"],
-  // Self-contained server bundle for the production Docker image.
-  output: "standalone",
+  // Self-contained server bundle for the production Docker image. Vercel uses
+  // its own build adapter and ignores this, so only set it off-Vercel.
+  ...(process.env.VERCEL ? {} : { output: "standalone" }),
   // Monorepo: trace files from the repo root so workspace deps are included.
   // (Top-level in Next 15; still under `experimental` in 14.x.)
   experimental: { outputFileTracingRoot: repoRoot },
