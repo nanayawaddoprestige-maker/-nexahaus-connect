@@ -25,17 +25,23 @@ Config: [`apps/web/vercel.json`](../../apps/web/vercel.json).
    (the `Cannot find module 'zod'` / `BigInt` / `base.json not found` errors).
 3. Framework preset: **Next.js** (auto). Leave Build/Install/Output **blank** —
    `apps/web/vercel.json` sets them:
-   - Install: `corepack enable && corepack prepare pnpm@9.12.0 --activate && pnpm install
-     --no-frozen-lockfile --filter=@nexahaus/web...` (forces pnpm 9 via Corepack — Vercel's
-     bundled pnpm is v6 — and installs only the web app + `@nexahaus/types` /
-     `@nexahaus/validation`)
-   - Build: `corepack enable && pnpm --filter=@nexahaus/web... build` (builds those two
+   - Install: `npx --yes pnpm@9.12.0 install --no-frozen-lockfile --filter=@nexahaus/web...`
+     — runs pnpm 9 directly (Vercel's bundled pnpm is v6, and Corepack does not reliably
+     win the PATH inside the build step), installing only the web app +
+     `@nexahaus/types` / `@nexahaus/validation`.
+   - Build: `npx --yes pnpm@9.12.0 --filter=@nexahaus/web... build` (builds those two
      workspace packages, then `next build`)
    - Output: `.next` (auto, since Root Directory is `apps/web`)
 
+   > `.npmrc` sets `engine-strict=false` so a build host whose Node/pnpm doesn't exactly
+   > match `engines` warns instead of failing with `ERR_PNPM_UNSUPPORTED_ENGINE`.
+   >
    > A repo-root `vercel.json` with the same commands + `outputDirectory:
    > apps/web/.next` is committed as a fallback for the Root-Directory-not-set case, but
    > setting Root Directory to `apps/web` is the reliable path.
+   >
+   > Optional: add project env var `ENABLE_EXPERIMENTAL_COREPACK=1` to make Vercel's own
+   > tooling honour `packageManager: pnpm@9.12.0` too.
 
 ## 2. Environment variables (Production + Preview)
 
