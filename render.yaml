@@ -1,0 +1,143 @@
+# Render Blueprint — fallback host for NexaHaus Connect.
+# One Postgres, one Key Value (Redis), three services (api / worker / web) built
+# from this repo's Dockerfiles. Object storage is NOT on Render — bring an
+# S3-compatible bucket (Cloudflare R2 / AWS S3 / Backblaze B2).
+#
+# Deploy: Render Dashboard → New → Blueprint → pick this repo.
+# Prereqs: pnpm-lock.yaml and apps/api/prisma/migrations/ committed
+#          (bootstrap — see docs/DEPLOYMENT.md §5).
+# Full walkthrough: docs/runbooks/deploy-render.md
+
+databases:
+  - name: nexahaus-postgres
+    plan: basic-256mb # bump to basic-1gb+ for production; "free" expires in 30 days
+    databaseName: nexahaus
+    user: nexahaus
+    region: frankfurt
+    postgresMajorVersion: "16"
+
+envVarGroups:
+  - name: nexahaus-backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Generated once, shared by api + worker. No "change-me" → passes the
+      # production secret guard in packages/config.
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: PAYMENT_WEBHOOK_SECRET
+        generateValue: true # set to the provider's signing secret when you wire a real PAYMENT_PROVIDER
+      - key: EMAIL_FROM
+        value: no-reply@example.com # <-- edit
+      - key: STORAGE_ENDPOINT
+        value: https://ACCOUNT_ID.r2.cloudflarestorage.com # <-- edit (R2 / S3 / B2)
+      - key: STORAGE_BUCKET
+        value: nexahaus-documents
+      - key: STORAGE_FORCE_PATH_STYLE
+        value: "true"
+      - key: STORAGE_ACCESS_KEY
+        sync: false # set in the Render dashboard (secret)
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: SEED_DEMO_DATA
+        value: "false"
+
+services:
+  # ---- Redis / Key Value ------------------------------------------------
+  - type: keyvalue
+    name: nexahaus-redis
+    plan: starter
+    region: frankfurt
+    ipAllowList: [] # internal connections only
+    maxmemoryPolicy: noeviction # BullMQ must not have job data evicted
+
+  # ---- API (NestJS) ---------------------------------------------------------
+  - type: web
+    name: nexahaus-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    region: frankfurt
+    plan: starter
+    healthCheckPath: /health
+    preDeployCommand: pnpm exec prisma migrate deploy # paid instance types only
+    envVars:
+      - fromGroup: nexahaus-backend
+      - key: WORKER_ENABLED
+        value: "false"
+      - key: DISABLE_SCHEDULERS
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexahaus-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: nexahaus-redis
+          property: connectionString
+      - key: PAYMENT_PROVIDER
+        value: manual
+      # api <-> web would be a circular blueprint reference — fill these on the
+      # api service after the first deploy (they're the web + api Render URLs).
+      - key: APP_URL
+        sync: false
+      - key: API_URL
+        sync: false
+      - key: PAYMENT_CALLBACK_URL
+        sync: false # https://<api-url>/api/v1/payments/webhook
+
+  # ---- Worker (same image, different command) --------------------------
+  - type: worker
+    name: nexahaus-worker
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    dockerCommand: node dist/worker.js
+    region: frankfurt
+    plan: starter
+    envVars:
+      - fromGroup: nexahaus-backend
+      - key: WORKER_ENABLED
+        value: "true"
+      - key: DISABLE_SCHEDULERS
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexahaus-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: nexahaus-redis
+          property: connectionString
+      - key: APP_URL
+        fromService:
+          type: web
+          name: nexahaus-web
+          property: url
+      - key: API_URL
+        fromService:
+          type: web
+          name: nexahaus-api
+          property: url
+
+  # ---- Web (Next.js, Docker) ---------------------------------------------
+  - type: web
+    name: nexahaus-web
+    runtime: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    region: frankfurt
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_ORIGIN
+        fromService:
+          type: web
+          name: nexahaus-api
+          property: url
