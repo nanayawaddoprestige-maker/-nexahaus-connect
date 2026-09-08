@@ -11,21 +11,31 @@ Config: [`apps/web/vercel.json`](../../apps/web/vercel.json).
 
 ## 0. Prerequisites
 
-- [ ] Repo on GitHub with `pnpm-lock.yaml` committed (bootstrap — see
-      [DEPLOYMENT.md §5](../DEPLOYMENT.md#5-containers)).
 - [ ] The API already deployed and reachable at a public HTTPS URL.
+- [ ] `pnpm-lock.yaml` **not required** — the config uses `pnpm install
+      --no-frozen-lockfile`. Commit a real lockfile later (run `pnpm install` once with
+      Node 20 + pnpm 9) and drop `--no-frozen-lockfile` for reproducible builds.
 
 ## 1. Import the project
 
 1. Vercel → **Add New… → Project** → import this repo.
-2. **Root Directory:** `apps/web`. Vercel detects the pnpm workspace and installs from the
-   repo root automatically.
-3. Framework preset: **Next.js** (auto). Leave build/install/output blank — `vercel.json`
-   sets them:
-   - Install: `pnpm install --frozen-lockfile`
-   - Build: `cd ../.. && pnpm --filter @nexahaus/web... build` (builds
-     `@nexahaus/types` + `@nexahaus/validation` first, then the app)
-   - Output: `.next`
+2. **Settings → General → Root Directory → `apps/web`** → Save. This is required: Vercel
+   detects Next.js from `apps/web/package.json` and reads `apps/web/vercel.json`. Without
+   it, Vercel builds from the repo root with `npm` and the pnpm workspace never links
+   (the `Cannot find module 'zod'` / `BigInt` / `base.json not found` errors).
+3. Framework preset: **Next.js** (auto). Leave Build/Install/Output **blank** —
+   `apps/web/vercel.json` sets them:
+   - Install: `corepack enable && corepack prepare pnpm@9.12.0 --activate && pnpm install
+     --no-frozen-lockfile --filter=@nexahaus/web...` (forces pnpm 9 via Corepack — Vercel's
+     bundled pnpm is v6 — and installs only the web app + `@nexahaus/types` /
+     `@nexahaus/validation`)
+   - Build: `corepack enable && pnpm --filter=@nexahaus/web... build` (builds those two
+     workspace packages, then `next build`)
+   - Output: `.next` (auto, since Root Directory is `apps/web`)
+
+   > A repo-root `vercel.json` with the same commands + `outputDirectory:
+   > apps/web/.next` is committed as a fallback for the Root-Directory-not-set case, but
+   > setting Root Directory to `apps/web` is the reliable path.
 
 ## 2. Environment variables (Production + Preview)
 
@@ -63,8 +73,15 @@ Open the site, sign in, load the owner dashboard.
 
 ## Netlify equivalent
 
-If you use Netlify instead: **Base directory** `apps/web`, **Build command**
-`cd ../.. && pnpm --filter @nexahaus/web... build`, **Publish directory**
-`apps/web/.next`, add the official **@netlify/plugin-nextjs**, and set the same
-`API_ORIGIN` env var. Everything else (API, worker, DB, Redis, storage) is identical to
-the table in the answer above.
+If you use Netlify instead:
+
+- **Base directory:** `apps/web`
+- **Build command:** `corepack enable && pnpm --filter=@nexahaus/web... build`
+- **Publish directory:** `apps/web/.next`
+- Add the official **@netlify/plugin-nextjs**.
+- Environment: `NPM_FLAGS=--version` and `NETLIFY_USE_PNPM=true` (or set
+  `PNPM_FLAGS=--no-frozen-lockfile`); Netlify runs `pnpm install` from the repo root when
+  it sees `pnpm-workspace.yaml`. Set the same `API_ORIGIN` var.
+
+Everything else (API, worker, DB, Redis, storage) is identical to the table in the answer
+above. Use Vercel **or** Netlify, not both.
