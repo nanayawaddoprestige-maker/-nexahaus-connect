@@ -2,9 +2,12 @@ import { createHash } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import type {
+  AttributionInput,
   ContactEnquiryInput,
   EarlyAccessInput,
   PropertyHealthCheckInput,
+  PropertyOwnerSurveyInput,
+  PropertyRescueInput,
   SurveyResponseInput,
 } from "@nexahaus/validation";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -13,6 +16,21 @@ import { RefService } from "../../common/ref.service";
 import { AuditService } from "../../audit/audit.service";
 import { computeLeadScore } from "../crm/lead-scoring.util";
 import { scoreHealthCheck } from "./public-health-check.util";
+import { scoreRescue } from "./property-rescue.util";
+
+/** Consent-record evidence blob, shared shape across the public endpoints. */
+function evidence(
+  consent: { marketing: boolean; wording?: string },
+  ipHash: string,
+  attribution?: AttributionInput,
+): Prisma.InputJsonValue {
+  return { ...consent, ipHash, attribution: attribution ?? null } as Prisma.InputJsonValue;
+}
+
+/** Derive a CRM campaign string from attribution, if present. */
+function campaignFrom(attribution?: AttributionInput): string | undefined {
+  return attribution?.utm_campaign ?? undefined;
+}
 
 /**
  * Public (unauthenticated) lead-capture funnel: Property Health Check, Early
@@ -36,11 +54,14 @@ export class PublicService {
         name: input.contactName,
         email: input.email,
         phone: input.phone,
-        source: "PROPERTY_RESCUE",
+        source: "WEBSITE",
+        campaign: campaignFrom(input.attribution),
         propertyCount: input.propertyCount,
         propertyType: input.propertyType,
         location: input.location,
         livesInGhana: input.livesInGhana,
+        serviceInterest: input.serviceInterest,
+        biggestChallenge: input.biggestChallenge,
         assessmentCompleted: true,
       });
       await tx.propertyHealthCheck.create({
@@ -54,6 +75,8 @@ export class PublicService {
             propertyCount: input.propertyCount,
             location: input.location,
             livesInGhana: input.livesInGhana,
+            rentCollection: input.rentCollection ?? null,
+            maintenanceHandler: input.maintenanceHandler ?? null,
           } as Prisma.InputJsonValue,
           answers: input.answers as Prisma.InputJsonValue,
           preliminaryScore: result.score,
@@ -67,7 +90,7 @@ export class PublicService {
           purpose: "marketing",
           lawfulBasis: "consent",
           source: "public.health-check",
-          evidence: { ...input.consent, ipHash } as Prisma.InputJsonValue,
+          evidence: evidence(input.consent, ipHash, input.attribution),
         },
       });
       await this.audit.record(
@@ -110,9 +133,12 @@ export class PublicService {
         email: input.email,
         phone: input.phone,
         source: "WEBSITE",
-        campaign: input.campaign,
+        campaign: campaignFrom(input.attribution) ?? input.campaign,
         propertyCount: input.propertyCount,
         location: input.location,
+        livesInGhana: input.livesInGhana,
+        serviceInterest: input.serviceInterest,
+        biggestChallenge: input.interest,
       });
       await tx.consentRecord.create({
         data: {
@@ -121,7 +147,7 @@ export class PublicService {
           purpose: "marketing",
           lawfulBasis: "consent",
           source: "public.early-access",
-          evidence: { ...input.consent, ipHash } as Prisma.InputJsonValue,
+          evidence: evidence(input.consent, ipHash, input.attribution),
         },
       });
       await this.audit.record(
@@ -198,6 +224,137 @@ export class PublicService {
       received: true,
       message:
         "Thank you. Your enquiry has been received. A member of the NexaHaus team will contact you.",
+    };
+  }
+
+  async submitPropertyRescue(input: PropertyRescueInput, ipHash: string) {
+    const result = scoreRescue(input.answers);
+
+    await this.prisma.$transaction(async (tx) => {
+      const lead = await this.upsertLead(tx, {
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        source: "PROPERTY_RESCUE",
+        campaign: campaignFrom(input.attribution),
+        propertyCount: input.propertyCount,
+        propertyType: input.propertyType,
+        location: input.propertyLocation ?? null,
+        livesInGhana: input.ownerLocation === "GHANA",
+        biggestChallenge: input.biggestConcern,
+        assessmentCompleted: true,
+      });
+      await tx.propertyHealthCheck.create({
+        data: {
+          leadId: lead.id,
+          contactName: input.name,
+          email: input.email,
+          phone: input.phone,
+          propertyInfo: {
+            kind: "PROPERTY_RESCUE",
+            propertyType: input.propertyType,
+            propertyCount: input.propertyCount,
+            location: input.propertyLocation,
+            ownerLocation: input.ownerLocation,
+          } as Prisma.InputJsonValue,
+          answers: input.answers as Prisma.InputJsonValue,
+          preliminaryScore: result.score,
+          consent: input.consent as Prisma.InputJsonValue,
+        },
+      });
+      await tx.leadActivity.create({
+        data: {
+          leadId: lead.id,
+          type: "NOTE",
+          body:
+            `Property Rescue — preliminary score ${result.score}/100 (${result.band}).\n` +
+            `Top findings: ${result.findings.slice(0, 4).map((f) => f.area).join(", ") || "none"}.` +
+            (input.biggestConcern ? `\nOwner's concern: ${input.biggestConcern}` : ""),
+        },
+      });
+      await tx.consentRecord.create({
+        data: {
+          subjectType: "LEAD",
+          subjectId: lead.id,
+          purpose: "marketing",
+          lawfulBasis: "consent",
+          source: "public.property-rescue",
+          evidence: evidence(input.consent, ipHash, input.attribution),
+        },
+      });
+      await this.audit.record(
+        {
+          actorRoleKey: "PUBLIC",
+          action: "public.property_rescue",
+          resourceType: "lead",
+          resourceId: lead.id,
+          after: { preliminaryScore: result.score, band: result.band },
+        },
+        tx,
+      );
+    });
+
+    return {
+      preliminaryScore: result.score,
+      band: result.band,
+      headline: result.headline,
+      findings: result.findings.map((f) => ({ area: f.area, note: f.note })),
+      disclaimer:
+        "This preliminary digital result is an indicative management assessment and does not constitute a professional property valuation, legal advice or investment advice.",
+      nextStep: "Request a professional assessment from NexaHaus.",
+    };
+  }
+
+  async submitPropertyOwnerSurvey(input: PropertyOwnerSurveyInput, ipHash: string) {
+    await this.prisma.$transaction(async (tx) => {
+      const lead = await this.upsertLead(tx, {
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        source: "WEBSITE",
+        campaign: campaignFrom(input.attribution) ?? "PROPERTY_OWNER_SURVEY",
+        propertyCount: input.propertyCount ?? null,
+        location: input.location ?? null,
+        livesInGhana: input.livesInGhana,
+        serviceInterest: input.serviceInterest,
+        biggestChallenge: input.biggestChallenge,
+      });
+      await tx.leadActivity.create({
+        data: {
+          leadId: lead.id,
+          type: "NOTE",
+          body:
+            "Property Owner Survey response:\n" +
+            Object.entries(input.answers)
+              .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(", ") : String(v)}`)
+              .join("\n"),
+        },
+      });
+      await tx.consentRecord.create({
+        data: {
+          subjectType: "LEAD",
+          subjectId: lead.id,
+          purpose: "marketing",
+          lawfulBasis: "consent",
+          source: "public.property-owner-survey",
+          evidence: evidence(input.consent, ipHash, input.attribution),
+        },
+      });
+      await this.audit.record(
+        {
+          actorRoleKey: "PUBLIC",
+          action: "public.property_owner_survey",
+          resourceType: "lead",
+          resourceId: lead.id,
+          after: { answerCount: Object.keys(input.answers).length },
+        },
+        tx,
+      );
+    });
+    return {
+      submitted: true,
+      message:
+        "Thank you. Your responses help us build NexaHaus around what property owners actually need.",
     };
   }
 

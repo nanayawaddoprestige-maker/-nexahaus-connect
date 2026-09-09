@@ -6,10 +6,14 @@ import {
   contactEnquirySchema,
   earlyAccessSchema,
   propertyHealthCheckSchema,
+  propertyOwnerSurveySchema,
+  propertyRescueSchema,
   surveyResponseSchema,
   type ContactEnquiryInput,
   type EarlyAccessInput,
   type PropertyHealthCheckInput,
+  type PropertyOwnerSurveyInput,
+  type PropertyRescueInput,
   type SurveyResponseInput,
 } from "@nexahaus/validation";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe";
@@ -49,6 +53,22 @@ export class PublicController {
     @Req() req: Request,
   ) {
     return this.pub.submitContact(body, hashIp(req.ip));
+  }
+
+  @Post("property-rescue")
+  propertyRescue(
+    @Body(new ZodValidationPipe(propertyRescueSchema)) body: PropertyRescueInput,
+    @Req() req: Request,
+  ) {
+    return this.pub.submitPropertyRescue(body, hashIp(req.ip));
+  }
+
+  @Post("property-owner-survey")
+  propertyOwnerSurvey(
+    @Body(new ZodValidationPipe(propertyOwnerSurveySchema)) body: PropertyOwnerSurveyInput,
+    @Req() req: Request,
+  ) {
+    return this.pub.submitPropertyOwnerSurvey(body, hashIp(req.ip));
   }
 
   @Get("surveys/:key")

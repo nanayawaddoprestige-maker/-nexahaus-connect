@@ -8,6 +8,7 @@ import { FlowSteps } from "@/components/marketing/flow-steps";
 import { HealthGauge } from "@/components/marketing/health-gauge";
 import { FaqAccordion, FaqJsonLd } from "@/components/marketing/faq-accordion";
 import { CtaBand } from "@/components/marketing/cta-band";
+import { PropertyRescueForm } from "@/components/forms/property-rescue-form";
 import { faqsForTopic } from "@/content/faq";
 
 const DESCRIPTION =
@@ -41,10 +42,11 @@ export default function PropertyRescuePage() {
         lede="Some properties do not need another caretaker. They need a proper assessment. Property Rescue is a structured way to find out what is holding an asset back — and what to do about it."
         breadcrumb={[{ label: "Property Rescue", href: routes.propertyRescue }]}
         jsonLd={{ name: "Property Rescue", description: DESCRIPTION, path: routes.propertyRescue }}
-        primary={{ label: "Request Property Rescue", href: routes.propertyHealthCheck }}
+        primary={{ label: "Start the assessment", href: "#assess" }}
+        secondary={{ label: "How it works", href: "#approach" }}
       />
 
-      <Section>
+      <Section id="approach">
         <SectionHeader eyebrow="The approach" title="Assess, then act." />
         <FlowSteps
           className="mt-10"
@@ -79,12 +81,22 @@ export default function PropertyRescuePage() {
         </div>
       </Section>
 
-      <Section>
-        <SectionHeader
-          eyebrow="What you get"
-          title="A score, the problems behind it, and a plan."
-          lede="A written report you can keep and act on. If you appoint NexaHaus, we work through the actions and re-assess."
-        />
+      <Section id="assess">
+        <div className="mx-auto max-w-2xl">
+          <SectionHeader
+            eyebrow="The assessment"
+            title="Answer six short steps."
+            lede="You'll get a preliminary Property Rescue score and the specific problems behind it. About three minutes."
+          />
+          <div className="mt-8 rounded-2xl border border-line bg-surface p-6 shadow-card sm:p-8">
+            <PropertyRescueForm />
+          </div>
+          <p className="mt-4 text-xs text-ink-subtle">
+            A written report and a professional assessment are the next step. This
+            preliminary digital result is an indicative management assessment and does not
+            constitute a professional property valuation, legal advice or investment advice.
+          </p>
+        </div>
       </Section>
 
       {faqs.length > 0 ? (
@@ -97,8 +109,8 @@ export default function PropertyRescuePage() {
 
       <CtaBand
         title="Find out what your property is really doing."
-        body="Answer a few questions and get an indicative Property Health result, then request a professional assessment."
-        primary={{ label: "Request Property Rescue", href: routes.propertyHealthCheck }}
+        body="Answer six short steps and get an indicative Property Rescue score, then request a professional assessment."
+        primary={{ label: "Start the assessment", href: "#assess" }}
         primaryEvent="property_rescue_requested"
       />
     </>

@@ -103,19 +103,44 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
       `vendors/*` + test `tsc` errors remain (stale `prisma generate`).
 - [x] Retired `_service/ServicePage`.
 
-## Phase 3 — Lead-generation tools
+## Phase 3 — Lead-generation tools  ✅ _this pass_
 
-- `/property-health-check` — premium multi-step questionnaire → indicative score
-  → lead capture (rebuild in place; keep `/health-check` redirect).
-- `/property-rescue` — 6-step interactive diagnostic → preliminary score → lead.
-- `/property-owner-survey` — 5-step research survey.
-- `/early-access` + `/founding-100` — full forms with programme pre-select.
-- `apps/api` `modules/public` endpoint for `property-rescue`; add
-  `attribution` to the health-check / early-access / survey schemas + persist it;
-  `form_started` / `form_completed` + specific events; honeypot; success/error
-  states.
-- Give `(marketing)` a lean provider tree so marketing pages stop mounting
-  `AuthProvider` (currently a harmless `/api/v1/auth/refresh` probe).
+- [x] Multi-step form framework: `components/forms/steps.tsx` (`useSteps`,
+      `StepProgress` numbered rail, `StepPanel` with focus management, `StepNav`),
+      `choice.tsx` (`ChoiceGroup` / `YesNo` / `MultiChoice` pill controls),
+      `score-result.tsx` (shared outcome screen with gauge + breakdown).
+- [x] `/property-health-check` — rebuilt in place as a 6-step premium
+      questionnaire → server-scored indicative result → `ScoreResult`. Richer
+      lead data (rentCollection, maintenanceHandler, biggestChallenge,
+      serviceInterest). `/health-check` redirect kept.
+- [x] `/property-rescue` — 6-step interactive diagnostic added to the page
+      (`#assess`) → `POST /api/v1/public/property-rescue` (new) → score + ranked
+      findings via `ScoreResult`. New `property-rescue.util.ts` scorer.
+- [x] `/property-owner-survey` — 5-step research survey (About You / Your
+      Properties / Your Challenges / What You Need / Contact) →
+      `POST /api/v1/public/property-owner-survey` (new; upsert lead + NOTE with
+      full answers — no `Survey` row needed).
+- [x] `/early-access` + `/founding-100` — rebuilt as real pages sharing
+      `early-access-form.tsx`; programme pre-selects from `?programme=`,
+      Founding 100 locks the campaign.
+- [x] API: `propertyRescueSchema`, `propertyOwnerSurveySchema`,
+      `attributionSchema` hoisted; `attribution` + richer fields added to
+      `propertyHealthCheckSchema` / `earlyAccessSchema` and persisted in
+      `public.service.ts` (consent-record evidence + lead fields). New controller
+      routes. Health-check lead `source` corrected `PROPERTY_RESCUE` → `WEBSITE`.
+- [x] Analytics: `form_started` / `form_completed` + `health_check_completed` /
+      `property_rescue_requested` / `survey_completed` / `early_access_joined`
+      wired into every flow. Honeypot on every form.
+- [x] `(marketing)` no longer mounts the auth probe: `auth-context.tsx` now
+      skips `api.refresh()` unless the path is under a known portal prefix.
+
+**Blocked / deferred:** the API cannot be built or typechecked — `apps/api/prisma/schema.prisma`
+does not parse (`:2433`, plus a second validation error), so `prisma generate`
+fails and every `apps/api` file that references the Prisma client errors. This
+predates the marketing work and is the API team's to fix. The new
+`modules/public` code follows the established patterns and will compile once the
+client is regenerated. Frontend `next build` is unaffected (web imports only the
+built `@nexahaus/validation` / `@nexahaus/types`).
 
 ## Phase 4 — NexaHaus Connect preview
 

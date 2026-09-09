@@ -23,6 +23,37 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+/**
+ * Route prefixes that belong to the authenticated product (portal + CRM + the
+ * login screen). Everything else is the public marketing site, which never needs
+ * a session — so we skip the refresh probe there to avoid an unnecessary
+ * request on every marketing page load.
+ */
+const AUTHED_PREFIXES = [
+  "/login",
+  "/dashboard",
+  "/properties",
+  "/finance",
+  "/maintenance",
+  "/inspections",
+  "/documents",
+  "/approvals",
+  "/reports",
+  "/messages",
+  "/notifications",
+  "/property-health",
+  "/rescue",
+  "/admin",
+  "/tenant",
+  "/vendor",
+];
+
+function pathNeedsSession(pathname: string): boolean {
+  return AUTHED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -39,8 +70,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // On mount: try to mint an access token from the refresh cookie, then load /me.
+  // On mount: try to mint an access token from the refresh cookie, then load
+  // /me. Marketing pages don't need a session, so short-circuit there.
   useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      !pathNeedsSession(window.location.pathname)
+    ) {
+      setStatus("unauthenticated");
+      return;
+    }
     let cancelled = false;
     void (async () => {
       const ok = await api.refresh();
