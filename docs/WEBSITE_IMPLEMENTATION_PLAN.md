@@ -142,12 +142,23 @@ predates the marketing work and is the API team's to fix. The new
 client is regenerated. Frontend `next build` is unaffected (web imports only the
 built `@nexahaus/validation` / `@nexahaus/types`).
 
-## Phase 4 — NexaHaus Connect preview
+## Phase 4 — NexaHaus Connect preview  ✅ _this pass_
 
-- `/nexahaus-connect` full page.
-- `components/connect-preview/*` — responsive illustrative dashboards (portfolio,
-  property detail, maintenance, financial statement, inspection report, property
-  health). Realistic fictional data, "Illustrative interface" labels.
+- [x] `components/connect-preview/*` — six responsive illustrative screens, each
+      wrapped in `ConnectFrame` (window chrome + `ModuleRail` + visible
+      "Illustrative interface" marker): `dashboard-panel`, `property-detail-panel`,
+      `statement-panel` (owner statement, reconcilable lines), `maintenance-panel`
+      (report → completion + approval threshold), `inspection-panel` (area
+      ratings + photo placeholders), `health-panel` (8-category breakdown).
+      Realistic fictional data only. Kept the Phase-2 `portfolio-panel` /
+      `performance-panel` for the homepage / asset-management page.
+- [x] `showcase.tsx` — client tabbed tour (Dashboard / Property / Finance /
+      Maintenance / Inspections / Property Health); emits `connect_preview_viewed`
+      once on view.
+- [x] `/nexahaus-connect` full page: ServiceHero + `Service` JSON-LD, the
+      interactive showcase (`#preview`), 11-feature grid, modules grid, a
+      "private by default" data section linking the Privacy Policy, an access
+      band (Join Early Access + Client Login), closing CTA band.
 
 ## Phase 5 — Insights
 
