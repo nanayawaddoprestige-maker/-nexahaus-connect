@@ -150,7 +150,7 @@ export default function LeadDetailPage() {
               ))}
             </ul>
           ) : null}
-          {l.healthChecks.length > 0 ? (
+          {l.healthChecks[0] ? (
             <p className="mt-3 border-t border-line pt-3 text-xs text-ink-subtle">
               Health check completed · preliminary {l.healthChecks[0].preliminaryScore}/100
             </p>

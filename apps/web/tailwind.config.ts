@@ -62,6 +62,25 @@ const config: Config = {
           "Arial",
           "sans-serif",
         ],
+        display: [
+          "var(--font-display)",
+          "ui-serif",
+          "Georgia",
+          "Cambria",
+          "Times New Roman",
+          "serif",
+        ],
+      },
+      fontSize: {
+        // Editorial display scale — fluid, clamped for small screens.
+        "display-2xl": ["clamp(2.75rem, 1.9rem + 4.2vw, 4.5rem)", { lineHeight: "1.04", letterSpacing: "-0.02em" }],
+        "display-xl": ["clamp(2.25rem, 1.7rem + 2.7vw, 3.5rem)", { lineHeight: "1.07", letterSpacing: "-0.02em" }],
+        "display-lg": ["clamp(1.875rem, 1.5rem + 1.9vw, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.015em" }],
+        "display-md": ["clamp(1.5rem, 1.3rem + 1vw, 2rem)", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
+      },
+      maxWidth: {
+        content: "1200px",
+        prose: "68ch",
       },
       borderRadius: {
         lg: "0.625rem",
@@ -71,6 +90,21 @@ const config: Config = {
       boxShadow: {
         card: "0 1px 2px rgba(10, 31, 68, 0.04), 0 4px 16px rgba(10, 31, 68, 0.06)",
         raised: "0 8px 30px rgba(10, 31, 68, 0.10)",
+        glow: "0 0 0 1px rgba(201, 162, 39, 0.35), 0 8px 30px rgba(10, 31, 68, 0.12)",
+      },
+      keyframes: {
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "fade-in": "fade-in 0.4s ease-out both",
       },
     },
   },

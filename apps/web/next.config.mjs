@@ -34,6 +34,17 @@ const nextConfig = {
       { source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` },
     ];
   },
+
+  // Legacy marketing URLs → their canonical homes. Permanent (308) so search
+  // engines transfer ranking signals.
+  async redirects() {
+    return [
+      { source: "/welcome", destination: "/", permanent: true },
+      { source: "/health-check", destination: "/property-health-check", permanent: true },
+      { source: "/property-rescue-service", destination: "/property-rescue", permanent: true },
+      { source: "/resources", destination: "/insights", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

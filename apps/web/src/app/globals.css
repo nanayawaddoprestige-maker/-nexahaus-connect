@@ -3,13 +3,17 @@
 @tailwind utilities;
 
 :root {
+  /* next/font sets --font-sans / --font-display on <html>; these are fallbacks
+     for any context where the font classes are not applied. */
   --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 }
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-surface-sunken text-ink;
@@ -19,12 +23,37 @@
   h3 {
     @apply font-semibold tracking-tight text-navy-900;
   }
+  /* Anchored sections clear the sticky header. */
+  :where(section, h2, h3)[id] {
+    scroll-margin-top: 6rem;
+  }
   :focus-visible {
     @apply outline-none ring-2 ring-navy-500 ring-offset-2 ring-offset-surface;
+  }
+  ::selection {
+    background: rgba(201, 162, 39, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 
 @layer components {
+  /* Page width — matches Tailwind max-w-content with responsive gutters. */
+  .nx-container {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
   .nx-card {
     @apply rounded-xl border border-line bg-surface p-5 shadow-card;
   }
@@ -33,5 +62,45 @@
   }
   .nx-stat {
     @apply text-2xl font-semibold tabular-nums text-navy-900;
+  }
+
+  /* Small caps eyebrow used above section titles. */
+  .nx-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-gold-600;
+  }
+
+  .nx-display {
+    @apply font-display font-medium text-navy-900;
+  }
+
+  /* Editorial body copy for long-form pages (Insights, legal, About). */
+  .nx-prose {
+    @apply max-w-prose text-[15px] leading-relaxed text-ink-muted;
+  }
+  .nx-prose p {
+    @apply mt-4;
+  }
+  .nx-prose h2 {
+    @apply mt-10 text-xl font-semibold text-navy-900;
+  }
+  .nx-prose h3 {
+    @apply mt-8 text-lg font-semibold text-navy-900;
+  }
+  .nx-prose ul {
+    @apply mt-4 list-disc space-y-1.5 pl-5;
+  }
+  .nx-prose a {
+    @apply font-medium text-navy-700 underline underline-offset-2 hover:text-navy-900;
+  }
+  .nx-prose strong {
+    @apply font-semibold text-navy-900;
+  }
+
+  /* Skip link — visually hidden until focused. */
+  .nx-skip-link {
+    @apply sr-only;
+  }
+  .nx-skip-link:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-lg bg-navy-900 px-4 py-2 text-sm font-medium text-white;
   }
 }
