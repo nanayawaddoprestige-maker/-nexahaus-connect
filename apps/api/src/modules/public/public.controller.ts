@@ -3,9 +3,11 @@ import { ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import type { Request } from "express";
 import {
+  contactEnquirySchema,
   earlyAccessSchema,
   propertyHealthCheckSchema,
   surveyResponseSchema,
+  type ContactEnquiryInput,
   type EarlyAccessInput,
   type PropertyHealthCheckInput,
   type SurveyResponseInput,
@@ -39,6 +41,14 @@ export class PublicController {
     @Req() req: Request,
   ) {
     return this.pub.registerEarlyAccess(body, hashIp(req.ip));
+  }
+
+  @Post("contact")
+  contact(
+    @Body(new ZodValidationPipe(contactEnquirySchema)) body: ContactEnquiryInput,
+    @Req() req: Request,
+  ) {
+    return this.pub.submitContact(body, hashIp(req.ip));
   }
 
   @Get("surveys/:key")

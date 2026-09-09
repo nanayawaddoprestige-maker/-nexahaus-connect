@@ -5,6 +5,16 @@ import { Hero } from "./_home/hero";
 import { TrustStrip } from "./_home/trust-strip";
 import { Problem } from "./_home/problem";
 import { Services } from "./_home/services";
+import { DiasporaSection } from "./_home/diaspora";
+import { ConnectSection } from "./_home/connect";
+import { RescueSection } from "./_home/rescue";
+import { HealthSection } from "./_home/health";
+import { HowItWorks } from "./_home/how-it-works";
+import { Transparency } from "./_home/transparency";
+import { WhyNexaHaus } from "./_home/why";
+import { EarlyAccess } from "./_home/early-access";
+import { InsightsTeaser } from "./_home/insights-teaser";
+import { HomeFaq } from "./_home/faq";
 import { FinalCta } from "./_home/final-cta";
 
 export const metadata: Metadata = buildMetadata({
@@ -28,11 +38,16 @@ export default function HomePage() {
       <TrustStrip />
       <Problem />
       <Services />
-      {/*
-        Phase 2 adds: Diaspora flow, NexaHaus Connect dashboard, Property Rescue,
-        Property Health gauge, How it works, Transparency, Why NexaHaus, Early
-        Access, Founding 100, Insights teaser, FAQ.
-      */}
+      <DiasporaSection />
+      <ConnectSection />
+      <RescueSection />
+      <HealthSection />
+      <HowItWorks />
+      <Transparency />
+      <WhyNexaHaus />
+      <EarlyAccess />
+      <InsightsTeaser />
+      <HomeFaq />
       <FinalCta />
     </>
   );

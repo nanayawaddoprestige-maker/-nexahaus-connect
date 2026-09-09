@@ -16,7 +16,7 @@ export function FlowSteps({
   onNavy = false,
   className,
 }: {
-  steps: FlowStep[];
+  steps: readonly FlowStep[];
   onNavy?: boolean;
   className?: string;
 }) {

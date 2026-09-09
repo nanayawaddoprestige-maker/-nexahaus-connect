@@ -23,6 +23,15 @@ const nextConfig = {
         "development",
         ...(config.resolve.conditionNames ?? ["require", "node", "default"]),
       ];
+      // The @nexahaus/* sources use NodeNext-style ".js" specifiers that point
+      // at sibling ".ts" files. When dev resolves them to source (above), teach
+      // webpack to try ".ts"/".tsx" for a ".js" import. `next build` uses the
+      // compiled dist/ and never hits this.
+      config.resolve.extensionAlias = {
+        ...(config.resolve.extensionAlias ?? {}),
+        ".js": [".ts", ".tsx", ".js"],
+        ".jsx": [".tsx", ".jsx"],
+      };
     }
     return config;
   },

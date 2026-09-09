@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import type {
+  ContactEnquiryInput,
   EarlyAccessInput,
   PropertyHealthCheckInput,
   SurveyResponseInput,
@@ -143,6 +144,63 @@ export class PublicService {
     };
   }
 
+  async submitContact(input: ContactEnquiryInput, ipHash: string) {
+    await this.prisma.$transaction(async (tx) => {
+      const lead = await this.upsertLead(tx, {
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        source: "WEBSITE",
+        campaign: input.attribution?.utm_campaign,
+        propertyCount: input.propertyCount ?? null,
+        propertyType: input.propertyType ?? null,
+        location: input.propertyLocation ?? null,
+        livesInGhana: input.livesInGhana ?? null,
+        serviceInterest: input.serviceNeeded ? [input.serviceNeeded] : undefined,
+        biggestChallenge: input.message.slice(0, 1000),
+      });
+      await tx.leadActivity.create({
+        data: {
+          leadId: lead.id,
+          type: "NOTE",
+          body:
+            `Contact enquiry (prefers ${input.preferredContact.toLowerCase()})` +
+            (input.country ? ` from ${input.country}` : "") +
+            `:\n\n${input.message}`,
+        },
+      });
+      await tx.consentRecord.create({
+        data: {
+          subjectType: "LEAD",
+          subjectId: lead.id,
+          purpose: "marketing",
+          lawfulBasis: "consent",
+          source: "public.contact",
+          evidence: {
+            ...input.consent,
+            ipHash,
+            attribution: input.attribution ?? null,
+          } as Prisma.InputJsonValue,
+        },
+      });
+      await this.audit.record(
+        {
+          actorRoleKey: "PUBLIC",
+          action: "public.contact",
+          resourceType: "lead",
+          resourceId: lead.id,
+          after: { serviceNeeded: input.serviceNeeded ?? null },
+        },
+        tx,
+      );
+    });
+    return {
+      received: true,
+      message:
+        "Thank you. Your enquiry has been received. A member of the NexaHaus team will contact you.",
+    };
+  }
+
   async getSurvey(key: string) {
     const survey = await this.prisma.survey.findFirst({
       where: { key, status: "PUBLISHED" },
@@ -220,19 +278,29 @@ export class PublicService {
       propertyType?: string | null;
       location?: string | null;
       livesInGhana?: boolean | null;
+      serviceInterest?: string[];
+      biggestChallenge?: string;
       assessmentCompleted?: boolean;
     },
   ) {
     const existing = await tx.lead.findFirst({
       where: { email: { equals: data.email, mode: "insensitive" } },
-      select: { id: true, propertyCount: true, location: true, livesInGhana: true, biggestChallenge: true },
+      select: {
+        id: true,
+        propertyCount: true,
+        location: true,
+        livesInGhana: true,
+        biggestChallenge: true,
+        serviceInterest: true,
+      },
     });
 
     const scored = computeLeadScore({
       propertyCount: data.propertyCount ?? existing?.propertyCount,
       livesInGhana: data.livesInGhana ?? existing?.livesInGhana,
       location: data.location ?? existing?.location,
-      biggestChallenge: existing?.biggestChallenge,
+      biggestChallenge: data.biggestChallenge ?? existing?.biggestChallenge,
+      serviceInterest: data.serviceInterest ?? existing?.serviceInterest,
       assessmentCompleted: data.assessmentCompleted,
     });
 
@@ -246,9 +314,13 @@ export class PublicService {
           propertyType: data.propertyType ?? undefined,
           location: data.location ?? undefined,
           livesInGhana: data.livesInGhana ?? undefined,
+          biggestChallenge: data.biggestChallenge ?? undefined,
+          serviceInterest:
+            data.serviceInterest && data.serviceInterest.length > 0
+              ? Array.from(new Set([...(existing.serviceInterest ?? []), ...data.serviceInterest]))
+              : undefined,
           score: scored.score,
           grade: scored.grade,
-          status: existing ? undefined : "NEW",
         },
       });
     }
@@ -265,6 +337,8 @@ export class PublicService {
         propertyType: data.propertyType ?? null,
         location: data.location ?? null,
         livesInGhana: data.livesInGhana ?? null,
+        serviceInterest: data.serviceInterest ?? [],
+        biggestChallenge: data.biggestChallenge ?? null,
         score: scored.score,
         grade: scored.grade,
         status: "NEW",

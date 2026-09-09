@@ -74,17 +74,34 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
 
 ---
 
-## Phase 2 — Core pages
+## Phase 2 — Core pages  ✅ _this pass_
 
-- Complete the homepage: Diaspora flow, NexaHaus Connect dashboard preview,
-  Property Rescue, Property Health gauge, How It Works, Transparency, Why
-  NexaHaus, Early Access, Founding 100, Insights teaser, FAQ.
-- Rebuild `/property-management` (+ "What We Manage", property types),
-  `/asset-management` (+ illustrative performance dashboard), `/diaspora`
-  (+ "What You Can See"), `/property-rescue` (marketing narrative; interactive
-  flow is Phase 3), `/about` (mission / vision / values), `/contact` (real form).
-- `src/content/faq.ts` + `<FAQAccordion>`; `ServiceJsonLd` on service pages.
-- Retire the interim `_service/ServicePage` shell.
+- [x] Homepage completed: Diaspora, NexaHaus Connect dashboard preview
+      (`connect-preview/portfolio-panel`), Property Rescue, Property Health
+      (animated `health-gauge`), How It Works, Transparency, Why NexaHaus, Early
+      Access + Founding 100, Insights teaser, FAQ (`faq-accordion` + FAQPage
+      JSON-LD). Section copy in `_home/content.ts`.
+- [x] Rebuilt `/property-management` ("What We Manage" + property types),
+      `/asset-management` (PM-vs-AM + `performance-panel`), `/diaspora`
+      ("What You Can See" + pain points + flow), `/property-rescue` (marketing
+      narrative; interactive stepper still Phase 3), `/about` (mission / vision /
+      8 values / master brand statement), `/contact` (real form).
+- [x] `src/content/faq.ts` + topic-filtered FAQ blocks on service pages;
+      `ServiceJsonLd` on every service/audience page via `ServiceHero`.
+- [x] Shared building blocks: `service-hero`, `feature-list` (`FeatureList` /
+      `CheckList`), `cta-band`, `insight-card`, `health-gauge`,
+      `connect-preview/{portfolio,performance}-panel`.
+- [x] Forms foundation: `lib/form-options.ts`, `lib/submit-public.ts`
+      (envelope + attribution + 429 handling), `components/forms/fields.tsx`
+      (accessible Field / TextInput / SelectInput / TextArea / ConsentCheckbox /
+      Honeypot / FormError), `components/forms/contact-form.tsx`.
+- [x] **Pulled forward from Phase 3:** `contactEnquirySchema` +
+      `attributionSchema` in `packages/validation/src/crm.ts`; `POST
+      /api/v1/public/contact` in `apps/api` `modules/public` (upsert lead + NOTE
+      activity + consent + audit; `upsertLead` extended with `serviceInterest` /
+      `biggestChallenge`). API `tsc` for `modules/public` is clean; pre-existing
+      `vendors/*` + test `tsc` errors remain (stale `prisma generate`).
+- [x] Retired `_service/ServicePage`.
 
 ## Phase 3 — Lead-generation tools
 
@@ -93,10 +110,12 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
 - `/property-rescue` — 6-step interactive diagnostic → preliminary score → lead.
 - `/property-owner-survey` — 5-step research survey.
 - `/early-access` + `/founding-100` — full forms with programme pre-select.
-- `packages/validation` schemas + `apps/api` `modules/public` endpoints for
-  `contact` and `property-rescue`; UTM + `leadSource` / `campaign` passthrough;
+- `apps/api` `modules/public` endpoint for `property-rescue`; add
+  `attribution` to the health-check / early-access / survey schemas + persist it;
   `form_started` / `form_completed` + specific events; honeypot; success/error
   states.
+- Give `(marketing)` a lean provider tree so marketing pages stop mounting
+  `AuthProvider` (currently a harmless `/api/v1/auth/refresh` probe).
 
 ## Phase 4 — NexaHaus Connect preview
 

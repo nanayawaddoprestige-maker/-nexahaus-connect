@@ -122,6 +122,45 @@ export const surveyResponseSchema = z
   })
   .strict();
 
+/** First-touch campaign attribution passed through from the marketing site.
+ *  Never contains personal data — see apps/web/src/lib/utm.ts. */
+export const attributionSchema = z
+  .object({
+    utm_source: z.string().trim().max(200).optional(),
+    utm_medium: z.string().trim().max(200).optional(),
+    utm_campaign: z.string().trim().max(200).optional(),
+    utm_content: z.string().trim().max(200).optional(),
+    utm_term: z.string().trim().max(200).optional(),
+    click_id: z.string().trim().max(220).optional(),
+    landing_path: z.string().trim().max(300).optional(),
+    referrer: z.string().trim().max(400).optional(),
+  })
+  .strict();
+
+export const contactEnquirySchema = z
+  .object({
+    name: z.string().trim().min(2).max(160),
+    email: email,
+    phone: ghanaPhone,
+    /** ISO country name or code, free text from a country selector. */
+    country: z.string().trim().max(80).optional(),
+    propertyLocation: z.string().trim().max(160).optional(),
+    propertyType: z.string().trim().max(60).optional(),
+    propertyCount: z.number().int().min(0).max(1000).optional(),
+    serviceNeeded: z.string().trim().max(80).optional(),
+    message: z.string().trim().min(1).max(4000),
+    preferredContact: z.enum(["EMAIL", "PHONE", "WHATSAPP"]).default("EMAIL"),
+    livesInGhana: z.boolean().optional(),
+    attribution: attributionSchema.optional(),
+    consent: z.object({
+      marketing: z.literal(true),
+      wording: z.string().trim().min(3).max(2000),
+    }),
+  })
+  .strict();
+
 export type PropertyHealthCheckInput = z.infer<typeof propertyHealthCheckSchema>;
 export type EarlyAccessInput = z.infer<typeof earlyAccessSchema>;
 export type SurveyResponseInput = z.infer<typeof surveyResponseSchema>;
+export type AttributionInput = z.infer<typeof attributionSchema>;
+export type ContactEnquiryInput = z.infer<typeof contactEnquirySchema>;
