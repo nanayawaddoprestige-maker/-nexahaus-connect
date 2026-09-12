@@ -236,7 +236,7 @@ adapter is real code with an intentionally empty `init()` (comment: "until
 posthog-js is added") — wiring it is one dependency + one env var away
 whenever a project key exists.
 
-## Phase 7 — QA
+## Phase 7 — QA ✅ _this pass_
 
 - [x] **`next lint` fixed repo-wide** (flat-config migration). Two separate
       root causes, both resolved:
@@ -316,7 +316,15 @@ whenever a project key exists.
       automated pass covers the WCAG success criteria axe can actually
       test (contrast, name/role/value, list semantics), not everything in
       2.2 AA.
-- [ ] Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 / 1440 / 1920.
+- [x] **Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 /
+      1440 / 1920.** Checked programmatically (`scrollWidth` vs
+      `innerWidth` — the reliable signal for the actual failure mode,
+      horizontal overflow) across the homepage at all 8 widths, plus
+      `/nexahaus-connect`, `/property-health-check`, `/insights`, an
+      insight article and `/property-owner-survey` at a representative
+      subset. Zero horizontal overflow anywhere. Visually spot-checked the
+      homepage at 320px (the narrowest, most likely to break) — clean, no
+      squishing or overlap.
 - [x] **Performance: Lighthouse / CWV, image + font audit.** Same 3 pages:
       performance 90/100. Remaining items (LCP ~3.3s, one render-blocking
       stylesheet request) are inherent to how Next.js ships CSS/JS, not
