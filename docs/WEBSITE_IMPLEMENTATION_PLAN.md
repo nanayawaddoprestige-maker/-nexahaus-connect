@@ -184,12 +184,56 @@ only changes on deploy, so `generateStaticParams` (full static generation) is
 sufficient; there is no revalidation need until Insights moves to a CMS/API
 (the seam `getInsight`/`getAllInsights`/etc. already exists for that move).
 
-## Phase 6 — SEO / analytics / email
+## Phase 6 — SEO / analytics / email  ✅ _this pass_
 
-- Per-page structured data pass; per-page OG images where valuable.
-- Wire analytics events end-to-end; verify UTM → CRM lead mapping (brief §25).
-- Confirmation email templates (Early Access, Survey, Assessment, Rescue,
-  Contact) in NexaHaus branding via the `EMAIL_PROVIDER` adapter.
+Started with an audit (not a guess) of what Phases 1–4 had already wired vs.
+what was actually missing, since a lot of this was assumed to be greenfield
+and wasn't.
+
+- [x] **Structured data**: already ~90% done from earlier phases (Organization
+      /WebSite globally, Service on every service page, FAQ on FAQ pages,
+      Article on insight pages, Breadcrumb everywhere `<Breadcrumbs>` is
+      used). Fixed the two real gaps found: `privacy` and `terms` had a bare
+      `{ title }` `Metadata` object with no canonical/OG/robots wiring at
+      all — both now use `buildMetadata()` like every other page.
+- [x] **OG images**: found and fixed a bug bigger than the plan item itself —
+      the shared default OG image has been 500ing at request time since
+      Phase 1 (Satori requires `display:"flex"` on any element with more
+      than one child; the footer line mixed a JSX expression with a text
+      node and had no `display` at all). Every page's social-share preview
+      was broken. Fixed, then added real per-page OG images (`lib/og-image.tsx`
+      + 7 per-route `opengraph-image.tsx` files) for the highest-traffic
+      pages per `sitemap.ts`'s own `HIGH_PRIORITY` set, plus Insights.
+- [x] **UTM → CRM lead mapping**: browser capture → form submission → API
+      validation was already complete; the missing link was persistence —
+      `Lead` only had `campaign` (from `utm_campaign` alone), so the rest of
+      the attribution set was buried in a per-submission `ConsentRecord`
+      JSON blob, not queryable from the Lead itself. Added
+      `utmSource/utmMedium/utmContent/utmTerm/clickId/landingPath/referrer`
+      columns to `Lead`, populated at creation (first-touch: never
+      overwritten by a later submission) from all 5 public endpoints.
+- [x] **Confirmation emails**: none of the 5 public endpoints sent one, even
+      though the `EmailAdapter` interface already existed. Built 5 branded
+      HTML+text templates (`public-email-templates.ts`) and wired
+      `PublicService` to send one after each transaction commits
+      (best-effort — a failed send is logged, never fails the request).
+- [ ] **Analytics event audit**: verified every declared `AnalyticsEvent` is
+      actually fired from a real CTA/form (including `assessment_requested`,
+      which an initial grep for `track(` missed — it's set via a JSX `event=`
+      prop in `service-hero.tsx`, `hero.tsx`, `final-cta.tsx`, `health.tsx`).
+      No dead events found; nothing to wire.
+
+**Deliberately not done — matches an existing, deliberate pattern, not a gap:**
+Real analytics (PostHog) and real email delivery (SES/SendGrid/Postmark) both
+still resolve to their console/noop adapters regardless of the configured
+`*_PROVIDER` env var. This mirrors the exact same, already-existing pattern
+for SMS/WhatsApp/Push across the whole `NotificationsModule` — every channel
+has a real interface and a working console fallback, with a real third-party
+transport deferred until an actual provider account exists, per the standing
+instruction not to invent external credentials. `lib/analytics.ts`'s PostHog
+adapter is real code with an intentionally empty `init()` (comment: "until
+posthog-js is added") — wiring it is one dependency + one env var away
+whenever a project key exists.
 
 ## Phase 7 — QA
 
