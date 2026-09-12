@@ -39,9 +39,7 @@ const nextConfig = {
   // development without cross-site cookie relaxation. In production the edge/CDN
   // routes /api to the API service instead.
   async rewrites() {
-    return [
-      { source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` },
-    ];
+    return [{ source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` }];
   },
 
   // Legacy marketing URLs → their canonical homes. Permanent (308) so search
@@ -49,8 +47,16 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/welcome", destination: "/", permanent: true },
-      { source: "/health-check", destination: "/property-health-check", permanent: true },
-      { source: "/property-rescue-service", destination: "/property-rescue", permanent: true },
+      {
+        source: "/health-check",
+        destination: "/property-health-check",
+        permanent: true,
+      },
+      {
+        source: "/property-rescue-service",
+        destination: "/property-rescue",
+        permanent: true,
+      },
       { source: "/resources", destination: "/insights", permanent: false },
     ];
   },
@@ -73,9 +79,18 @@ const nextConfig = {
     // up later (lib/analytics.ts's PostHog adapter is currently an inert
     // stub), its host must be added to connect-src (and script-src if it
     // loads a snippet).
+    // `next dev`'s webpack runtime wraps every module in eval() for Fast
+    // Refresh — without 'unsafe-eval' the dev server never hydrates (every
+    // page loads but no interactivity works). `next build` doesn't use
+    // eval() at all, so this only ever widens the policy locally, never in
+    // what actually ships.
+    const scriptSrc =
+      process.env.NODE_ENV === "production"
+        ? "script-src 'self' 'unsafe-inline'"
+        : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
@@ -94,7 +109,10 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
         ],
       },
     ];
