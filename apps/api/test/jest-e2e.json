@@ -8,7 +8,8 @@
   },
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/../src/$1",
-    "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts"
+    "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
   },
   "testTimeout": 30000
 }

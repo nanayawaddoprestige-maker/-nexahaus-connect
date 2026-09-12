@@ -2428,9 +2428,9 @@ model ImportJob {
   totalRows   Int
   validRows   Int
   errorRows   Int
-  /** [{ row: number, field?: string, message: string }] */
+  /// [{ row: number, field?: string, message: string }]
   errors      Json
-  /** Committed row refs / ids, and any commit-time failures. */
+  /// Committed row refs / ids, and any commit-time failures.
   result      Json?
   createdById String?
   createdAt   DateTime      @default(now())

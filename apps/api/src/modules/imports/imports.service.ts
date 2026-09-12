@@ -13,7 +13,7 @@ import { RefService } from "../../common/ref.service";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
 import { parseCsv, toCsv } from "../../common/csv";
 
-interface RowError {
+export interface RowError {
   row: number;
   field?: string;
   message: string;
@@ -179,7 +179,7 @@ export class ImportsService {
   async errorsCsv(id: string): Promise<string> {
     const job = await this.prisma.importJob.findUnique({ where: { id } });
     if (!job) throw AppError.notFound("import");
-    const validation = (job.errors as RowError[]) ?? [];
+    const validation = (job.errors as unknown as RowError[]) ?? [];
     const commit = ((job.result as { commitFailures?: RowError[] } | null)?.commitFailures) ?? [];
     return toCsv(
       ["phase", "row", "field", "message"],
@@ -204,7 +204,7 @@ export class ImportsService {
       totalRows: job.totalRows,
       validRows: job.validRows,
       errorRows: job.errorRows,
-      errors: (job.errors as RowError[]).slice(0, 200),
+      errors: (job.errors as unknown as RowError[]).slice(0, 200),
       createdRefs: result?.createdRefs ?? [],
       commitFailures: result?.commitFailures ?? [],
       createdAt: job.createdAt.toISOString(),

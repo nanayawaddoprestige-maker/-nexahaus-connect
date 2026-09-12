@@ -69,7 +69,7 @@ export async function startTelemetry(): Promise<void> {
         import("@opentelemetry/semantic-conventions"),
       ]);
     const sdk = new NodeSDK({
-      resource: resources.resourceFromAttributes({
+      resource: new resources.Resource({
         [sc.ATTR_SERVICE_NAME]: config.monitoring.otelServiceName,
         [sc.ATTR_SERVICE_VERSION]: release ?? "0.0.0",
         "deployment.environment": config.env,

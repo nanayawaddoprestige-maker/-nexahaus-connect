@@ -90,11 +90,11 @@ export class ApprovalsService {
         orderBy: [{ status: "asc" }, { createdAt: "desc" }],
         include: {
           property: { select: { id: true, name: true, ref: true } },
-          requestedBy: { select: { id: true, fullName: true } },
         },
       }),
       this.prisma.approval.count({ where }),
     ]);
+    const requesters = await this.resolveRequesters(rows.map((a) => a.requestedByUserId));
     return paginate(
       rows.map((a) => ({
         id: a.id,
@@ -109,7 +109,7 @@ export class ApprovalsService {
         threshold: a.thresholdMinor
           ? { minor: a.thresholdMinor.toString(), currency: a.thresholdCurrency ?? "GHS" }
           : null,
-        requestedBy: a.requestedBy,
+        requestedBy: requesters.get(a.requestedByUserId) ?? null,
         dueAt: a.dueAt?.toISOString() ?? null,
         createdAt: a.createdAt.toISOString(),
       })),
@@ -119,18 +119,32 @@ export class ApprovalsService {
     );
   }
 
+  /** `requestedByUserId` is a plain actor-trail id, not a Prisma relation
+   *  (see schema header) — resolve display names with a manual lookup. */
+  private async resolveRequesters(
+    userIds: string[],
+  ): Promise<Map<string, { id: string; fullName: string }>> {
+    const ids = [...new Set(userIds)];
+    if (!ids.length) return new Map();
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, fullName: true },
+    });
+    return new Map(users.map((u) => [u.id, u]));
+  }
+
   async getById(user: AuthUser, id: string) {
     const approval = await this.prisma.approval.findUnique({
       where: { id },
       include: {
         property: { select: { id: true, name: true, ref: true } },
-        requestedBy: { select: { id: true, fullName: true } },
         events: { orderBy: { at: "asc" } },
       },
     });
     if (!approval || !this.inScope(user, approval.clientId, approval.propertyId)) {
       throw AppError.notFound("approval");
     }
+    const requesters = await this.resolveRequesters([approval.requestedByUserId]);
     return {
       id: approval.id,
       ref: approval.ref,
@@ -150,7 +164,7 @@ export class ApprovalsService {
       decisionNote: approval.decisionNote,
       decidedAt: approval.decidedAt?.toISOString() ?? null,
       dueAt: approval.dueAt?.toISOString() ?? null,
-      requestedBy: approval.requestedBy,
+      requestedBy: requesters.get(approval.requestedByUserId) ?? null,
       createdAt: approval.createdAt.toISOString(),
       timeline: approval.events.map((e) => ({
         action: e.action,

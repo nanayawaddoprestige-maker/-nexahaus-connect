@@ -46,7 +46,7 @@ export class LeasesService {
     const expiring =
       query.expiringWithinDays != null
         ? {
-            status: { in: ["ACTIVE", "EXPIRING"] as const },
+            status: { in: ["ACTIVE", "EXPIRING"] as ("ACTIVE" | "EXPIRING")[] },
             endDate: {
               lte: new Date(Date.now() + query.expiringWithinDays * 86_400_000),
               gte: new Date(),

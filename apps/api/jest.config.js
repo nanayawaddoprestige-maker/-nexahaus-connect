@@ -11,6 +11,12 @@ module.exports = {
     // Resolve workspace packages from TS source so unit tests never depend on a
     // prior `pnpm build` of packages/*.
     "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts",
+    // packages/* use "Bundler" module resolution, so their own source imports
+    // each other with explicit ".js" specifiers (e.g. "./enums.js") that
+    // resolve to the sibling ".ts" file. ts-jest's CommonJS resolver doesn't
+    // do that remapping on its own, so strip the extension and let
+    // moduleFileExtensions find the ".ts" file instead.
+    "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
   coverageDirectory: "../coverage",

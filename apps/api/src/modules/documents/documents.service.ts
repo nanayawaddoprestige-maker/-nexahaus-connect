@@ -205,7 +205,6 @@ export class DocumentsService {
         take,
         orderBy: { createdAt: "desc" },
         include: {
-          uploadedBy: { select: { id: true, fullName: true } },
           _count: { select: { versions: true } },
         },
       }),
@@ -225,7 +224,7 @@ export class DocumentsService {
         expiresAt: d.expiresAt?.toISOString() ?? null,
         scanStatus: d.malwareScanStatus,
         downloadable: d.malwareScanStatus === "CLEAN",
-        uploadedBy: d.uploadedBy,
+        uploadedById: d.uploadedById,
         createdAt: d.createdAt.toISOString(),
       })),
       totalItems,
