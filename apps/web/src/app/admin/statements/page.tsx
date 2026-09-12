@@ -5,19 +5,25 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
 import type { StatementRow } from "@/lib/finance-resources";
-import type { ListMeta } from "@nexahaus/types";
 import { formatDate, formatMinor } from "@/lib/format";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 const inputCls =
   "h-9 rounded-lg border border-line bg-surface px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500";
 
 function monthDefaults() {
   const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const start = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1),
+  );
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   return {
     start: start.toISOString().slice(0, 10),
@@ -36,7 +42,8 @@ export default function AdminStatementsPage() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "statements"],
-    queryFn: () => api.list<StatementRow>("/statements", { query: { pageSize: 25 } }),
+    queryFn: () =>
+      api.list<StatementRow>("/statements", { query: { pageSize: 25 } }),
   });
 
   const generate = useMutation({
@@ -52,17 +59,22 @@ export default function AdminStatementsPage() {
       setError(null);
       void qc.invalidateQueries({ queryKey: ["admin", "statements"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Could not generate the statement."),
+    onError: (e) =>
+      setError(
+        e instanceof ApiError ? e.message : "Could not generate the statement.",
+      ),
   });
 
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const rows = data?.items ?? [];
 
   return (
     <div>
       <PageHeader
         title="Statements"
-        subtitle={meta?.totalItems != null ? `${meta.totalItems} generated` : undefined}
+        subtitle={
+          meta?.totalItems != null ? `${meta.totalItems} generated` : undefined
+        }
       />
 
       <Card className="mb-6">
@@ -75,13 +87,17 @@ export default function AdminStatementsPage() {
             className={inputCls}
             placeholder="Client ID (UUID)"
             value={form.clientId}
-            onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, clientId: e.target.value }))
+            }
           />
           <input
             className={inputCls}
             placeholder="Property ID (optional)"
             value={form.propertyId}
-            onChange={(e) => setForm((f) => ({ ...f, propertyId: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, propertyId: e.target.value }))
+            }
           />
           <input
             type="date"
@@ -111,7 +127,10 @@ export default function AdminStatementsPage() {
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No statements yet" description="Generate one above." />
+        <EmptyState
+          title="No statements yet"
+          description="Generate one above."
+        />
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-sm">
@@ -127,9 +146,15 @@ export default function AdminStatementsPage() {
             </thead>
             <tbody>
               {rows.map((s) => (
-                <tr key={s.id} className="border-b border-line last:border-0 hover:bg-surface-sunken">
+                <tr
+                  key={s.id}
+                  className="border-b border-line last:border-0 hover:bg-surface-sunken"
+                >
                   <td className="px-4 py-3">
-                    <Link href={`/finance/statements/${s.id}`} className="font-mono text-xs text-navy-700">
+                    <Link
+                      href={`/finance/statements/${s.id}`}
+                      className="font-mono text-xs text-navy-700"
+                    >
                       {s.ref}
                     </Link>
                   </td>

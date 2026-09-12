@@ -4,12 +4,15 @@ import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { TenantRow } from "@/lib/admin-resources";
-import type { ListMeta } from "@nexahaus/types";
-import { titleCase } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 export default function AdminTenantsPage() {
   const [q, setQ] = useState("");
@@ -18,17 +21,21 @@ export default function AdminTenantsPage() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "tenants", { q, page }],
     queryFn: () =>
-      api.list<TenantRow>("/tenants", { query: { q: q || undefined, page, pageSize: 20 } }),
+      api.list<TenantRow>("/tenants", {
+        query: { q: q || undefined, page, pageSize: 20 },
+      }),
     placeholderData: keepPreviousData,
   });
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const rows = data?.items ?? [];
 
   return (
     <div>
       <PageHeader
         title="Tenants"
-        subtitle={meta?.totalItems != null ? `${meta.totalItems} on record` : undefined}
+        subtitle={
+          meta?.totalItems != null ? `${meta.totalItems} on record` : undefined
+        }
       />
       <input
         value={q}
@@ -49,7 +56,10 @@ export default function AdminTenantsPage() {
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No tenants found" description="Tenants appear here once they are on a lease you manage." />
+        <EmptyState
+          title="No tenants found"
+          description="Tenants appear here once they are on a lease you manage."
+        />
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-sm">
@@ -63,10 +73,17 @@ export default function AdminTenantsPage() {
             </thead>
             <tbody>
               {rows.map((t) => (
-                <tr key={t.id} className="border-b border-line last:border-0 hover:bg-surface-sunken">
+                <tr
+                  key={t.id}
+                  className="border-b border-line last:border-0 hover:bg-surface-sunken"
+                >
                   <td className="px-4 py-3">
-                    <div className="font-medium text-navy-900">{t.fullName}</div>
-                    <div className="font-mono text-[11px] text-ink-subtle">{t.ref}</div>
+                    <div className="font-medium text-navy-900">
+                      {t.fullName}
+                    </div>
+                    <div className="font-mono text-[11px] text-ink-subtle">
+                      {t.ref}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {t.currentTenancy
@@ -75,7 +92,10 @@ export default function AdminTenantsPage() {
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{t.phone}</td>
                   <td className="px-4 py-3">
-                    <StatusBadge status={t.status} tone={t.status === "ACTIVE" ? "positive" : "neutral"} />
+                    <StatusBadge
+                      status={t.status}
+                      tone={t.status === "ACTIVE" ? "positive" : "neutral"}
+                    />
                   </td>
                 </tr>
               ))}
@@ -86,9 +106,16 @@ export default function AdminTenantsPage() {
 
       {meta && (meta.totalPages ?? 1) > 1 ? (
         <div className="mt-4 flex items-center justify-between text-sm">
-          <span className="text-ink-subtle">Page {meta.page} of {meta.totalPages}</span>
+          <span className="text-ink-subtle">
+            Page {meta.page} of {meta.totalPages}
+          </span>
           <div className="flex gap-2">
-            <Button size="sm" variant="secondary" disabled={(meta.page ?? 1) <= 1} onClick={() => setPage((n) => n - 1)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={(meta.page ?? 1) <= 1}
+              onClick={() => setPage((n) => n - 1)}
+            >
               Previous
             </Button>
             <Button

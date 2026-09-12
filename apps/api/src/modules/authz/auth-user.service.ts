@@ -29,9 +29,11 @@ export class AuthUserService {
 
   async build(
     userId: string,
-    sessionId: string,
+    _sessionId: string,
   ): Promise<Omit<AuthUser, "sessionId"> | null> {
-    const cached = await this.redis.get(CACHE_PREFIX + userId).catch(() => null);
+    const cached = await this.redis
+      .get(CACHE_PREFIX + userId)
+      .catch(() => null);
     if (cached) {
       return JSON.parse(cached) as Omit<AuthUser, "sessionId">;
     }

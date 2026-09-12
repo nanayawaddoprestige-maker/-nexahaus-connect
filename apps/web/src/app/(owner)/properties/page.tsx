@@ -5,7 +5,6 @@ import Link from "next/link";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { PropertyListItem } from "@/lib/resources";
-import type { ListMeta } from "@nexahaus/types";
 import { formatMinor, formatPercent, titleCase } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card } from "@/components/ui/card";
@@ -34,12 +33,17 @@ export default function PropertiesPage() {
     queryKey: ["properties", { status, q, page }],
     queryFn: () =>
       api.list<PropertyListItem>("/properties", {
-        query: { status: status || undefined, q: q || undefined, page, pageSize: 12 },
+        query: {
+          status: status || undefined,
+          q: q || undefined,
+          page,
+          pageSize: 12,
+        },
       }),
     placeholderData: keepPreviousData,
   });
 
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const items = data?.items ?? [];
 
   return (
@@ -127,7 +131,10 @@ export default function PropertiesPage() {
                     <div>
                       <dt className="nx-label">Collected</dt>
                       <dd className="mt-1 font-semibold text-navy-900">
-                        {formatMinor(p.finance.collectedRentMinor, p.finance.currency)}
+                        {formatMinor(
+                          p.finance.collectedRentMinor,
+                          p.finance.currency,
+                        )}
                       </dd>
                     </div>
                     <div>
@@ -140,7 +147,10 @@ export default function PropertiesPage() {
                             : "text-warning")
                         }
                       >
-                        {formatMinor(p.finance.outstandingRentMinor, p.finance.currency)}
+                        {formatMinor(
+                          p.finance.outstandingRentMinor,
+                          p.finance.currency,
+                        )}
                       </dd>
                     </div>
                   </dl>

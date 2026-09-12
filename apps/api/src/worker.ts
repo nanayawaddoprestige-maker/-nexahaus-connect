@@ -23,7 +23,6 @@ async function bootstrapWorker(): Promise<void> {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
 
-  // eslint-disable-next-line no-console
   console.error(
     `NexaHaus Connect worker started — consumer=${config.worker.enabled} ` +
       `schedulers=${!config.worker.disableSchedulers}`,

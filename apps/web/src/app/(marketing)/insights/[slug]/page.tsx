@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { SITE_URL } from "@/lib/site-config";
-import { Container, Section, SectionHeader } from "@/components/marketing/primitives";
+import {
+  Container,
+  Section,
+  SectionHeader,
+} from "@/components/marketing/primitives";
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 import { ArticleJsonLd } from "@/components/marketing/jsonld";
 import { InsightCard } from "@/components/marketing/insight-card";
@@ -29,7 +33,8 @@ export function generateMetadata({ params }: PageProps): Metadata {
   if (!article) {
     return buildMetadata({
       title: "Insights",
-      description: "Property-management knowledge for owners in Ghana and the diaspora.",
+      description:
+        "Property-management knowledge for owners in Ghana and the diaspora.",
       path: routes.insights,
       noindex: true,
     });
@@ -71,7 +76,9 @@ function Block({ block }: { block: InsightBlock }) {
         <blockquote className="mt-6 border-l-4 border-gold-400 pl-4 text-lg italic leading-relaxed text-navy-800">
           {block.text}
           {block.cite ? (
-            <cite className="mt-2 block text-sm not-italic text-ink-subtle">— {block.cite}</cite>
+            <cite className="mt-2 block text-sm not-italic text-ink-subtle">
+              — {block.cite}
+            </cite>
           ) : null}
         </blockquote>
       );
@@ -115,12 +122,18 @@ export default function InsightPage({ params }: PageProps) {
         <Container className="pb-16 pt-2">
           <div className="max-w-3xl">
             <p className="nx-eyebrow">{article.category}</p>
-            <h1 className="nx-display mt-3 text-display-lg text-navy-900">{article.title}</h1>
-            <p className="mt-4 text-lg leading-relaxed text-ink-muted">{article.description}</p>
+            <h1 className="nx-display mt-3 text-display-lg text-navy-900">
+              {article.title}
+            </h1>
+            <p className="mt-4 text-lg leading-relaxed text-ink-muted">
+              {article.description}
+            </p>
             <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-ink-subtle">
               <span>By {article.author}</span>
               <span aria-hidden>·</span>
-              <time dateTime={article.publishedAt}>{DATE_FMT.format(new Date(article.publishedAt))}</time>
+              <time dateTime={article.publishedAt}>
+                {DATE_FMT.format(new Date(article.publishedAt))}
+              </time>
               {article.readingMinutes ? (
                 <>
                   <span aria-hidden>·</span>
@@ -139,7 +152,10 @@ export default function InsightPage({ params }: PageProps) {
           ))}
         </div>
         <div className="mx-auto mt-10 max-w-prose">
-          <ArticleShare url={new URL(path, SITE_URL).toString()} title={article.title} />
+          <ArticleShare
+            url={new URL(path, SITE_URL).toString()}
+            title={article.title}
+          />
         </div>
       </Section>
 
@@ -158,7 +174,10 @@ export default function InsightPage({ params }: PageProps) {
         title="Want this level of visibility into your own property?"
         body="Join NexaHaus Early Access, or start with a free Property Health Check."
         primary={{ label: "Join Early Access", href: routes.earlyAccess }}
-        secondary={{ label: "Take the Property Health Check", href: routes.propertyHealthCheck }}
+        secondary={{
+          label: "Take the Property Health Check",
+          href: routes.propertyHealthCheck,
+        }}
         primaryEvent="early_access_joined"
         location="insight_article"
       />

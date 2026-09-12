@@ -45,7 +45,12 @@ export function ArticleShare({ url, title }: { url: string; title: string }) {
           href={l.href}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => track("cta_clicked", { label: `Share on ${l.label}`, location: "insight_share" })}
+          onClick={() =>
+            track("cta_clicked", {
+              label: `Share on ${l.label}`,
+              location: "insight_share",
+            })
+          }
           className="text-ink-muted underline underline-offset-2 hover:text-navy-900"
         >
           {l.label}

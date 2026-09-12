@@ -4,7 +4,8 @@ import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = buildMetadata({
   title: "Terms",
-  description: "The terms that govern use of the NexaHaus website and its forms.",
+  description:
+    "The terms that govern use of the NexaHaus website and its forms.",
   path: routes.terms,
 });
 
@@ -22,14 +23,16 @@ export default function TermsPage() {
           advice, or regulated real-estate brokerage.
         </p>
         <p>
-          Automated figures — including the Property Health Score, Property Rescue
-          score and any estimated values or yields — are indicative, generated from
-          the data held in the platform. They are not verified valuations. Where
-          professional review is required, the platform says so.
+          Automated figures — including the Property Health Score, Property
+          Rescue score and any estimated values or yields — are indicative,
+          generated from the data held in the platform. They are not verified
+          valuations. Where professional review is required, the platform says
+          so.
         </p>
         <p>
-          Regulated real-estate agency activities are provided only where NexaHaus
-          holds the required Ghanaian licensing and qualified personnel.
+          Regulated real-estate agency activities are provided only where
+          NexaHaus holds the required Ghanaian licensing and qualified
+          personnel.
         </p>
         <p>
           Client and property funds are administered separately from NexaHaus

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
-import { LeadGrade, type AuthUser } from "@nexahaus/types";
+import type { AuthUser } from "@nexahaus/types";
 import type {
   ConvertLeadInput,
   CreateLeadInput,
@@ -13,7 +13,10 @@ import { AppError } from "../../common/app-error";
 import { RefService } from "../../common/ref.service";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
 import { pageParams, paginate, parseSort } from "../../common/pagination";
-import { computeLeadScore, type LeadScoreConfigShape } from "./lead-scoring.util";
+import {
+  computeLeadScore,
+  type LeadScoreConfigShape,
+} from "./lead-scoring.util";
 
 const SORTABLE = ["createdAt", "score", "name", "status"] as const;
 
@@ -104,8 +107,12 @@ export class LeadsService {
           orderBy: { occurredAt: "desc" },
           include: { byUser: { select: { id: true, fullName: true } } },
         },
-        healthChecks: { select: { id: true, preliminaryScore: true, createdAt: true } },
-        surveyResponses: { select: { id: true, surveyId: true, submittedAt: true } },
+        healthChecks: {
+          select: { id: true, preliminaryScore: true, createdAt: true },
+        },
+        surveyResponses: {
+          select: { id: true, surveyId: true, submittedAt: true },
+        },
       },
     });
     if (!lead) throw AppError.notFound("lead");
@@ -179,7 +186,9 @@ export class LeadsService {
           grade: scored.grade,
           status: "NEW",
           ownerUserId: user.userId,
-          consent: input.consent ? (input.consent as Prisma.InputJsonValue) : undefined,
+          consent: input.consent
+            ? (input.consent as Prisma.InputJsonValue)
+            : undefined,
         },
       });
       if (input.consent) {
@@ -196,7 +205,13 @@ export class LeadsService {
         });
       }
       await this.audit.record(
-        { ...ctx, action: "lead.create", resourceType: "lead", resourceId: created.id, after: { ref: created.ref, score: scored.score, grade: scored.grade } },
+        {
+          ...ctx,
+          action: "lead.create",
+          resourceType: "lead",
+          resourceId: created.id,
+          after: { ref: created.ref, score: scored.score, grade: scored.grade },
+        },
         tx,
       );
       return created;
@@ -204,7 +219,12 @@ export class LeadsService {
     return this.getById(lead.id);
   }
 
-  async update(user: AuthUser, id: string, input: UpdateLeadInput, ctx: AuditContext) {
+  async update(
+    user: AuthUser,
+    id: string,
+    input: UpdateLeadInput,
+    ctx: AuditContext,
+  ) {
     const existing = await this.prisma.lead.findUnique({ where: { id } });
     if (!existing) throw AppError.notFound("lead");
 
@@ -255,7 +275,10 @@ export class LeadsService {
     input: LeadActivityInput,
     ctx: AuditContext,
   ) {
-    const lead = await this.prisma.lead.findUnique({ where: { id }, select: { id: true } });
+    const lead = await this.prisma.lead.findUnique({
+      where: { id },
+      select: { id: true },
+    });
     if (!lead) throw AppError.notFound("lead");
     await this.prisma.leadActivity.create({
       data: {
@@ -296,7 +319,8 @@ export class LeadsService {
         location: lead.location,
         biggestChallenge: lead.biggestChallenge,
         serviceInterest: lead.serviceInterest,
-        assessmentCompleted: lead.healthChecks.length > 0 || lead.surveyResponses.length > 0,
+        assessmentCompleted:
+          lead.healthChecks.length > 0 || lead.surveyResponses.length > 0,
         consultationBooked: consultationBooked > 0,
         engagementTouches: lead._count.activities,
       },
@@ -343,7 +367,12 @@ export class LeadsService {
         data: { status: "WON", convertedClientId: created.id },
       });
       await tx.leadActivity.create({
-        data: { leadId: id, type: "STATUS_CHANGE", body: `Converted to client ${created.ref}`, byUserId: user.userId },
+        data: {
+          leadId: id,
+          type: "STATUS_CHANGE",
+          body: `Converted to client ${created.ref}`,
+          byUserId: user.userId,
+        },
       });
       // Carry the marketing consent onto the client.
       if (lead.consent) {
@@ -359,7 +388,13 @@ export class LeadsService {
         });
       }
       await this.audit.record(
-        { ...ctx, action: "lead.convert", resourceType: "lead", resourceId: id, after: { clientId: created.id, clientRef: created.ref } },
+        {
+          ...ctx,
+          action: "lead.convert",
+          resourceType: "lead",
+          resourceId: id,
+          after: { clientId: created.id, clientRef: created.ref },
+        },
         tx,
       );
       return created;
@@ -387,9 +422,17 @@ export class LeadsService {
     });
     const version = (latest?.version ?? 0) + 1;
     await this.prisma.$transaction([
-      this.prisma.leadScoreConfig.updateMany({ where: { active: true }, data: { active: false } }),
+      this.prisma.leadScoreConfig.updateMany({
+        where: { active: true },
+        data: { active: false },
+      }),
       this.prisma.leadScoreConfig.create({
-        data: { version, factors: factors as Prisma.InputJsonValue, active: true, createdById: user.userId },
+        data: {
+          version,
+          factors: factors as Prisma.InputJsonValue,
+          active: true,
+          createdById: user.userId,
+        },
       }),
     ]);
     await this.audit.record({
@@ -402,12 +445,16 @@ export class LeadsService {
     return { version, factors };
   }
 
-  private async activeConfig(): Promise<LeadScoreConfigShape["factors"] | undefined> {
+  private async activeConfig(): Promise<
+    LeadScoreConfigShape["factors"] | undefined
+  > {
     const cfg = await this.prisma.leadScoreConfig.findFirst({
       where: { active: true },
       orderBy: { version: "desc" },
       select: { factors: true },
     });
-    return (cfg?.factors as LeadScoreConfigShape["factors"] | undefined) ?? undefined;
+    return (
+      (cfg?.factors as LeadScoreConfigShape["factors"] | undefined) ?? undefined
+    );
   }
 }

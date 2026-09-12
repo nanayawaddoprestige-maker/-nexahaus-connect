@@ -12,9 +12,10 @@ Config: [`apps/web/vercel.json`](../../apps/web/vercel.json).
 ## 0. Prerequisites
 
 - [ ] The API already deployed and reachable at a public HTTPS URL.
-- [ ] `pnpm-lock.yaml` **not required** — the config uses `pnpm install
-      --no-frozen-lockfile`. Commit a real lockfile later (run `pnpm install` once with
-      Node 20 + pnpm 9) and drop `--no-frozen-lockfile` for reproducible builds.
+- [ ] `pnpm-lock.yaml` **not required** — the config uses
+      `pnpm install --no-frozen-lockfile`. Commit a real lockfile later (run
+      `pnpm install` once with Node 20 + pnpm 9) and drop `--no-frozen-lockfile`
+      for reproducible builds.
 
 ## 1. Import the project
 
@@ -25,6 +26,7 @@ Config: [`apps/web/vercel.json`](../../apps/web/vercel.json).
    (the `Cannot find module 'zod'` / `BigInt` / `base.json not found` errors).
 3. Framework preset: **Next.js** (auto). Leave Build/Install/Output **blank** —
    `apps/web/vercel.json` sets them:
+
    - Install: `npx --yes pnpm@9.12.0 install --no-frozen-lockfile --filter=@nexahaus/web...`
      — runs pnpm 9 directly (Vercel's bundled pnpm is v6, and Corepack does not reliably
      win the PATH inside the build step), installing only the web app +
@@ -37,7 +39,7 @@ Config: [`apps/web/vercel.json`](../../apps/web/vercel.json).
    > match `engines` warns instead of failing with `ERR_PNPM_UNSUPPORTED_ENGINE`.
    >
    > A repo-root `vercel.json` with the same commands + `outputDirectory:
-   > apps/web/.next` is committed as a fallback for the Root-Directory-not-set case, but
+apps/web/.next` is committed as a fallback for the Root-Directory-not-set case, but
    > setting Root Directory to `apps/web` is the reliable path.
    >
    > Optional: add project env var `ENABLE_EXPERIMENTAL_COREPACK=1` to make Vercel's own

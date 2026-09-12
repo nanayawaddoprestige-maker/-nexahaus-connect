@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { z } from "zod";
 import type { Request } from "express";
@@ -20,11 +12,7 @@ import {
 } from "@nexahaus/validation";
 import type { AuthUser } from "@nexahaus/types";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe";
-import {
-  CurrentUser,
-  RequirePermission,
-  ScopedResource,
-} from "../../common/decorators";
+import { CurrentUser, RequirePermission } from "../../common/decorators";
 import { auditCtxFromRequest } from "../../common/audit-context";
 import { ExpensesService } from "./expenses.service";
 
@@ -81,7 +69,8 @@ export class ExpensesController {
   decide(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(decideSchema)) body: z.infer<typeof decideSchema>,
+    @Body(new ZodValidationPipe(decideSchema))
+    body: z.infer<typeof decideSchema>,
     @Req() req: Request,
   ) {
     return this.expenses.decide(

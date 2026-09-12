@@ -41,7 +41,9 @@ export class MessagesService {
   ) {
     const { skip, take, page, pageSize } = pageParams(query);
     const where: Prisma.MessageThreadWhereInput = {
-      ...(user.scopeExempt ? {} : { participants: { some: { userId: user.userId } } }),
+      ...(user.scopeExempt
+        ? {}
+        : { participants: { some: { userId: user.userId } } }),
       ...(query.type ? { type: query.type as never } : {}),
       ...(query.status ? { status: query.status } : {}),
     };
@@ -156,18 +158,29 @@ export class MessagesService {
     };
   }
 
-  async createThread(user: AuthUser, input: CreateThreadInput, ctx: AuditContext) {
+  async createThread(
+    user: AuthUser,
+    input: CreateThreadInput,
+    ctx: AuditContext,
+  ) {
     // Scope check on the thread's subject.
     if (input.propertyId) {
       const property = await this.prisma.property.findFirst({
         where: { id: input.propertyId, deletedAt: null },
         select: { id: true, clientId: true },
       });
-      if (!property || (!user.scopeExempt && !propertyInScope(user, property))) {
+      if (
+        !property ||
+        (!user.scopeExempt && !propertyInScope(user, property))
+      ) {
         throw AppError.notFound("property");
       }
       input.clientId = input.clientId ?? property.clientId;
-    } else if (input.clientId && !user.scopeExempt && !clientInScope(user, input.clientId)) {
+    } else if (
+      input.clientId &&
+      !user.scopeExempt &&
+      !clientInScope(user, input.clientId)
+    ) {
       throw AppError.notFound("client");
     }
 
@@ -175,7 +188,16 @@ export class MessagesService {
     // plus the NexaHaus staff assigned to the property for owner-facing threads.
     const participants = new Set<string>([user.userId]);
     const isStaff = user.roles.some((r) =>
-      ["SUPER_ADMIN", "MANAGING_DIRECTOR", "PROPERTY_MANAGER", "FINANCE_OFFICER", "MAINTENANCE_OFFICER", "INSPECTOR", "LEASING_OFFICER", "SUPPORT_STAFF"].includes(r),
+      [
+        "SUPER_ADMIN",
+        "MANAGING_DIRECTOR",
+        "PROPERTY_MANAGER",
+        "FINANCE_OFFICER",
+        "MAINTENANCE_OFFICER",
+        "INSPECTOR",
+        "LEASING_OFFICER",
+        "SUPPORT_STAFF",
+      ].includes(r),
     );
 
     if (input.propertyId) {
@@ -191,7 +213,11 @@ export class MessagesService {
     if (isStaff && input.participantUserIds) {
       // Staff may add specific users; validate they exist and are active.
       const valid = await this.prisma.user.findMany({
-        where: { id: { in: input.participantUserIds }, status: "ACTIVE", deletedAt: null },
+        where: {
+          id: { in: input.participantUserIds },
+          status: "ACTIVE",
+          deletedAt: null,
+        },
         select: { id: true },
       });
       valid.forEach((u) => participants.add(u.id));
@@ -239,7 +265,9 @@ export class MessagesService {
         DomainEventType.MESSAGE_RECEIVED,
         {
           threadId: created.id,
-          recipientUserIds: [...participants].filter((id) => id !== user.userId),
+          recipientUserIds: [...participants].filter(
+            (id) => id !== user.userId,
+          ),
           preview: input.firstMessage.slice(0, 140),
         },
         tx,
@@ -265,13 +293,18 @@ export class MessagesService {
     threadId: string,
     body: string,
     attachmentDocumentIds: string[] | undefined,
-    ctx: AuditContext,
+    _ctx: AuditContext,
   ) {
     const participant = await this.assertParticipant(user, threadId);
     if (!participant && user.scopeExempt) {
       // A scope-exempt user posting into a thread joins it.
       await this.prisma.threadParticipant.create({
-        data: { threadId, userId: user.userId, role: "NEXAHAUS_SIDE", lastReadAt: new Date() },
+        data: {
+          threadId,
+          userId: user.userId,
+          role: "NEXAHAUS_SIDE",
+          lastReadAt: new Date(),
+        },
       });
     }
 
@@ -287,7 +320,11 @@ export class MessagesService {
           senderUserId: user.userId,
           body,
           attachments: attachmentDocumentIds?.length
-            ? { create: attachmentDocumentIds.map((documentId) => ({ documentId })) }
+            ? {
+                create: attachmentDocumentIds.map((documentId) => ({
+                  documentId,
+                })),
+              }
             : undefined,
         },
       });

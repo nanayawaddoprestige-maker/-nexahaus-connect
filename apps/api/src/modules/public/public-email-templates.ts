@@ -76,7 +76,8 @@ export function earlyAccessConfirmationEmail(input: {
   name: string;
   campaign: "FOUNDING_100" | "EARLY_ACCESS" | "OWNER_CLUB";
 }): EmailTemplate {
-  const programme = input.campaign === "FOUNDING_100" ? "Founding 100" : "Early Access";
+  const programme =
+    input.campaign === "FOUNDING_100" ? "Founding 100" : "Early Access";
   const greeting = `Hi ${input.name},`;
   const body =
     `Thank you for joining the NexaHaus ${programme} list. We're building NexaHaus Connect and ` +
@@ -88,12 +89,16 @@ export function earlyAccessConfirmationEmail(input: {
     html: layout(
       body,
       `Welcome to ${BRAND.name} ${programme}`,
-      paragraph(greeting) + paragraph(body) + paragraph(`— The ${BRAND.name} team`),
+      paragraph(greeting) +
+        paragraph(body) +
+        paragraph(`— The ${BRAND.name} team`),
     ),
   };
 }
 
-export function propertyOwnerSurveyConfirmationEmail(input: { name: string }): EmailTemplate {
+export function propertyOwnerSurveyConfirmationEmail(input: {
+  name: string;
+}): EmailTemplate {
   const greeting = `Hi ${input.name},`;
   const body =
     "Thank you for completing the NexaHaus Property Owner Survey. Your answers help us build " +
@@ -104,7 +109,9 @@ export function propertyOwnerSurveyConfirmationEmail(input: { name: string }): E
     html: layout(
       body,
       "Thank you for your response",
-      paragraph(greeting) + paragraph(body) + paragraph(`— The ${BRAND.name} team`),
+      paragraph(greeting) +
+        paragraph(body) +
+        paragraph(`— The ${BRAND.name} team`),
     ),
   };
 }
@@ -127,7 +134,10 @@ export function propertyHealthCheckConfirmationEmail(input: {
     html: layout(
       body,
       "Your Property Health Check result",
-      paragraph(greeting) + paragraph(body) + paragraph(disclaimer) + paragraph(`— The ${BRAND.name} team`),
+      paragraph(greeting) +
+        paragraph(body) +
+        paragraph(disclaimer) +
+        paragraph(`— The ${BRAND.name} team`),
     ),
   };
 }
@@ -151,12 +161,17 @@ export function propertyRescueConfirmationEmail(input: {
     html: layout(
       body,
       "Your Property Rescue result",
-      paragraph(greeting) + paragraph(body) + paragraph(disclaimer) + paragraph(`— The ${BRAND.name} team`),
+      paragraph(greeting) +
+        paragraph(body) +
+        paragraph(disclaimer) +
+        paragraph(`— The ${BRAND.name} team`),
     ),
   };
 }
 
-export function contactConfirmationEmail(input: { name: string }): EmailTemplate {
+export function contactConfirmationEmail(input: {
+  name: string;
+}): EmailTemplate {
   const greeting = `Hi ${input.name},`;
   const body =
     "Thank you for contacting NexaHaus. Your enquiry has been received and a member of the team " +
@@ -167,7 +182,9 @@ export function contactConfirmationEmail(input: { name: string }): EmailTemplate
     html: layout(
       body,
       "We've received your enquiry",
-      paragraph(greeting) + paragraph(body) + paragraph(`— The ${BRAND.name} team`),
+      paragraph(greeting) +
+        paragraph(body) +
+        paragraph(`— The ${BRAND.name} team`),
     ),
   };
 }

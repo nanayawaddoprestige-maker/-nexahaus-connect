@@ -44,14 +44,18 @@ export class ApprovalsService {
         clientId: args.clientId,
         requestedByUserId: args.requestedByUserId,
         thresholdMinor: args.thresholdMinor ?? null,
-        thresholdCurrency: args.thresholdMinor ? (args.currency ?? "GHS") : null,
+        thresholdCurrency: args.thresholdMinor
+          ? (args.currency ?? "GHS")
+          : null,
         amountMinor: args.amountMinor ?? null,
         currency: args.amountMinor ? (args.currency ?? "GHS") : null,
         status: "PENDING",
         dueAt: args.dueInDays
           ? new Date(Date.now() + args.dueInDays * 86_400_000)
           : null,
-        events: { create: { action: "CREATED", byUserId: args.requestedByUserId } },
+        events: {
+          create: { action: "CREATED", byUserId: args.requestedByUserId },
+        },
       },
     });
     await this.events.emit(
@@ -70,7 +74,12 @@ export class ApprovalsService {
 
   async list(
     user: AuthUser,
-    query: { page?: number; pageSize?: number; status?: string; propertyId?: string },
+    query: {
+      page?: number;
+      pageSize?: number;
+      status?: string;
+      propertyId?: string;
+    },
   ) {
     const { skip, take, page, pageSize } = pageParams(query);
     const where: Prisma.ApprovalWhereInput = {
@@ -94,7 +103,9 @@ export class ApprovalsService {
       }),
       this.prisma.approval.count({ where }),
     ]);
-    const requesters = await this.resolveRequesters(rows.map((a) => a.requestedByUserId));
+    const requesters = await this.resolveRequesters(
+      rows.map((a) => a.requestedByUserId),
+    );
     return paginate(
       rows.map((a) => ({
         id: a.id,
@@ -107,7 +118,10 @@ export class ApprovalsService {
           ? { minor: a.amountMinor.toString(), currency: a.currency ?? "GHS" }
           : null,
         threshold: a.thresholdMinor
-          ? { minor: a.thresholdMinor.toString(), currency: a.thresholdCurrency ?? "GHS" }
+          ? {
+              minor: a.thresholdMinor.toString(),
+              currency: a.thresholdCurrency ?? "GHS",
+            }
           : null,
         requestedBy: requesters.get(a.requestedByUserId) ?? null,
         dueAt: a.dueAt?.toISOString() ?? null,
@@ -141,10 +155,15 @@ export class ApprovalsService {
         events: { orderBy: { at: "asc" } },
       },
     });
-    if (!approval || !this.inScope(user, approval.clientId, approval.propertyId)) {
+    if (
+      !approval ||
+      !this.inScope(user, approval.clientId, approval.propertyId)
+    ) {
       throw AppError.notFound("approval");
     }
-    const requesters = await this.resolveRequesters([approval.requestedByUserId]);
+    const requesters = await this.resolveRequesters([
+      approval.requestedByUserId,
+    ]);
     return {
       id: approval.id,
       ref: approval.ref,
@@ -153,7 +172,10 @@ export class ApprovalsService {
       subject: { type: approval.subjectRefType, id: approval.subjectRefId },
       property: approval.property,
       amount: approval.amountMinor
-        ? { minor: approval.amountMinor.toString(), currency: approval.currency ?? "GHS" }
+        ? {
+            minor: approval.amountMinor.toString(),
+            currency: approval.currency ?? "GHS",
+          }
         : null,
       threshold: approval.thresholdMinor
         ? {
@@ -183,7 +205,10 @@ export class ApprovalsService {
     ctx: AuditContext,
   ) {
     const approval = await this.prisma.approval.findUnique({ where: { id } });
-    if (!approval || !this.inScope(user, approval.clientId, approval.propertyId)) {
+    if (
+      !approval ||
+      !this.inScope(user, approval.clientId, approval.propertyId)
+    ) {
       throw AppError.notFound("approval");
     }
     if (approval.status !== "PENDING" && approval.status !== "INFO_REQUESTED") {
@@ -200,7 +225,9 @@ export class ApprovalsService {
       (user.permissions.includes("approval:decide") &&
         user.clientIds.includes(approval.clientId));
     if (decision !== "INFO_REQUESTED" && !canDecide) {
-      throw AppError.forbidden("Only the property owner can approve or decline this.");
+      throw AppError.forbidden(
+        "Only the property owner can approve or decline this.",
+      );
     }
 
     const nextStatus: ApprovalStatus =
@@ -235,7 +262,10 @@ export class ApprovalsService {
             approvalId: id,
             type: approval.type,
             decision,
-            subject: { type: approval.subjectRefType, id: approval.subjectRefId },
+            subject: {
+              type: approval.subjectRefType,
+              id: approval.subjectRefId,
+            },
           },
           tx,
         );
@@ -245,8 +275,14 @@ export class ApprovalsService {
             where: { id: approval.subjectRefId, status: "AWAITING_APPROVAL" },
             data:
               decision === "APPROVED"
-                ? { status: "IN_PROGRESS", approvedCostMinor: approval.amountMinor }
-                : { status: "CANCELLED", cancellationReason: "Owner declined the estimate" },
+                ? {
+                    status: "IN_PROGRESS",
+                    approvedCostMinor: approval.amountMinor,
+                  }
+                : {
+                    status: "CANCELLED",
+                    cancellationReason: "Owner declined the estimate",
+                  },
           });
         }
         if (approval.type === "EXPENSE") {

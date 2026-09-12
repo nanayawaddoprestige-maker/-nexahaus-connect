@@ -16,7 +16,6 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // eslint-disable-next-line no-console
     console.error(error);
   }, [error]);
 
@@ -24,9 +23,15 @@ export default function GlobalError({
     <div className="flex min-h-screen flex-col bg-surface">
       <header className="border-b border-line">
         <div className="nx-container flex h-16 items-center">
-          <Link href="/" className="flex items-center gap-2.5" aria-label="NexaHaus home">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5"
+            aria-label="NexaHaus home"
+          >
             <BrandMark className="h-8 w-8" />
-            <span className="text-sm font-semibold text-navy-900">NexaHaus</span>
+            <span className="text-sm font-semibold text-navy-900">
+              NexaHaus
+            </span>
           </Link>
         </div>
       </header>
@@ -38,11 +43,13 @@ export default function GlobalError({
             We hit an unexpected problem.
           </h1>
           <p className="mt-4 max-w-prose text-lg text-ink-muted">
-            The page didn&rsquo;t load properly. You can try again, or head back to the
-            homepage.
+            The page didn&rsquo;t load properly. You can try again, or head back
+            to the homepage.
           </p>
           {error.digest ? (
-            <p className="mt-2 text-xs text-ink-subtle">Reference: {error.digest}</p>
+            <p className="mt-2 text-xs text-ink-subtle">
+              Reference: {error.digest}
+            </p>
           ) : null}
           <div className="mt-8 flex flex-wrap gap-3">
             <button

@@ -32,7 +32,11 @@ function evidence(
   ipHash: string,
   attribution?: AttributionInput,
 ): Prisma.InputJsonValue {
-  return { ...consent, ipHash, attribution: attribution ?? null } as Prisma.InputJsonValue;
+  return {
+    ...consent,
+    ipHash,
+    attribution: attribution ?? null,
+  } as Prisma.InputJsonValue;
 }
 
 /** Derive a CRM campaign string from attribution, if present. */
@@ -72,9 +76,17 @@ export class PublicService {
 
   /** Best-effort confirmation email — never fails the caller's request; the
    *  lead is already saved by the time this runs. */
-  private sendConfirmation(to: string, template: { subject: string; text: string; html: string }) {
+  private sendConfirmation(
+    to: string,
+    template: { subject: string; text: string; html: string },
+  ) {
     this.email
-      .send({ to, subject: template.subject, body: template.text, html: template.html })
+      .send({
+        to,
+        subject: template.subject,
+        body: template.text,
+        html: template.html,
+      })
       .catch((err: unknown) =>
         this.logger.warn(`Confirmation email to ${to} failed: ${String(err)}`),
       );
@@ -209,7 +221,10 @@ export class PublicService {
 
     this.sendConfirmation(
       input.email,
-      earlyAccessConfirmationEmail({ name: input.name, campaign: input.campaign }),
+      earlyAccessConfirmationEmail({
+        name: input.name,
+        campaign: input.campaign,
+      }),
     );
 
     return {
@@ -233,7 +248,9 @@ export class PublicService {
         propertyType: input.propertyType ?? null,
         location: input.propertyLocation ?? null,
         livesInGhana: input.livesInGhana ?? null,
-        serviceInterest: input.serviceNeeded ? [input.serviceNeeded] : undefined,
+        serviceInterest: input.serviceNeeded
+          ? [input.serviceNeeded]
+          : undefined,
         biggestChallenge: input.message.slice(0, 1000),
         attribution: input.attribution,
       });
@@ -273,7 +290,10 @@ export class PublicService {
       );
     });
 
-    this.sendConfirmation(input.email, contactConfirmationEmail({ name: input.name }));
+    this.sendConfirmation(
+      input.email,
+      contactConfirmationEmail({ name: input.name }),
+    );
 
     return {
       received: true,
@@ -324,8 +344,15 @@ export class PublicService {
           type: "NOTE",
           body:
             `Property Rescue — preliminary score ${result.score}/100 (${result.band}).\n` +
-            `Top findings: ${result.findings.slice(0, 4).map((f) => f.area).join(", ") || "none"}.` +
-            (input.biggestConcern ? `\nOwner's concern: ${input.biggestConcern}` : ""),
+            `Top findings: ${
+              result.findings
+                .slice(0, 4)
+                .map((f) => f.area)
+                .join(", ") || "none"
+            }.` +
+            (input.biggestConcern
+              ? `\nOwner's concern: ${input.biggestConcern}`
+              : ""),
         },
       });
       await tx.consentRecord.create({
@@ -352,7 +379,11 @@ export class PublicService {
 
     this.sendConfirmation(
       input.email,
-      propertyRescueConfirmationEmail({ name: input.name, score: result.score, band: result.band }),
+      propertyRescueConfirmationEmail({
+        name: input.name,
+        score: result.score,
+        band: result.band,
+      }),
     );
 
     return {
@@ -366,7 +397,10 @@ export class PublicService {
     };
   }
 
-  async submitPropertyOwnerSurvey(input: PropertyOwnerSurveyInput, ipHash: string) {
+  async submitPropertyOwnerSurvey(
+    input: PropertyOwnerSurveyInput,
+    ipHash: string,
+  ) {
     await this.prisma.$transaction(async (tx) => {
       const lead = await this.upsertLead(tx, {
         name: input.name,
@@ -388,7 +422,10 @@ export class PublicService {
           body:
             "Property Owner Survey response:\n" +
             Object.entries(input.answers)
-              .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(", ") : String(v)}`)
+              .map(
+                ([k, v]) =>
+                  `- ${k}: ${Array.isArray(v) ? v.join(", ") : String(v)}`,
+              )
               .join("\n"),
         },
       });
@@ -414,7 +451,10 @@ export class PublicService {
       );
     });
 
-    this.sendConfirmation(input.email, propertyOwnerSurveyConfirmationEmail({ name: input.name }));
+    this.sendConfirmation(
+      input.email,
+      propertyOwnerSurveyConfirmationEmail({ name: input.name }),
+    );
 
     return {
       submitted: true,
@@ -455,7 +495,8 @@ export class PublicService {
       let leadId: string | null = null;
       if (input.leadEmail) {
         const lead = await this.upsertLead(tx, {
-          name: (input.answers.name as string | undefined) ?? "Survey respondent",
+          name:
+            (input.answers.name as string | undefined) ?? "Survey respondent",
           email: input.leadEmail,
           phone: (input.answers.phone as string | undefined) ?? "+233000000000",
           source: "WEBSITE",
@@ -467,7 +508,9 @@ export class PublicService {
           surveyId: survey.id,
           leadId,
           answers: input.answers as Prisma.InputJsonValue,
-          consent: input.consent ? (input.consent as Prisma.InputJsonValue) : undefined,
+          consent: input.consent
+            ? (input.consent as Prisma.InputJsonValue)
+            : undefined,
           ipHash,
         },
       });
@@ -484,7 +527,10 @@ export class PublicService {
         });
       }
     });
-    return { submitted: true, message: "Thank you — your response has been recorded." };
+    return {
+      submitted: true,
+      message: "Thank you — your response has been recorded.",
+    };
   }
 
   /** Match an inbound public contact to an existing lead by email, else create. */
@@ -540,7 +586,12 @@ export class PublicService {
           biggestChallenge: data.biggestChallenge ?? undefined,
           serviceInterest:
             data.serviceInterest && data.serviceInterest.length > 0
-              ? Array.from(new Set([...(existing.serviceInterest ?? []), ...data.serviceInterest]))
+              ? Array.from(
+                  new Set([
+                    ...(existing.serviceInterest ?? []),
+                    ...data.serviceInterest,
+                  ]),
+                )
               : undefined,
           score: scored.score,
           grade: scored.grade,
@@ -572,5 +623,8 @@ export class PublicService {
 }
 
 export function hashIp(ip: string | undefined): string {
-  return createHash("sha256").update(ip ?? "unknown").digest("hex").slice(0, 32);
+  return createHash("sha256")
+    .update(ip ?? "unknown")
+    .digest("hex")
+    .slice(0, 32);
 }

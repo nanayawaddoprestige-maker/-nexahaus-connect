@@ -30,7 +30,9 @@ export default [
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": "error",
       "no-console": ["warn", { allow: ["warn", "error"] }],
-      eqeqeq: ["error", "always"],
+      // `== null` / `!= null` is the idiomatic one-check way to catch both
+      // null and undefined; strict equality would only match one of them.
+      eqeqeq: ["error", "always", { null: "ignore" }],
     },
   },
   {
@@ -42,7 +44,13 @@ export default [
     },
   },
   {
-    ignores: ["dist/**", ".next/**", "coverage/**", "node_modules/**", "**/*.js"],
+    ignores: [
+      "dist/**",
+      ".next/**",
+      "coverage/**",
+      "node_modules/**",
+      "**/*.js",
+    ],
   },
   prettier,
 ];

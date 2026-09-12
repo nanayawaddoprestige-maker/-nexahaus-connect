@@ -3,7 +3,11 @@ import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/cn";
-import { Container, Section, SectionHeader } from "@/components/marketing/primitives";
+import {
+  Container,
+  Section,
+  SectionHeader,
+} from "@/components/marketing/primitives";
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 import { InsightCard } from "@/components/marketing/insight-card";
 import { ComingSoon } from "@/components/marketing/coming-soon";
@@ -20,10 +24,16 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Practical property-management knowledge for owners in Ghana and the diaspora — rent collection, maintenance, inspections, documents and asset performance.",
   path: routes.insights,
-  keywords: ["property management Ghana", "landlord education Ghana", "diaspora property Ghana"],
+  keywords: [
+    "property management Ghana",
+    "landlord education Ghana",
+    "diaspora property Ghana",
+  ],
 });
 
-function isInsightCategory(value: string | undefined): value is InsightCategory {
+function isInsightCategory(
+  value: string | undefined,
+): value is InsightCategory {
   return !!value && (INSIGHT_CATEGORIES as readonly string[]).includes(value);
 }
 
@@ -44,8 +54,14 @@ export default function InsightsPage({
         description="We are writing a library of practical, no-fluff guides for property owners: what to expect from a professional manager, how to read a rental performance report, why diaspora owners need regular inspections, and how preventive maintenance protects value."
         bullets={INSIGHT_CATEGORIES.map((c) => `${c}`)}
         breadcrumb={[{ label: "Insights", href: routes.insights }]}
-        primary={{ label: "Join Early Access for first access", href: routes.earlyAccess }}
-        secondary={{ label: "Take the Property Owner Survey", href: routes.propertyOwnerSurvey }}
+        primary={{
+          label: "Join Early Access for first access",
+          href: routes.earlyAccess,
+        }}
+        secondary={{
+          label: "Take the Property Owner Survey",
+          href: routes.propertyOwnerSurvey,
+        }}
       />
     );
   }
@@ -54,7 +70,9 @@ export default function InsightsPage({
     ? searchParams.category
     : undefined;
   const featured = activeCategory ? [] : getFeaturedInsights(3);
-  const listed = activeCategory ? getInsightsByCategory(activeCategory) : allArticles;
+  const listed = activeCategory
+    ? getInsightsByCategory(activeCategory)
+    : allArticles;
   const usedCategories = INSIGHT_CATEGORIES.filter((c) =>
     allArticles.some((a) => a.category === c),
   );
@@ -72,8 +90,8 @@ export default function InsightsPage({
               Practical knowledge for property owners.
             </h1>
             <p className="mt-4 text-lg leading-relaxed text-ink-muted">
-              No-fluff guides on managing, protecting and understanding a property in Ghana —
-              written for owners, not for search engines.
+              No-fluff guides on managing, protecting and understanding a
+              property in Ghana — written for owners, not for search engines.
             </p>
           </div>
           <div className="mt-8 flex flex-wrap gap-2">

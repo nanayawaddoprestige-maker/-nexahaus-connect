@@ -15,7 +15,13 @@ import { pageParams, paginate, parseSort } from "../../common/pagination";
 import { propertyInScope } from "../authz/scope.util";
 import { rentPeriods } from "../finance/rent-schedule.util";
 
-const SORTABLE = ["createdAt", "startDate", "endDate", "ref", "status"] as const;
+const SORTABLE = [
+  "createdAt",
+  "startDate",
+  "endDate",
+  "ref",
+  "status",
+] as const;
 const DEFAULT_REMINDER_OFFSETS = [90, 60, 30, 7];
 
 @Injectable()
@@ -36,7 +42,9 @@ export class LeasesService {
       ? {}
       : {
           OR: [
-            user.clientIds.length ? { clientId: { in: user.clientIds } } : { id: "" },
+            user.clientIds.length
+              ? { clientId: { in: user.clientIds } }
+              : { id: "" },
             user.assignedPropertyIds.length
               ? { propertyId: { in: user.assignedPropertyIds } }
               : { id: "" },
@@ -60,7 +68,9 @@ export class LeasesService {
         query.status ? { status: query.status } : {},
         query.propertyId ? { propertyId: query.propertyId } : {},
         query.unitId ? { unitId: query.unitId } : {},
-        query.tenantId ? { parties: { some: { tenantId: query.tenantId } } } : {},
+        query.tenantId
+          ? { parties: { some: { tenantId: query.tenantId } } }
+          : {},
         expiring,
       ],
     };
@@ -105,7 +115,9 @@ export class LeasesService {
         property: l.property,
         unit: l.unit,
         primaryTenant: l.parties[0]?.tenant ?? null,
-        daysToExpiry: Math.ceil((l.endDate.getTime() - Date.now()) / 86_400_000),
+        daysToExpiry: Math.ceil(
+          (l.endDate.getTime() - Date.now()) / 86_400_000,
+        ),
       })),
       totalItems,
       page,
@@ -117,13 +129,17 @@ export class LeasesService {
     const lease = await this.prisma.lease.findUnique({
       where: { id },
       include: {
-        property: { select: { id: true, clientId: true, name: true, ref: true } },
+        property: {
+          select: { id: true, clientId: true, name: true, ref: true },
+        },
         unit: { select: { id: true, label: true, status: true } },
         client: { select: { id: true, displayName: true } },
         parties: {
           select: {
             isPrimary: true,
-            tenant: { select: { id: true, ref: true, fullName: true, phone: true } },
+            tenant: {
+              select: { id: true, ref: true, fullName: true, phone: true },
+            },
           },
         },
         reminders: { orderBy: { remindAt: "asc" } },
@@ -146,17 +162,27 @@ export class LeasesService {
       rent: { minor: lease.rentMinor.toString(), currency: lease.rentCurrency },
       frequency: lease.frequency,
       deposit: lease.depositMinor
-        ? { minor: lease.depositMinor.toString(), currency: lease.depositCurrency ?? "GHS" }
+        ? {
+            minor: lease.depositMinor.toString(),
+            currency: lease.depositCurrency ?? "GHS",
+          }
         : null,
       noticePeriodDays: lease.noticePeriodDays,
       renewalStatus: lease.renewalStatus,
       terminatedAt: lease.terminatedAt?.toISOString() ?? null,
       terminationReason: lease.terminationReason,
       documentId: lease.documentId,
-      property: { id: lease.property.id, name: lease.property.name, ref: lease.property.ref },
+      property: {
+        id: lease.property.id,
+        name: lease.property.name,
+        ref: lease.property.ref,
+      },
       unit: lease.unit,
       client: lease.client,
-      tenants: lease.parties.map((p) => ({ ...p.tenant, isPrimary: p.isPrimary })),
+      tenants: lease.parties.map((p) => ({
+        ...p.tenant,
+        isPrimary: p.isPrimary,
+      })),
       reminders: lease.reminders.map((r) => ({
         type: r.type,
         remindAt: r.remindAt.toISOString(),
@@ -200,7 +226,8 @@ export class LeasesService {
       }),
     ]);
 
-    if (!property || !propertyInScope(user, property)) throw AppError.notFound("property");
+    if (!property || !propertyInScope(user, property))
+      throw AppError.notFound("property");
     if (!unit || unit.propertyId !== property.id) {
       throw AppError.validation("That unit does not belong to the property.");
     }
@@ -256,7 +283,11 @@ export class LeasesService {
           action: "lease.create",
           resourceType: "lease",
           resourceId: created.id,
-          after: { ref: created.ref, propertyId: property.id, unitId: input.unitId },
+          after: {
+            ref: created.ref,
+            propertyId: property.id,
+            unitId: input.unitId,
+          },
         },
         tx,
       );
@@ -272,9 +303,12 @@ export class LeasesService {
       where: { id },
       include: { property: { select: { id: true, clientId: true } } },
     });
-    if (!lease || !propertyInScope(user, lease.property)) throw AppError.notFound("lease");
+    if (!lease || !propertyInScope(user, lease.property))
+      throw AppError.notFound("lease");
     if (lease.status !== "DRAFT") {
-      throw AppError.illegalTransition(`A ${lease.status} lease cannot be activated.`);
+      throw AppError.illegalTransition(
+        `A ${lease.status} lease cannot be activated.`,
+      );
     }
 
     const offsets = await this.reminderOffsets();
@@ -287,7 +321,10 @@ export class LeasesService {
 
     await this.prisma.$transaction(async (tx) => {
       await tx.lease.update({ where: { id }, data: { status: "ACTIVE" } });
-      await tx.unit.update({ where: { id: lease.unitId }, data: { status: "OCCUPIED" } });
+      await tx.unit.update({
+        where: { id: lease.unitId },
+        data: { status: "OCCUPIED" },
+      });
       await tx.property.update({
         where: { id: lease.propertyId },
         data: { status: "OCCUPIED" },
@@ -295,7 +332,9 @@ export class LeasesService {
 
       for (const p of periods) {
         await tx.rentCharge.upsert({
-          where: { leaseId_periodStart: { leaseId: id, periodStart: p.periodStart } },
+          where: {
+            leaseId_periodStart: { leaseId: id, periodStart: p.periodStart },
+          },
           create: {
             leaseId: id,
             propertyId: lease.propertyId,
@@ -351,15 +390,22 @@ export class LeasesService {
       where: { id },
       include: { property: { select: { id: true, clientId: true } } },
     });
-    if (!lease || !propertyInScope(user, lease.property)) throw AppError.notFound("lease");
+    if (!lease || !propertyInScope(user, lease.property))
+      throw AppError.notFound("lease");
     if (!["ACTIVE", "EXPIRING", "EXPIRED"].includes(lease.status)) {
-      throw AppError.illegalTransition(`A ${lease.status} lease cannot be renewed.`);
+      throw AppError.illegalTransition(
+        `A ${lease.status} lease cannot be renewed.`,
+      );
     }
     const newEnd = new Date(input.newEndDate);
     if (newEnd <= lease.endDate) {
-      throw AppError.validation("The new end date must be after the current one.");
+      throw AppError.validation(
+        "The new end date must be after the current one.",
+      );
     }
-    const newRent = input.newRent ? BigInt(input.newRent.minor) : lease.rentMinor;
+    const newRent = input.newRent
+      ? BigInt(input.newRent.minor)
+      : lease.rentMinor;
 
     const extraPeriods = rentPeriods(
       lease.endDate,
@@ -380,7 +426,9 @@ export class LeasesService {
       });
       for (const p of extraPeriods) {
         await tx.rentCharge.upsert({
-          where: { leaseId_periodStart: { leaseId: id, periodStart: p.periodStart } },
+          where: {
+            leaseId_periodStart: { leaseId: id, periodStart: p.periodStart },
+          },
           create: {
             leaseId: id,
             propertyId: lease.propertyId,
@@ -403,7 +451,12 @@ export class LeasesService {
         const remindAt = new Date(newEnd.getTime() - days * 86_400_000);
         if (remindAt > new Date()) {
           await tx.leaseReminder.create({
-            data: { leaseId: id, type: "EXPIRY", remindAt, note: `Lease expires in ${days} days` },
+            data: {
+              leaseId: id,
+              type: "EXPIRY",
+              remindAt,
+              note: `Lease expires in ${days} days`,
+            },
           });
         }
       }
@@ -413,8 +466,14 @@ export class LeasesService {
           action: "lease.renew",
           resourceType: "lease",
           resourceId: id,
-          before: { endDate: lease.endDate.toISOString(), rentMinor: lease.rentMinor.toString() },
-          after: { endDate: newEnd.toISOString(), rentMinor: newRent.toString() },
+          before: {
+            endDate: lease.endDate.toISOString(),
+            rentMinor: lease.rentMinor.toString(),
+          },
+          after: {
+            endDate: newEnd.toISOString(),
+            rentMinor: newRent.toString(),
+          },
         },
         tx,
       );
@@ -433,9 +492,12 @@ export class LeasesService {
       where: { id },
       include: { property: { select: { id: true, clientId: true } } },
     });
-    if (!lease || !propertyInScope(user, lease.property)) throw AppError.notFound("lease");
+    if (!lease || !propertyInScope(user, lease.property))
+      throw AppError.notFound("lease");
     if (!["ACTIVE", "EXPIRING", "DRAFT"].includes(lease.status)) {
-      throw AppError.illegalTransition(`A ${lease.status} lease cannot be terminated.`);
+      throw AppError.illegalTransition(
+        `A ${lease.status} lease cannot be terminated.`,
+      );
     }
     const effective = new Date(input.effectiveDate);
 
@@ -449,13 +511,18 @@ export class LeasesService {
           endDate: effective < lease.endDate ? effective : lease.endDate,
         },
       });
-      await tx.unit.update({ where: { id: lease.unitId }, data: { status: "VACANT" } });
+      await tx.unit.update({
+        where: { id: lease.unitId },
+        data: { status: "VACANT" },
+      });
       // Void future unpaid charges; keep any with payments for the record.
       await tx.rentCharge.updateMany({
         where: { leaseId: id, dueDate: { gt: effective }, paidMinor: 0n },
         data: { status: "WAIVED", waivedReason: "Lease terminated" },
       });
-      await tx.leaseReminder.deleteMany({ where: { leaseId: id, sentAt: null } });
+      await tx.leaseReminder.deleteMany({
+        where: { leaseId: id, sentAt: null },
+      });
       await this.audit.record(
         {
           ...ctx,
@@ -463,7 +530,11 @@ export class LeasesService {
           resourceType: "lease",
           resourceId: id,
           before: { status: lease.status },
-          after: { status: "TERMINATED", effective: effective.toISOString(), reason: input.reason },
+          after: {
+            status: "TERMINATED",
+            effective: effective.toISOString(),
+            reason: input.reason,
+          },
         },
         tx,
       );
@@ -478,7 +549,7 @@ export class LeasesService {
     });
     const value = setting?.value as unknown;
     if (Array.isArray(value) && value.every((n) => typeof n === "number")) {
-      return value as number[];
+      return value;
     }
     return DEFAULT_REMINDER_OFFSETS;
   }

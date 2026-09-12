@@ -60,14 +60,19 @@ export async function startTelemetry(): Promise<void> {
   }
 
   if (config.monitoring.otelEndpoint) {
-    const [{ NodeSDK }, { OTLPTraceExporter }, { getNodeAutoInstrumentations }, resources, sc] =
-      await Promise.all([
-        import("@opentelemetry/sdk-node"),
-        import("@opentelemetry/exporter-trace-otlp-http"),
-        import("@opentelemetry/auto-instrumentations-node"),
-        import("@opentelemetry/resources"),
-        import("@opentelemetry/semantic-conventions"),
-      ]);
+    const [
+      { NodeSDK },
+      { OTLPTraceExporter },
+      { getNodeAutoInstrumentations },
+      resources,
+      sc,
+    ] = await Promise.all([
+      import("@opentelemetry/sdk-node"),
+      import("@opentelemetry/exporter-trace-otlp-http"),
+      import("@opentelemetry/auto-instrumentations-node"),
+      import("@opentelemetry/resources"),
+      import("@opentelemetry/semantic-conventions"),
+    ]);
     const sdk = new NodeSDK({
       resource: new resources.Resource({
         [sc.ATTR_SERVICE_NAME]: config.monitoring.otelServiceName,
@@ -78,7 +83,9 @@ export async function startTelemetry(): Promise<void> {
         url: `${config.monitoring.otelEndpoint.replace(/\/$/, "")}/v1/traces`,
       }),
       instrumentations: [
-        getNodeAutoInstrumentations({ "@opentelemetry/instrumentation-fs": { enabled: false } }),
+        getNodeAutoInstrumentations({
+          "@opentelemetry/instrumentation-fs": { enabled: false },
+        }),
       ],
     });
     sdk.start();

@@ -10,7 +10,8 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/$1",
     // Resolve workspace packages from TS source so unit tests never depend on a
     // prior `pnpm build` of packages/*.
-    "^@nexahaus/(config|types|validation)$": "<rootDir>/../../../packages/$1/src/index.ts",
+    "^@nexahaus/(config|types|validation)$":
+      "<rootDir>/../../../packages/$1/src/index.ts",
     // packages/* use "Bundler" module resolution, so their own source imports
     // each other with explicit ".js" specifiers (e.g. "./enums.js") that
     // resolve to the sibling ".ts" file. ts-jest's CommonJS resolver doesn't

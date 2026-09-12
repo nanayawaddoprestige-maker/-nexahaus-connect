@@ -5,7 +5,6 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { RefService } from "../../common/ref.service";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
-import { pageParams, paginate } from "../../common/pagination";
 import { propertyInScope } from "../authz/scope.util";
 import { EventsService } from "../events/events.service";
 import { StorageService } from "../storage/storage.service";
@@ -99,7 +98,14 @@ export class PropertyRescueService {
     const rows = await this.prisma.propertyRescueAssessment.findMany({
       where: { propertyId },
       orderBy: { assessedAt: "desc" },
-      select: { id: true, ref: true, overallScore: true, status: true, assessedAt: true, pdfDocumentId: true },
+      select: {
+        id: true,
+        ref: true,
+        overallScore: true,
+        status: true,
+        assessedAt: true,
+        pdfDocumentId: true,
+      },
     });
     return {
       __list: true as const,
@@ -120,9 +126,12 @@ export class PropertyRescueService {
     const { findings, inputs } = await this.analyse(propertyId);
 
     const overallScore = Math.round(
-      (findings.reduce((s, f) => s + f.score, 0) / (findings.length || 1)) * 100,
+      (findings.reduce((s, f) => s + f.score, 0) / (findings.length || 1)) *
+        100,
     );
-    const problems = findings.filter((f) => f.score < 0.75).map((f) => f.problem);
+    const problems = findings
+      .filter((f) => f.score < 0.75)
+      .map((f) => f.problem);
     const recs = findings
       .filter((f) => f.score < 0.75 && RECS[f.key])
       .sort((a, b) => a.score - b.score)
@@ -144,13 +153,20 @@ export class PropertyRescueService {
           inputs: inputs as never,
           findings: findings as never,
           status: "FINAL",
-          recommendations: { create: recs.map((r) => ({ ...r, priority: r.priority as never })) },
+          recommendations: {
+            create: recs.map((r) => ({ ...r, priority: r.priority as never })),
+          },
         },
         include: { recommendations: { orderBy: { sortOrder: "asc" } } },
       });
       await this.events.emit(
         DomainEventType.PROPERTY_RESCUE_READY,
-        { propertyId, clientId: property.clientId, assessmentId: created.id, overallScore },
+        {
+          propertyId,
+          clientId: property.clientId,
+          assessmentId: created.id,
+          overallScore,
+        },
         tx,
       );
       await this.audit.record(
@@ -159,7 +175,11 @@ export class PropertyRescueService {
           action: "rescue.assess",
           resourceType: "property",
           resourceId: propertyId,
-          after: { assessmentId: created.id, overallScore, problems: problems.length },
+          after: {
+            assessmentId: created.id,
+            overallScore,
+            problems: problems.length,
+          },
         },
         tx,
       );
@@ -178,12 +198,22 @@ export class PropertyRescueService {
   ) {
     const rec = await this.prisma.propertyRescueRecommendation.findUnique({
       where: { id },
-      include: { assessment: { select: { propertyId: true, property: { select: { id: true, clientId: true } } } } },
+      include: {
+        assessment: {
+          select: {
+            propertyId: true,
+            property: { select: { id: true, clientId: true } },
+          },
+        },
+      },
     });
     if (!rec || !propertyInScope(user, rec.assessment.property)) {
       throw AppError.notFound("recommendation");
     }
-    await this.prisma.propertyRescueRecommendation.update({ where: { id }, data: { status } });
+    await this.prisma.propertyRescueRecommendation.update({
+      where: { id },
+      data: { status },
+    });
     await this.audit.record({
       ...ctx,
       action: "rescue.recommendation.update",
@@ -196,75 +226,109 @@ export class PropertyRescueService {
 
   // --------------------------------------------------------------------------
 
-  private async analyse(propertyId: string): Promise<{ findings: Finding[]; inputs: Record<string, unknown> }> {
+  private async analyse(
+    propertyId: string,
+  ): Promise<{ findings: Finding[]; inputs: Record<string, unknown> }> {
     const range = periodRange("6m");
-    const [units, activeLeases, rent, maintenance, latestInspection, docs] = await Promise.all([
-      this.prisma.unit.findMany({
-        where: { propertyId, deletedAt: null },
-        select: { id: true, status: true, marketRentMinor: true },
-      }),
-      this.prisma.lease.findMany({
-        where: { propertyId, status: { in: ["ACTIVE", "EXPIRING"] } },
-        select: { id: true, rentMinor: true, endDate: true, unitId: true },
-      }),
-      this.prisma.rentCharge.aggregate({
-        where: { propertyId, dueDate: { gte: range.start, lt: range.end }, status: { not: "WAIVED" } },
-        _sum: { amountMinor: true, paidMinor: true },
-      }),
-      this.prisma.maintenanceRequest.findMany({
-        where: { propertyId, status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] } },
-        select: { id: true, createdAt: true, priority: true },
-      }),
-      this.prisma.inspection.findFirst({
-        where: { propertyId, status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] } },
-        orderBy: { completedAt: "desc" },
-        include: { items: { where: { rating: { in: ["ATTENTION_REQUIRED", "URGENT"] } }, select: { id: true } } },
-      }),
-      this.prisma.document.findMany({
-        where: { scopeType: "PROPERTY", scopeId: propertyId, status: "ACTIVE" },
-        select: { category: true, expiresAt: true },
-      }),
-    ]);
+    const [units, activeLeases, rent, maintenance, latestInspection, docs] =
+      await Promise.all([
+        this.prisma.unit.findMany({
+          where: { propertyId, deletedAt: null },
+          select: { id: true, status: true, marketRentMinor: true },
+        }),
+        this.prisma.lease.findMany({
+          where: { propertyId, status: { in: ["ACTIVE", "EXPIRING"] } },
+          select: { id: true, rentMinor: true, endDate: true, unitId: true },
+        }),
+        this.prisma.rentCharge.aggregate({
+          where: {
+            propertyId,
+            dueDate: { gte: range.start, lt: range.end },
+            status: { not: "WAIVED" },
+          },
+          _sum: { amountMinor: true, paidMinor: true },
+        }),
+        this.prisma.maintenanceRequest.findMany({
+          where: {
+            propertyId,
+            status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] },
+          },
+          select: { id: true, createdAt: true, priority: true },
+        }),
+        this.prisma.inspection.findFirst({
+          where: {
+            propertyId,
+            status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] },
+          },
+          orderBy: { completedAt: "desc" },
+          include: {
+            items: {
+              where: { rating: { in: ["ATTENTION_REQUIRED", "URGENT"] } },
+              select: { id: true },
+            },
+          },
+        }),
+        this.prisma.document.findMany({
+          where: {
+            scopeType: "PROPERTY",
+            scopeId: propertyId,
+            status: "ACTIVE",
+          },
+          select: { category: true, expiresAt: true },
+        }),
+      ]);
 
     const findings: Finding[] = [];
     const totalUnits = units.length || 1;
-    const vacant = units.filter((u) => u.status === "VACANT" || u.status === "UNAVAILABLE").length;
+    const vacant = units.filter(
+      (u) => u.status === "VACANT" || u.status === "UNAVAILABLE",
+    ).length;
 
     // Occupancy / vacancy
     const occValue = 1 - vacant / totalUnits;
     findings.push({
       key: "VACANCY",
       problem: `${vacant} of ${totalUnits} unit(s) vacant`,
-      severity: vacant / totalUnits > 0.5 ? "HIGH" : vacant > 0 ? "MEDIUM" : "LOW",
+      severity:
+        vacant / totalUnits > 0.5 ? "HIGH" : vacant > 0 ? "MEDIUM" : "LOW",
       score: occValue,
     });
 
     // Rent vs market
     const belowMarket = activeLeases.filter((l) => {
       const unit = units.find((u) => u.id === l.unitId);
-      return unit?.marketRentMinor && l.rentMinor < (unit.marketRentMinor * 90n) / 100n;
+      return (
+        unit?.marketRentMinor &&
+        l.rentMinor < (unit.marketRentMinor * 90n) / 100n
+      );
     }).length;
     findings.push({
       key: "RENT_BELOW_MARKET",
       problem: `${belowMarket} lease(s) let >10% below recorded market rent`,
       severity: belowMarket > 0 ? "MEDIUM" : "LOW",
-      score: belowMarket === 0 ? 1 : Math.max(0.3, 1 - belowMarket / activeLeases.length),
+      score:
+        belowMarket === 0
+          ? 1
+          : Math.max(0.3, 1 - belowMarket / activeLeases.length),
     });
 
     // Collection
     const expected = rent._sum.amountMinor ?? 0n;
     const collected = rent._sum.paidMinor ?? 0n;
-    const collectionRate = expected === 0n ? 0.9 : Number(collected) / Number(expected);
+    const collectionRate =
+      expected === 0n ? 0.9 : Number(collected) / Number(expected);
     findings.push({
       key: "COLLECTION",
       problem: `${Math.round(collectionRate * 100)}% of billed rent collected over 6 months`,
-      severity: collectionRate < 0.7 ? "HIGH" : collectionRate < 0.9 ? "MEDIUM" : "LOW",
+      severity:
+        collectionRate < 0.7 ? "HIGH" : collectionRate < 0.9 ? "MEDIUM" : "LOW",
       score: Math.min(1, collectionRate),
     });
 
     // Revenue leakage (outstanding vs billed)
     const outstanding = expected - collected;
-    const leakage = expected === 0n ? 0 : Number(outstanding) / Number(expected);
+    const leakage =
+      expected === 0n ? 0 : Number(outstanding) / Number(expected);
     findings.push({
       key: "REVENUE_LEAKAGE",
       problem: `Outstanding rent is ${Math.round(leakage * 100)}% of what was billed`,
@@ -274,10 +338,14 @@ export class PropertyRescueService {
 
     // Maintenance backlog
     const oldest = maintenance.reduce(
-      (max, m) => Math.max(max, (Date.now() - m.createdAt.getTime()) / 86_400_000),
+      (max, m) =>
+        Math.max(max, (Date.now() - m.createdAt.getTime()) / 86_400_000),
       0,
     );
-    const backlogValue = Math.max(0, 1 - maintenance.length / 5 - Math.min(0.4, oldest / 90));
+    const backlogValue = Math.max(
+      0,
+      1 - maintenance.length / 5 - Math.min(0.4, oldest / 90),
+    );
     findings.push({
       key: "MAINTENANCE_BACKLOG",
       problem: `${maintenance.length} open request(s), oldest ${Math.round(oldest)} days`,
@@ -293,16 +361,25 @@ export class PropertyRescueService {
     // Condition
     const attentionItems = latestInspection?.items.length ?? 0;
     const conditionValue = latestInspection
-      ? Math.max(0.2, ({ EXCELLENT: 1, GOOD: 0.85, FAIR: 0.6, POOR: 0.3 }[
-          latestInspection.overallCondition ?? "GOOD"
-        ] ?? 0.7) - attentionItems * 0.05)
+      ? Math.max(
+          0.2,
+          ({ EXCELLENT: 1, GOOD: 0.85, FAIR: 0.6, POOR: 0.3 }[
+            latestInspection.overallCondition ?? "GOOD"
+          ] ?? 0.7) -
+            attentionItems * 0.05,
+        )
       : 0.7;
     findings.push({
       key: "CONDITION",
       problem: latestInspection
         ? `Latest inspection: ${latestInspection.overallCondition}, ${attentionItems} item(s) need attention`
         : "No completed inspection on file",
-      severity: conditionValue < 0.5 ? "HIGH" : conditionValue < 0.75 ? "MEDIUM" : "LOW",
+      severity:
+        conditionValue < 0.5
+          ? "HIGH"
+          : conditionValue < 0.75
+            ? "MEDIUM"
+            : "LOW",
       score: conditionValue,
     });
 
@@ -310,7 +387,9 @@ export class PropertyRescueService {
     const present = new Set(docs.map((d) => d.category));
     const required = ["OWNERSHIP", "INSURANCE", "TENANCY"];
     const have = required.filter((c) => present.has(c as never)).length;
-    const expired = docs.filter((d) => d.expiresAt && d.expiresAt < new Date()).length;
+    const expired = docs.filter(
+      (d) => d.expiresAt && d.expiresAt < new Date(),
+    ).length;
     const docValue = Math.max(0, have / required.length - expired * 0.1);
     findings.push({
       key: "DOCUMENTATION",
@@ -338,14 +417,22 @@ export class PropertyRescueService {
 
   private async renderPdf(
     assessmentId: string,
-    property: { id: string; clientId: string; name: string; ref: string; addressLine: string; city: string },
+    property: {
+      id: string;
+      clientId: string;
+      name: string;
+      ref: string;
+      addressLine: string;
+      city: string;
+    },
     overallScore: number,
     problems: string[],
     recs: { title: string; detail: string; priority: string }[],
   ): Promise<void> {
-    const assessment = await this.prisma.propertyRescueAssessment.findUniqueOrThrow({
-      where: { id: assessmentId },
-    });
+    const assessment =
+      await this.prisma.propertyRescueAssessment.findUniqueOrThrow({
+        where: { id: assessmentId },
+      });
     const buffer = await this.pdf.rescueReport({
       ref: assessment.ref,
       propertyName: property.name,
@@ -444,7 +531,14 @@ export class PropertyRescueService {
   private async loadProperty(user: AuthUser, propertyId: string) {
     const property = await this.prisma.property.findFirst({
       where: { id: propertyId, deletedAt: null },
-      select: { id: true, clientId: true, name: true, ref: true, addressLine: true, city: true },
+      select: {
+        id: true,
+        clientId: true,
+        name: true,
+        ref: true,
+        addressLine: true,
+        city: true,
+      },
     });
     if (!property || !propertyInScope(user, property)) {
       throw AppError.notFound("property");

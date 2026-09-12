@@ -45,9 +45,11 @@ export async function submitPublic<T = unknown>(
       body: JSON.stringify(body),
       signal: opts.signal,
     });
-    const json = (await res.json().catch(() => null)) as
-      | { success?: boolean; data?: T; error?: { message?: string } }
-      | null;
+    const json = (await res.json().catch(() => null)) as {
+      success?: boolean;
+      data?: T;
+      error?: { message?: string };
+    } | null;
 
     if (!res.ok || json?.success === false) {
       return {
@@ -59,14 +61,15 @@ export async function submitPublic<T = unknown>(
             : "Something went wrong sending your details. Please try again."),
       };
     }
-    return { ok: true, data: (json?.data ?? (json as T)) as T };
+    return { ok: true, data: json?.data ?? (json as T) };
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
       return { ok: false, error: "The request was cancelled." };
     }
     return {
       ok: false,
-      error: "We couldn't reach the server. Check your connection and try again.",
+      error:
+        "We couldn't reach the server. Check your connection and try again.",
     };
   }
 }

@@ -3,12 +3,20 @@ import type { AuthUser } from "@nexahaus/types";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { propertyScopeWhere } from "../authz/scope.util";
-import { periodRange, monthsIn, type FinancePeriod } from "../finance/period.util";
+import {
+  periodRange,
+  monthsIn,
+  type FinancePeriod,
+} from "../finance/period.util";
 
 export interface TabularReport {
   title: string;
   period?: { start: string; end: string };
-  columns: { key: string; label: string; kind?: "money" | "number" | "percent" | "text" }[];
+  columns: {
+    key: string;
+    label: string;
+    kind?: "money" | "number" | "percent" | "text";
+  }[];
   rows: Record<string, string | number>[];
   /** Labels for figures that are estimates/assumptions (spec §31). */
   notes?: string[];
@@ -23,11 +31,22 @@ const OWNER_KINDS = [
   "maintenance",
   "asset-performance",
 ] as const;
-const MANAGEMENT_KINDS = ["portfolio", "collection", "maintenance", "growth"] as const;
+const MANAGEMENT_KINDS = [
+  "portfolio",
+  "collection",
+  "maintenance",
+  "growth",
+] as const;
 
 const MAINT_CATS = new Set([
-  "PLUMBING", "ELECTRICAL", "PAINTING", "AIR_CONDITIONING", "PEST_CONTROL",
-  "REPAIRS", "CLEANING", "LANDSCAPING",
+  "PLUMBING",
+  "ELECTRICAL",
+  "PAINTING",
+  "AIR_CONDITIONING",
+  "PEST_CONTROL",
+  "REPAIRS",
+  "CLEANING",
+  "LANDSCAPING",
 ]);
 
 @Injectable()
@@ -46,7 +65,9 @@ export class ReportsService {
     const range = periodRange(period);
     const scopeWhere = propertyScopeWhere(user);
     const properties = await this.prisma.property.findMany({
-      where: propertyId ? { AND: [scopeWhere, { id: propertyId }] } : scopeWhere,
+      where: propertyId
+        ? { AND: [scopeWhere, { id: propertyId }] }
+        : scopeWhere,
       select: { id: true, ref: true, name: true, status: true },
     });
     if (properties.length === 0) {
@@ -80,7 +101,8 @@ export class ReportsService {
     period: FinancePeriod,
   ): Promise<TabularReport> {
     if (!user.scopeExempt) throw AppError.forbidden();
-    if (!MANAGEMENT_KINDS.includes(kind as never)) throw AppError.notFound("report");
+    if (!MANAGEMENT_KINDS.includes(kind as never))
+      throw AppError.notFound("report");
     const range = periodRange(period);
 
     switch (kind) {
@@ -103,7 +125,10 @@ export class ReportsService {
         const months = monthsIn(range);
         const charges = await this.prisma.rentCharge.groupBy({
           by: ["dueDate"],
-          where: { dueDate: { gte: range.start, lt: range.end }, status: { not: "WAIVED" } },
+          where: {
+            dueDate: { gte: range.start, lt: range.end },
+            status: { not: "WAIVED" },
+          },
           _sum: { amountMinor: true, paidMinor: true },
         });
         return {
@@ -116,14 +141,23 @@ export class ReportsService {
             { key: "rate", label: "Rate", kind: "percent" },
           ],
           rows: months.map((m) => {
-            const inMonth = charges.filter((c) => c.dueDate >= m.start && c.dueDate < m.end);
-            const exp = inMonth.reduce((s, c) => s + (c._sum.amountMinor ?? 0n), 0n);
-            const col = inMonth.reduce((s, c) => s + (c._sum.paidMinor ?? 0n), 0n);
+            const inMonth = charges.filter(
+              (c) => c.dueDate >= m.start && c.dueDate < m.end,
+            );
+            const exp = inMonth.reduce(
+              (s, c) => s + (c._sum.amountMinor ?? 0n),
+              0n,
+            );
+            const col = inMonth.reduce(
+              (s, c) => s + (c._sum.paidMinor ?? 0n),
+              0n,
+            );
             return {
               month: m.label,
               expectedMinor: exp.toString(),
               collectedMinor: col.toString(),
-              rate: exp === 0n ? 0 : Math.round((Number(col) / Number(exp)) * 100),
+              rate:
+                exp === 0n ? 0 : Math.round((Number(col) / Number(exp)) * 100),
             };
           }),
         };
@@ -152,13 +186,18 @@ export class ReportsService {
             { key: "count", label: "Requests", kind: "number" },
           ],
           rows: [
-            ...byStatus.map((g) => ({ status: g.status, count: g._count._all })),
+            ...byStatus.map((g) => ({
+              status: g.status,
+              count: g._count._all,
+            })),
             {
               status: "TOTAL SPEND",
               count: Math.abs(Number(cost._sum.amountMinor ?? 0n)) / 100,
             },
           ],
-          notes: ["Total spend is in major currency units, from posted expense transactions."],
+          notes: [
+            "Total spend is in major currency units, from posted expense transactions.",
+          ],
         };
       }
       case "growth": {
@@ -176,8 +215,12 @@ export class ReportsService {
           ],
           rows: months.map((m) => ({
             month: m.label,
-            clients: clients.filter((c) => c.createdAt >= m.start && c.createdAt < m.end).length,
-            properties: properties.filter((p) => p.createdAt >= m.start && p.createdAt < m.end).length,
+            clients: clients.filter(
+              (c) => c.createdAt >= m.start && c.createdAt < m.end,
+            ).length,
+            properties: properties.filter(
+              (p) => p.createdAt >= m.start && p.createdAt < m.end,
+            ).length,
           })),
         };
       }
@@ -208,9 +251,28 @@ export class ReportsService {
     range: { start: Date; end: Date },
   ): Promise<TabularReport> {
     const [units, rent, maint] = await Promise.all([
-      this.prisma.unit.groupBy({ by: ["propertyId", "status"], where: { propertyId: { in: ids }, deletedAt: null }, _count: { _all: true } }),
-      this.prisma.rentCharge.groupBy({ by: ["propertyId"], where: { propertyId: { in: ids }, dueDate: { gte: range.start, lt: range.end }, status: { not: "WAIVED" } }, _sum: { amountMinor: true, paidMinor: true } }),
-      this.prisma.maintenanceRequest.groupBy({ by: ["propertyId"], where: { propertyId: { in: ids }, status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] } }, _count: { _all: true } }),
+      this.prisma.unit.groupBy({
+        by: ["propertyId", "status"],
+        where: { propertyId: { in: ids }, deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.rentCharge.groupBy({
+        by: ["propertyId"],
+        where: {
+          propertyId: { in: ids },
+          dueDate: { gte: range.start, lt: range.end },
+          status: { not: "WAIVED" },
+        },
+        _sum: { amountMinor: true, paidMinor: true },
+      }),
+      this.prisma.maintenanceRequest.groupBy({
+        by: ["propertyId"],
+        where: {
+          propertyId: { in: ids },
+          status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] },
+        },
+        _count: { _all: true },
+      }),
     ]);
     return {
       title: "Portfolio summary",
@@ -236,7 +298,8 @@ export class ReportsService {
           occupied: pu.find((u) => u.status === "OCCUPIED")?._count._all ?? 0,
           expectedMinor: (r?._sum.amountMinor ?? 0n).toString(),
           collectedMinor: (r?._sum.paidMinor ?? 0n).toString(),
-          openMaintenance: maint.find((m) => m.propertyId === p.id)?._count._all ?? 0,
+          openMaintenance:
+            maint.find((m) => m.propertyId === p.id)?._count._all ?? 0,
         };
       }),
     };
@@ -249,7 +312,10 @@ export class ReportsService {
   ): Promise<TabularReport> {
     const rows = await this.prisma.rentCharge.groupBy({
       by: ["propertyId", "status"],
-      where: { propertyId: { in: ids }, dueDate: { gte: range.start, lt: range.end } },
+      where: {
+        propertyId: { in: ids },
+        dueDate: { gte: range.start, lt: range.end },
+      },
       _sum: { amountMinor: true, paidMinor: true },
       _count: { _all: true },
     });
@@ -272,7 +338,10 @@ export class ReportsService {
           billedMinor: billed.toString(),
           paidMinor: paid.toString(),
           outstandingMinor: (billed - paid).toString(),
-          rate: billed === 0n ? 0 : Math.round((Number(paid) / Number(billed)) * 100),
+          rate:
+            billed === 0n
+              ? 0
+              : Math.round((Number(paid) / Number(billed)) * 100),
         };
       }),
     };
@@ -283,8 +352,17 @@ export class ReportsService {
     ids: string[],
   ): Promise<TabularReport> {
     const overdue = await this.prisma.rentCharge.findMany({
-      where: { propertyId: { in: ids }, status: { in: ["OVERDUE", "PARTIALLY_PAID"] } },
-      select: { propertyId: true, dueDate: true, amountMinor: true, paidMinor: true, currency: true },
+      where: {
+        propertyId: { in: ids },
+        status: { in: ["OVERDUE", "PARTIALLY_PAID"] },
+      },
+      select: {
+        propertyId: true,
+        dueDate: true,
+        amountMinor: true,
+        paidMinor: true,
+        currency: true,
+      },
       orderBy: { dueDate: "asc" },
     });
     return {
@@ -299,7 +377,10 @@ export class ReportsService {
         name: properties.find((p) => p.id === c.propertyId)?.name ?? "—",
         dueDate: c.dueDate.toISOString().slice(0, 10),
         outstandingMinor: (c.amountMinor - c.paidMinor).toString(),
-        ageDays: Math.max(0, Math.round((Date.now() - c.dueDate.getTime()) / 86_400_000)),
+        ageDays: Math.max(
+          0,
+          Math.round((Date.now() - c.dueDate.getTime()) / 86_400_000),
+        ),
       })),
     };
   }
@@ -329,7 +410,9 @@ export class ReportsService {
       rows: rows.map((r) => ({
         name: properties.find((p) => p.id === r.propertyId)?.name ?? "—",
         category: r.category,
-        totalMinor: ((r._sum.amountMinor ?? 0n) + (r._sum.taxMinor ?? 0n)).toString(),
+        totalMinor: (
+          (r._sum.amountMinor ?? 0n) + (r._sum.taxMinor ?? 0n)
+        ).toString(),
       })),
     };
   }
@@ -375,7 +458,10 @@ export class ReportsService {
     const [byProp, cost] = await Promise.all([
       this.prisma.maintenanceRequest.groupBy({
         by: ["propertyId", "status"],
-        where: { propertyId: { in: ids }, createdAt: { gte: range.start, lt: range.end } },
+        where: {
+          propertyId: { in: ids },
+          createdAt: { gte: range.start, lt: range.end },
+        },
         _count: { _all: true },
       }),
       this.prisma.expense.groupBy({
@@ -404,11 +490,15 @@ export class ReportsService {
           name: p.name,
           raised: pr.reduce((s, r) => s + r._count._all, 0),
           open: pr
-            .filter((r) => !["CLOSED", "CANCELLED", "VERIFIED"].includes(r.status))
+            .filter(
+              (r) => !["CLOSED", "CANCELLED", "VERIFIED"].includes(r.status),
+            )
             .reduce((s, r) => s + r._count._all, 0),
           spendMinor: (() => {
             const c = cost.find((x) => x.propertyId === p.id);
-            return ((c?._sum.amountMinor ?? 0n) + (c?._sum.taxMinor ?? 0n)).toString();
+            return (
+              (c?._sum.amountMinor ?? 0n) + (c?._sum.taxMinor ?? 0n)
+            ).toString();
           })(),
         };
       }),
@@ -425,15 +515,14 @@ export class ReportsService {
       (range.end.getUTCFullYear() - range.start.getUTCFullYear()) * 12 +
         (range.end.getUTCMonth() - range.start.getUTCMonth()),
     );
-    const [txns, rent, healthRows, propRows, vacantUnits] = await Promise.all([
+    const [txns, healthRows, propRows, vacantUnits] = await Promise.all([
       this.prisma.transaction.groupBy({
         by: ["propertyId", "type"],
-        where: { propertyId: { in: ids }, status: "POSTED", occurredAt: { gte: range.start, lt: range.end } },
-        _sum: { amountMinor: true },
-      }),
-      this.prisma.rentCharge.groupBy({
-        by: ["propertyId"],
-        where: { propertyId: { in: ids }, dueDate: { gte: range.start, lt: range.end }, status: { not: "WAIVED" } },
+        where: {
+          propertyId: { in: ids },
+          status: "POSTED",
+          occurredAt: { gte: range.start, lt: range.end },
+        },
         _sum: { amountMinor: true },
       }),
       this.prisma.propertyHealthScore.findMany({
@@ -447,12 +536,18 @@ export class ReportsService {
         select: { id: true, estimatedValueMinor: true },
       }),
       this.prisma.unit.findMany({
-        where: { propertyId: { in: ids }, deletedAt: null, status: { in: ["VACANT", "UNAVAILABLE"] } },
+        where: {
+          propertyId: { in: ids },
+          deletedAt: null,
+          status: { in: ["VACANT", "UNAVAILABLE"] },
+        },
         select: { propertyId: true, marketRentMinor: true },
       }),
     ]);
     const healthById = new Map(healthRows.map((h) => [h.propertyId, h.score]));
-    const valueById = new Map(propRows.map((p) => [p.id, p.estimatedValueMinor]));
+    const valueById = new Map(
+      propRows.map((p) => [p.id, p.estimatedValueMinor]),
+    );
 
     return {
       title: "Asset performance",
@@ -460,9 +555,17 @@ export class ReportsService {
       columns: [
         { key: "name", label: "Property", kind: "text" },
         { key: "rentalIncomeMinor", label: "Rental income", kind: "money" },
-        { key: "operatingExpensesMinor", label: "Operating expenses", kind: "money" },
+        {
+          key: "operatingExpensesMinor",
+          label: "Operating expenses",
+          kind: "money",
+        },
         { key: "noiMinor", label: "Net operating income", kind: "money" },
-        { key: "vacancyLossMinor", label: "Vacancy loss (est.)", kind: "money" },
+        {
+          key: "vacancyLossMinor",
+          label: "Vacancy loss (est.)",
+          kind: "money",
+        },
         { key: "estValueMinor", label: "Estimated value", kind: "money" },
         { key: "yieldPct", label: "Gross yield (est.)", kind: "percent" },
         { key: "healthScore", label: "Health", kind: "number" },
@@ -473,7 +576,8 @@ export class ReportsService {
       ],
       rows: properties.map((p) => {
         const t = txns.filter((x) => x.propertyId === p.id);
-        const income = t.find((x) => x.type === "RENT_PAYMENT")?._sum.amountMinor ?? 0n;
+        const income =
+          t.find((x) => x.type === "RENT_PAYMENT")?._sum.amountMinor ?? 0n;
         const opex = t
           .filter((x) => x.type === "EXPENSE" || x.type === "MANAGEMENT_FEE")
           .reduce((s, x) => s + (x._sum.amountMinor ?? 0n), 0n); // negative
@@ -490,7 +594,10 @@ export class ReportsService {
           noiMinor: noi.toString(),
           vacancyLossMinor: vac.toString(),
           estValueMinor: value ? value.toString() : "",
-          yieldPct: value && value > 0n ? Math.round((Number(annualisedIncome) / Number(value)) * 100) : 0,
+          yieldPct:
+            value && value > 0n
+              ? Math.round((Number(annualisedIncome) / Number(value)) * 100)
+              : 0,
           healthScore: healthById.get(p.id) ?? 0,
         };
       }),

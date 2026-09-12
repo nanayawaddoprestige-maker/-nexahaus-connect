@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
-import type { ListMeta } from "@nexahaus/types";
+import { api } from "@/lib/api";
 import { formatDate, formatMinor, titleCase } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 interface ExpenseRow {
   id: string;
@@ -24,7 +28,14 @@ interface ExpenseRow {
   vendor: string | null;
 }
 
-const FILTERS = ["", "DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "PAID"] as const;
+const FILTERS = [
+  "",
+  "DRAFT",
+  "SUBMITTED",
+  "APPROVED",
+  "REJECTED",
+  "PAID",
+] as const;
 
 export default function AdminExpensesPage() {
   const qc = useQueryClient();
@@ -39,17 +50,30 @@ export default function AdminExpensesPage() {
   });
 
   const action = useMutation({
-    mutationFn: ({ id, verb, body }: { id: string; verb: string; body?: unknown }) =>
-      api.post(`/expenses/${id}/${verb}`, body ?? {}),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["admin", "expenses"] }),
+    mutationFn: ({
+      id,
+      verb,
+      body,
+    }: {
+      id: string;
+      verb: string;
+      body?: unknown;
+    }) => api.post(`/expenses/${id}/${verb}`, body ?? {}),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["admin", "expenses"] }),
   });
 
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const rows = data?.items ?? [];
 
   return (
     <div>
-      <PageHeader title="Expenses" subtitle={meta?.totalItems != null ? `${meta.totalItems} recorded` : undefined} />
+      <PageHeader
+        title="Expenses"
+        subtitle={
+          meta?.totalItems != null ? `${meta.totalItems} recorded` : undefined
+        }
+      />
 
       <div className="mb-4 flex gap-1 rounded-lg border border-line bg-surface p-1">
         {FILTERS.map((f) => (
@@ -58,7 +82,9 @@ export default function AdminExpensesPage() {
             onClick={() => setStatus(f)}
             className={
               "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
-              (status === f ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+              (status === f
+                ? "bg-navy-900 text-white"
+                : "text-ink-muted hover:text-navy-900")
             }
           >
             {f ? titleCase(f) : "All"}
@@ -71,7 +97,10 @@ export default function AdminExpensesPage() {
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No expenses" description="Property expenses appear here as they are recorded." />
+        <EmptyState
+          title="No expenses"
+          description="Property expenses appear here as they are recorded."
+        />
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-sm">
@@ -89,34 +118,69 @@ export default function AdminExpensesPage() {
               {rows.map((e) => (
                 <tr key={e.id} className="border-b border-line last:border-0">
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs text-navy-700">{e.ref}</span>
-                    <div className="text-xs text-ink-subtle">{e.property.name}</div>
+                    <span className="font-mono text-xs text-navy-700">
+                      {e.ref}
+                    </span>
+                    <div className="text-xs text-ink-subtle">
+                      {e.property.name}
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{titleCase(e.category)}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {titleCase(e.category)}
+                  </td>
                   <td className="px-4 py-3 text-right tabular-nums text-navy-900">
                     {formatMinor(e.total.minor, e.total.currency)}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={e.status} />
                     {e.approvalStatus === "PENDING" ? (
-                      <span className="ml-1 text-xs text-warning">approval</span>
+                      <span className="ml-1 text-xs text-warning">
+                        approval
+                      </span>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{formatDate(e.incurredAt)}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {formatDate(e.incurredAt)}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       {e.status === "DRAFT" ? (
-                        <Button size="sm" variant="secondary" onClick={() => action.mutate({ id: e.id, verb: "submit" })}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            action.mutate({ id: e.id, verb: "submit" })
+                          }
+                        >
                           Submit
                         </Button>
                       ) : null}
                       {e.status === "SUBMITTED" ? (
-                        <Button size="sm" variant="secondary" onClick={() => action.mutate({ id: e.id, verb: "decision", body: { decision: "APPROVED" } })}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            action.mutate({
+                              id: e.id,
+                              verb: "decision",
+                              body: { decision: "APPROVED" },
+                            })
+                          }
+                        >
                           Approve
                         </Button>
                       ) : null}
                       {e.status === "APPROVED" && e.paymentStatus !== "PAID" ? (
-                        <Button size="sm" onClick={() => action.mutate({ id: e.id, verb: "pay", body: { method: "BANK_TRANSFER" } })}>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            action.mutate({
+                              id: e.id,
+                              verb: "pay",
+                              body: { method: "BANK_TRANSFER" },
+                            })
+                          }
+                        >
                           Pay
                         </Button>
                       ) : null}

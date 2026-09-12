@@ -6,5 +6,8 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default function OgImage() {
-  return renderOgImage("Property Management", "Professional Management for Properties That Matter.");
+  return renderOgImage(
+    "Property Management",
+    "Professional Management for Properties That Matter.",
+  );
 }

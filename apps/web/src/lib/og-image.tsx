@@ -42,7 +42,15 @@ export function renderOgImage(eyebrow: string, headline: string) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ fontSize: 26, fontWeight: 600, color: "#e8c766", textTransform: "uppercase", letterSpacing: 1 }}>
+          <div
+            style={{
+              fontSize: 26,
+              fontWeight: 600,
+              color: "#e8c766",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
             {eyebrow}
           </div>
           <div

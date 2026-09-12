@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
-import { DomainEventType, type AuthUser } from "@nexahaus/types";
+import type { AuthUser } from "@nexahaus/types";
 import type { CreateDistributionInput } from "@nexahaus/validation";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
@@ -27,7 +27,12 @@ export class DistributionsService {
 
   async list(
     user: AuthUser,
-    query: { page?: number; pageSize?: number; clientId?: string; status?: string },
+    query: {
+      page?: number;
+      pageSize?: number;
+      clientId?: string;
+      status?: string;
+    },
   ) {
     const { skip, take, page, pageSize } = pageParams(query);
     const where: Prisma.OwnerDistributionWhereInput = {
@@ -36,7 +41,12 @@ export class DistributionsService {
           ? { clientId: query.clientId }
           : {}
         : { clientId: { in: user.clientIds } }),
-      ...(query.status ? { status: query.status as Prisma.EnumDistributionStatusFilter["equals"] } : {}),
+      ...(query.status
+        ? {
+            status:
+              query.status as Prisma.EnumDistributionStatusFilter["equals"],
+          }
+        : {}),
     };
     const [rows, totalItems] = await this.prisma.$transaction([
       this.prisma.ownerDistribution.findMany({
@@ -70,14 +80,19 @@ export class DistributionsService {
     );
   }
 
-  async create(user: AuthUser, input: CreateDistributionInput, ctx: AuditContext) {
+  async create(
+    user: AuthUser,
+    input: CreateDistributionInput,
+    ctx: AuditContext,
+  ) {
     const client = await this.prisma.client.findFirst({
       where: { id: input.clientId, deletedAt: null },
       select: { id: true },
     });
     if (!client) throw AppError.notFound("client");
     const amountMinor = BigInt(input.amount.minor);
-    if (amountMinor <= 0n) throw AppError.validation("Amount must be positive.");
+    if (amountMinor <= 0n)
+      throw AppError.validation("Amount must be positive.");
 
     const distribution = await this.prisma.$transaction(async (tx) => {
       const ref = await this.refs.next("distribution", tx);
@@ -102,7 +117,11 @@ export class DistributionsService {
           action: "distribution.create",
           resourceType: "distribution",
           resourceId: created.id,
-          after: { ref: created.ref, amountMinor: input.amount.minor, clientId: input.clientId },
+          after: {
+            ref: created.ref,
+            amountMinor: input.amount.minor,
+            clientId: input.clientId,
+          },
         },
         tx,
       );
@@ -114,7 +133,9 @@ export class DistributionsService {
   async approve(user: AuthUser, id: string, ctx: AuditContext) {
     const d = await this.load(id);
     if (d.status !== "PENDING") {
-      throw AppError.illegalTransition(`A ${d.status} distribution cannot be approved.`);
+      throw AppError.illegalTransition(
+        `A ${d.status} distribution cannot be approved.`,
+      );
     }
     await this.prisma.ownerDistribution.update({
       where: { id },
@@ -130,10 +151,17 @@ export class DistributionsService {
     return this.getById(user, id);
   }
 
-  async pay(user: AuthUser, id: string, reference: string | undefined, ctx: AuditContext) {
+  async pay(
+    user: AuthUser,
+    id: string,
+    reference: string | undefined,
+    ctx: AuditContext,
+  ) {
     const d = await this.load(id);
     if (!["APPROVED", "PENDING"].includes(d.status)) {
-      throw AppError.illegalTransition(`A ${d.status} distribution cannot be paid.`);
+      throw AppError.illegalTransition(
+        `A ${d.status} distribution cannot be paid.`,
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -156,7 +184,11 @@ export class DistributionsService {
       });
       await tx.ownerDistribution.update({
         where: { id },
-        data: { status: "PAID", paidAt: new Date(), transactionId: transaction.id },
+        data: {
+          status: "PAID",
+          paidAt: new Date(),
+          transactionId: transaction.id,
+        },
       });
       await this.audit.record(
         {
@@ -164,7 +196,11 @@ export class DistributionsService {
           action: "distribution.pay",
           resourceType: "distribution",
           resourceId: id,
-          after: { status: "PAID", transactionId: transaction.id, amountMinor: d.amountMinor.toString() },
+          after: {
+            status: "PAID",
+            transactionId: transaction.id,
+            amountMinor: d.amountMinor.toString(),
+          },
         },
         tx,
       );

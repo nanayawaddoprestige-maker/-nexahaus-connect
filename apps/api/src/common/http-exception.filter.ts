@@ -27,7 +27,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const req = ctx.getRequest<Request & { id?: string }>();
     const requestId = req.id ?? req.header("x-request-id") ?? randomUUID();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     let body: ErrorResponse["error"] = {
       code: ApiErrorCode.INTERNAL_ERROR,
       message: "An unexpected error occurred. Please try again.",
@@ -40,14 +40,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message: string;
         details?: ErrorResponse["error"]["details"];
       };
-      body = { code: payload.code, message: payload.message, details: payload.details };
+      body = {
+        code: payload.code,
+        message: payload.message,
+        details: payload.details,
+      };
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const raw = exception.getResponse();
       const message =
         typeof raw === "string"
           ? raw
-          : ((raw as { message?: string | string[] }).message ?? exception.message);
+          : ((raw as { message?: string | string[] }).message ??
+            exception.message);
       body = {
         code: mapStatusToCode(status),
         message: Array.isArray(message) ? message.join("; ") : message,
@@ -66,7 +71,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
         extra: { method: req.method, path: req.url },
       });
     } else {
-      this.logger.warn({ requestId, code: body.code, path: req.url }, body.message);
+      this.logger.warn(
+        { requestId, code: body.code, path: req.url },
+        body.message,
+      );
     }
 
     res.setHeader("x-request-id", requestId);
@@ -78,7 +86,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 }
 
-function mapStatusToCode(status: number): ApiErrorCode {
+function mapStatusToCode(status: HttpStatus): ApiErrorCode {
   switch (status) {
     case HttpStatus.UNAUTHORIZED:
       return ApiErrorCode.UNAUTHENTICATED;

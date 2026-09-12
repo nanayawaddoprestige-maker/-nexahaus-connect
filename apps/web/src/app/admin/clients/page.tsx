@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { AdminClientRow } from "@/lib/admin-resources";
-import type { ListMeta } from "@nexahaus/types";
 import { titleCase } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 export default function AdminClientsPage() {
   const router = useRouter();
@@ -26,14 +30,16 @@ export default function AdminClientsPage() {
     placeholderData: keepPreviousData,
   });
 
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const rows = data?.items ?? [];
 
   return (
     <div>
       <PageHeader
         title="Clients"
-        subtitle={meta?.totalItems != null ? `${meta.totalItems} on record` : undefined}
+        subtitle={
+          meta?.totalItems != null ? `${meta.totalItems} on record` : undefined
+        }
       />
 
       <input
@@ -85,11 +91,15 @@ export default function AdminClientsPage() {
                       {c.email ? ` · ${c.email}` : ""}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{titleCase(c.segment)}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {titleCase(c.segment)}
+                  </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {c.servicePackage ? titleCase(c.servicePackage) : "—"}
                   </td>
-                  <td className="px-4 py-3 tabular-nums text-navy-900">{c.propertyCount}</td>
+                  <td className="px-4 py-3 tabular-nums text-navy-900">
+                    {c.propertyCount}
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={c.status} />
                   </td>
@@ -106,7 +116,12 @@ export default function AdminClientsPage() {
             Page {meta.page} of {meta.totalPages}
           </span>
           <div className="flex gap-2">
-            <Button size="sm" variant="secondary" disabled={(meta.page ?? 1) <= 1} onClick={() => setPage((n) => n - 1)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={(meta.page ?? 1) <= 1}
+              onClick={() => setPage((n) => n - 1)}
+            >
               Previous
             </Button>
             <Button

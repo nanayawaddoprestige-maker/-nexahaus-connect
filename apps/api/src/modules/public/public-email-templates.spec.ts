@@ -8,26 +8,38 @@ import {
 
 describe("public-email-templates", () => {
   it("early access: names the right programme per campaign", () => {
-    expect(earlyAccessConfirmationEmail({ name: "Ama", campaign: "FOUNDING_100" }).subject).toContain(
-      "Founding 100",
-    );
-    expect(earlyAccessConfirmationEmail({ name: "Ama", campaign: "EARLY_ACCESS" }).subject).toContain(
-      "Early Access",
-    );
+    expect(
+      earlyAccessConfirmationEmail({ name: "Ama", campaign: "FOUNDING_100" })
+        .subject,
+    ).toContain("Founding 100");
+    expect(
+      earlyAccessConfirmationEmail({ name: "Ama", campaign: "EARLY_ACCESS" })
+        .subject,
+    ).toContain("Early Access");
   });
 
   it("health check and property rescue include the score and readable band", () => {
-    const hc = propertyHealthCheckConfirmationEmail({ name: "Kwame", score: 72, band: "NEEDS_ATTENTION" });
+    const hc = propertyHealthCheckConfirmationEmail({
+      name: "Kwame",
+      score: 72,
+      band: "NEEDS_ATTENTION",
+    });
     expect(hc.text).toContain("72/100");
     expect(hc.text).toContain("needs attention");
 
-    const pr = propertyRescueConfirmationEmail({ name: "Kwame", score: 40, band: "AT_RISK" });
+    const pr = propertyRescueConfirmationEmail({
+      name: "Kwame",
+      score: 40,
+      band: "AT_RISK",
+    });
     expect(pr.text).toContain("40/100");
     expect(pr.text).toContain("at risk");
   });
 
   it("survey and contact confirmations greet the submitter by name", () => {
-    expect(propertyOwnerSurveyConfirmationEmail({ name: "Esi" }).text).toContain("Hi Esi,");
+    expect(
+      propertyOwnerSurveyConfirmationEmail({ name: "Esi" }).text,
+    ).toContain("Hi Esi,");
     expect(contactConfirmationEmail({ name: "Esi" }).text).toContain("Hi Esi,");
   });
 
@@ -43,8 +55,16 @@ describe("public-email-templates", () => {
     const templates = [
       earlyAccessConfirmationEmail({ name: "Ama", campaign: "OWNER_CLUB" }),
       propertyOwnerSurveyConfirmationEmail({ name: "Ama" }),
-      propertyHealthCheckConfirmationEmail({ name: "Ama", score: 90, band: "HEALTHY" }),
-      propertyRescueConfirmationEmail({ name: "Ama", score: 90, band: "HEALTHY" }),
+      propertyHealthCheckConfirmationEmail({
+        name: "Ama",
+        score: 90,
+        band: "HEALTHY",
+      }),
+      propertyRescueConfirmationEmail({
+        name: "Ama",
+        score: 90,
+        band: "HEALTHY",
+      }),
       contactConfirmationEmail({ name: "Ama" }),
     ];
     for (const t of templates) {

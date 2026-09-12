@@ -1,4 +1,4 @@
-import { HealthComponentKey } from "@nexahaus/types";
+import type { HealthComponentKey } from "@nexahaus/types";
 
 export type ComponentKey = (typeof HealthComponentKey)[keyof typeof HealthComponentKey];
 

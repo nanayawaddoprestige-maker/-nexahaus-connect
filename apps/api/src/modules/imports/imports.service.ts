@@ -38,9 +38,10 @@ export class ImportsService {
       ? parseCsv(input.csv)
       : (input.rows ?? []);
     if (rawRows.length === 0) throw AppError.validation("No rows to import.");
-    if (rawRows.length > 20_000) throw AppError.validation("Too many rows (max 20,000).");
+    if (rawRows.length > 20_000)
+      throw AppError.validation("Too many rows (max 20,000).");
 
-    const schema = IMPORT_ROW_SCHEMAS[input.entity as ImportEntity];
+    const schema = IMPORT_ROW_SCHEMAS[input.entity];
     const errors: RowError[] = [];
     const valid: Record<string, unknown>[] = [];
 
@@ -79,7 +80,12 @@ export class ImportsService {
       action: "import.validate",
       resourceType: "import_job",
       resourceId: job.id,
-      after: { entity: input.entity, total: rawRows.length, valid: valid.length, errors: errors.length },
+      after: {
+        entity: input.entity,
+        total: rawRows.length,
+        valid: valid.length,
+        errors: errors.length,
+      },
     });
 
     return this.serialize(job.id);
@@ -94,7 +100,9 @@ export class ImportsService {
     const job = await this.prisma.importJob.findUnique({ where: { id } });
     if (!job) throw AppError.notFound("import");
     if (job.status !== "VALIDATED") {
-      throw AppError.illegalTransition(`A ${job.status} import cannot be committed.`);
+      throw AppError.illegalTransition(
+        `A ${job.status} import cannot be committed.`,
+      );
     }
     if (job.errorRows > 0 && !allowPartial) {
       throw AppError.conflict(
@@ -102,20 +110,30 @@ export class ImportsService {
       );
     }
 
-    const rows = ((job.result as { validRows?: Record<string, unknown>[] } | null)?.validRows ?? []);
+    const rows =
+      (job.result as { validRows?: Record<string, unknown>[] } | null)
+        ?.validRows ?? [];
     const created: string[] = [];
     const failures: RowError[] = [];
 
-    await this.prisma.importJob.update({ where: { id }, data: { status: "COMMITTING" } });
+    await this.prisma.importJob.update({
+      where: { id },
+      data: { status: "COMMITTING" },
+    });
 
     for (let i = 0; i < rows.length; i += 1) {
       try {
-        const refOrId = await this.insertRow(job.entity as ImportEntity, rows[i]!, user);
+        const refOrId = await this.insertRow(
+          job.entity as ImportEntity,
+          rows[i]!,
+          user,
+        );
         created.push(refOrId);
       } catch (err) {
         failures.push({
           row: i + 2,
-          message: err instanceof Error ? err.message.slice(0, 300) : "insert failed",
+          message:
+            err instanceof Error ? err.message.slice(0, 300) : "insert failed",
         });
       }
     }
@@ -155,8 +173,15 @@ export class ImportsService {
       orderBy: { createdAt: "desc" },
       take: 50,
       select: {
-        id: true, ref: true, entity: true, status: true,
-        totalRows: true, validRows: true, errorRows: true, createdAt: true, committedAt: true,
+        id: true,
+        ref: true,
+        entity: true,
+        status: true,
+        totalRows: true,
+        validRows: true,
+        errorRows: true,
+        createdAt: true,
+        committedAt: true,
       },
     });
     return {
@@ -180,7 +205,9 @@ export class ImportsService {
     const job = await this.prisma.importJob.findUnique({ where: { id } });
     if (!job) throw AppError.notFound("import");
     const validation = (job.errors as unknown as RowError[]) ?? [];
-    const commit = ((job.result as { commitFailures?: RowError[] } | null)?.commitFailures) ?? [];
+    const commit =
+      (job.result as { commitFailures?: RowError[] } | null)?.commitFailures ??
+      [];
     return toCsv(
       ["phase", "row", "field", "message"],
       [
@@ -191,7 +218,9 @@ export class ImportsService {
   }
 
   private async serialize(id: string) {
-    const job = await this.prisma.importJob.findUniqueOrThrow({ where: { id } });
+    const job = await this.prisma.importJob.findUniqueOrThrow({
+      where: { id },
+    });
     const result = job.result as {
       createdRefs?: string[];
       commitFailures?: RowError[];
@@ -215,7 +244,7 @@ export class ImportsService {
   private async insertRow(
     entity: ImportEntity,
     row: Record<string, unknown>,
-    user: AuthUser,
+    _user: AuthUser,
   ): Promise<string> {
     return this.prisma.$transaction(async (tx) => {
       switch (entity) {
@@ -242,7 +271,10 @@ export class ImportsService {
             where: { ref: row.clientRef as string, deletedAt: null },
             select: { id: true },
           });
-          if (!client) throw new Error(`Client not found for ref ${String(row.clientRef)}`);
+          if (!client)
+            throw new Error(
+              `Client not found for ref ${String(row.clientRef)}`,
+            );
           const ref = await this.refs.next("property", tx);
           const p = await tx.property.create({
             data: {
@@ -257,10 +289,25 @@ export class ImportsService {
               country: (row.country as string) || "GH",
               bedrooms: (row.bedrooms as number) ?? null,
               bathrooms: (row.bathrooms as number) ?? null,
-              estimatedValueMinor: row.estimatedValueMinor ? BigInt(row.estimatedValueMinor as string) : null,
-              estimatedValueCurrency: (row.estimatedValueCurrency as string) || null,
-              owners: { create: { clientId: client.id, sharePercent: 100, isPrimary: true } },
-              onboardingChecklist: { create: { items: {}, completionPercent: 0, status: "IN_PROGRESS" } },
+              estimatedValueMinor: row.estimatedValueMinor
+                ? BigInt(row.estimatedValueMinor as string)
+                : null,
+              estimatedValueCurrency:
+                (row.estimatedValueCurrency as string) || null,
+              owners: {
+                create: {
+                  clientId: client.id,
+                  sharePercent: 100,
+                  isPrimary: true,
+                },
+              },
+              onboardingChecklist: {
+                create: {
+                  items: {},
+                  completionPercent: 0,
+                  status: "IN_PROGRESS",
+                },
+              },
             },
           });
           return p.ref;
@@ -270,7 +317,10 @@ export class ImportsService {
             where: { ref: row.propertyRef as string, deletedAt: null },
             select: { id: true },
           });
-          if (!property) throw new Error(`Property not found for ref ${String(row.propertyRef)}`);
+          if (!property)
+            throw new Error(
+              `Property not found for ref ${String(row.propertyRef)}`,
+            );
           const ref = await this.refs.next("unit", tx);
           const u = await tx.unit.create({
             data: {
@@ -279,7 +329,9 @@ export class ImportsService {
               label: row.label as string,
               bedrooms: (row.bedrooms as number) ?? null,
               bathrooms: (row.bathrooms as number) ?? null,
-              marketRentMinor: row.marketRentMinor ? BigInt(row.marketRentMinor as string) : null,
+              marketRentMinor: row.marketRentMinor
+                ? BigInt(row.marketRentMinor as string)
+                : null,
               marketRentCurrency: (row.marketRentCurrency as string) || null,
               status: (row.status as never) ?? "VACANT",
             },
@@ -298,15 +350,17 @@ export class ImportsService {
               fullName: row.fullName as string,
               phone: row.phone as string,
               email: (row.email as string) || null,
-              emergencyContactName: (row.emergencyContactName as string) || null,
-              emergencyContactPhone: (row.emergencyContactPhone as string) || null,
+              emergencyContactName:
+                (row.emergencyContactName as string) || null,
+              emergencyContactPhone:
+                (row.emergencyContactPhone as string) || null,
               status: (row.status as never) ?? "ACTIVE",
             },
           });
           return t.ref;
         }
         default:
-          throw new Error(`Unsupported import entity ${entity}`);
+          throw new Error(`Unsupported import entity ${String(entity)}`);
       }
     });
   }

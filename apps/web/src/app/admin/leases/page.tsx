@@ -4,12 +4,16 @@ import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { LeaseRow } from "@/lib/admin-resources";
-import type { ListMeta } from "@nexahaus/types";
 import { formatDate, formatMinor, titleCase } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 const FILTERS = [
   { value: "", label: "All" },
@@ -38,14 +42,16 @@ export default function AdminLeasesPage() {
       }),
     placeholderData: keepPreviousData,
   });
-  const meta = data?.meta as ListMeta | undefined;
+  const meta = data?.meta;
   const rows = data?.items ?? [];
 
   return (
     <div>
       <PageHeader
         title="Leases"
-        subtitle={meta?.totalItems != null ? `${meta.totalItems} on record` : undefined}
+        subtitle={
+          meta?.totalItems != null ? `${meta.totalItems} on record` : undefined
+        }
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -59,7 +65,9 @@ export default function AdminLeasesPage() {
               }}
               className={
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
-                (status === f.value ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+                (status === f.value
+                  ? "bg-navy-900 text-white"
+                  : "text-ink-muted hover:text-navy-900")
               }
             >
               {f.label}
@@ -88,7 +96,10 @@ export default function AdminLeasesPage() {
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No leases found" description="Leases you manage will appear here." />
+        <EmptyState
+          title="No leases found"
+          description="Leases you manage will appear here."
+        />
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-sm">
@@ -104,21 +115,33 @@ export default function AdminLeasesPage() {
             </thead>
             <tbody>
               {rows.map((l) => (
-                <tr key={l.id} className="border-b border-line last:border-0 hover:bg-surface-sunken">
-                  <td className="px-4 py-3 font-mono text-[12px] text-navy-900">{l.ref}</td>
+                <tr
+                  key={l.id}
+                  className="border-b border-line last:border-0 hover:bg-surface-sunken"
+                >
+                  <td className="px-4 py-3 font-mono text-[12px] text-navy-900">
+                    {l.ref}
+                  </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {l.property.name}
                     <span className="text-ink-subtle"> · {l.unit.label}</span>
                   </td>
-                  <td className="px-4 py-3 text-navy-900">{l.primaryTenant?.fullName ?? "—"}</td>
+                  <td className="px-4 py-3 text-navy-900">
+                    {l.primaryTenant?.fullName ?? "—"}
+                  </td>
                   <td className="px-4 py-3 tabular-nums text-navy-900">
                     {formatMinor(l.rent.minor, l.rent.currency)}
-                    <span className="text-ink-subtle"> / {titleCase(l.frequency).toLowerCase()}</span>
+                    <span className="text-ink-subtle">
+                      {" "}
+                      / {titleCase(l.frequency).toLowerCase()}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {formatDate(l.endDate)}
                     {l.status === "ACTIVE" && l.daysToExpiry <= 90 ? (
-                      <span className="ml-2 text-xs text-warning">{l.daysToExpiry}d</span>
+                      <span className="ml-2 text-xs text-warning">
+                        {l.daysToExpiry}d
+                      </span>
                     ) : null}
                   </td>
                   <td className="px-4 py-3">
@@ -133,9 +156,16 @@ export default function AdminLeasesPage() {
 
       {meta && (meta.totalPages ?? 1) > 1 ? (
         <div className="mt-4 flex items-center justify-between text-sm">
-          <span className="text-ink-subtle">Page {meta.page} of {meta.totalPages}</span>
+          <span className="text-ink-subtle">
+            Page {meta.page} of {meta.totalPages}
+          </span>
           <div className="flex gap-2">
-            <Button size="sm" variant="secondary" disabled={(meta.page ?? 1) <= 1} onClick={() => setPage((n) => n - 1)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={(meta.page ?? 1) <= 1}
+              onClick={() => setPage((n) => n - 1)}
+            >
               Previous
             </Button>
             <Button

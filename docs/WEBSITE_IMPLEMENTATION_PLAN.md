@@ -22,7 +22,7 @@ Last updated: 2026-09-09 · Branch: `feat/marketing-site`
 
 ---
 
-## Phase 1 — Foundation  ✅ _this pass_
+## Phase 1 — Foundation ✅ _this pass_
 
 - [x] `feat/marketing-site` branch off `master`.
 - [x] Repo assessment + architecture / design / page-map / component / data / SEO
@@ -74,7 +74,7 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
 
 ---
 
-## Phase 2 — Core pages  ✅ _this pass_
+## Phase 2 — Core pages ✅ _this pass_
 
 - [x] Homepage completed: Diaspora, NexaHaus Connect dashboard preview
       (`connect-preview/portfolio-panel`), Property Rescue, Property Health
@@ -96,14 +96,15 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
       (accessible Field / TextInput / SelectInput / TextArea / ConsentCheckbox /
       Honeypot / FormError), `components/forms/contact-form.tsx`.
 - [x] **Pulled forward from Phase 3:** `contactEnquirySchema` +
-      `attributionSchema` in `packages/validation/src/crm.ts`; `POST
-      /api/v1/public/contact` in `apps/api` `modules/public` (upsert lead + NOTE
-      activity + consent + audit; `upsertLead` extended with `serviceInterest` /
-      `biggestChallenge`). API `tsc` for `modules/public` is clean; pre-existing
+      `attributionSchema` in `packages/validation/src/crm.ts`;
+      `POST /api/v1/public/contact` in `apps/api` `modules/public` (upsert
+      lead + NOTE activity + consent + audit; `upsertLead` extended with
+      `serviceInterest` / `biggestChallenge`). API `tsc` for `modules/public`
+      is clean; pre-existing
       `vendors/*` + test `tsc` errors remain (stale `prisma generate`).
 - [x] Retired `_service/ServicePage`.
 
-## Phase 3 — Lead-generation tools  ✅ _this pass_
+## Phase 3 — Lead-generation tools ✅ _this pass_
 
 - [x] Multi-step form framework: `components/forms/steps.tsx` (`useSteps`,
       `StepProgress` numbered rail, `StepPanel` with focus management, `StepNav`),
@@ -144,7 +145,7 @@ green on `apps/api`. See the "Fix Prisma schema parse error…" commit for the
 full list. Frontend `next build` was unaffected throughout (web imports only the
 built `@nexahaus/validation` / `@nexahaus/types`).
 
-## Phase 4 — NexaHaus Connect preview  ✅ _this pass_
+## Phase 4 — NexaHaus Connect preview ✅ _this pass_
 
 - [x] `components/connect-preview/*` — six responsive illustrative screens, each
       wrapped in `ConnectFrame` (window chrome + `ModuleRail` + visible
@@ -162,7 +163,7 @@ built `@nexahaus/validation` / `@nexahaus/types`).
       "private by default" data section linking the Privacy Policy, an access
       band (Join Early Access + Client Login), closing CTA band.
 
-## Phase 5 — Insights  ✅ _this pass_
+## Phase 5 — Insights ✅ _this pass_
 
 - [x] `src/content/insights.ts` filled with 5 education-first articles (no
       fabricated statistics, clients or case studies) across Property
@@ -184,7 +185,7 @@ only changes on deploy, so `generateStaticParams` (full static generation) is
 sufficient; there is no revalidation need until Insights moves to a CMS/API
 (the seam `getInsight`/`getAllInsights`/etc. already exists for that move).
 
-## Phase 6 — SEO / analytics / email  ✅ _this pass_
+## Phase 6 — SEO / analytics / email ✅ _this pass_
 
 Started with an audit (not a guess) of what Phases 1–4 had already wired vs.
 what was actually missing, since a lot of this was assumed to be greenfield
@@ -201,8 +202,7 @@ and wasn't.
       Phase 1 (Satori requires `display:"flex"` on any element with more
       than one child; the footer line mixed a JSX expression with a text
       node and had no `display` at all). Every page's social-share preview
-      was broken. Fixed, then added real per-page OG images (`lib/og-image.tsx`
-      + 7 per-route `opengraph-image.tsx` files) for the highest-traffic
+      was broken. Fixed, then added real per-page OG images (`lib/og-image.tsx` + 7 per-route `opengraph-image.tsx` files) for the highest-traffic
       pages per `sitemap.ts`'s own `HIGH_PRIORITY` set, plus Insights.
 - [x] **UTM → CRM lead mapping**: browser capture → form submission → API
       validation was already complete; the missing link was persistence —
@@ -237,12 +237,50 @@ whenever a project key exists.
 
 ## Phase 7 — QA
 
-- WCAG 2.2 AA sweep (axe + manual keyboard / SR).
-- Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 / 1440 / 1920.
-- Performance: Lighthouse / CWV against the budget; image + font audit.
-- Security: add CSP (+ `frame-ancestors 'none'`); re-check headers; confirm no
-  lead-data exposure.
-- Fix `next lint` (flat-config migration or ESLint 8 pin) and re-enable in CI.
+- [x] **`next lint` fixed repo-wide** (flat-config migration). Two separate
+      root causes, both resolved:
+  - `next lint` (bundled with `next@14.2.13`) still invokes ESLint with
+    removed legacy `CLIEngine` options and fails outright under ESLint 9 —
+    `apps/web`'s `lint` script now calls `eslint .` directly against a real
+    flat config (`apps/web/eslint.config.mjs`), bridging the legacy
+    `eslint-config-next@14` shareable config via `@eslint/eslintrc`'s
+    `FlatCompat` (the Next-documented approach for this exact combination).
+  - Two of `eslint-config-next`'s own bundled plugins call ESLint APIs
+    removed in v9 (`context.getScope`, `context.getAncestors`):
+    `eslint-plugin-react-hooks` was pinned to an old pre-release canary by
+    `eslint-config-next`'s peer range, and `@next/eslint-plugin-next` hadn't
+    been patched in the 14.2.x line. Overrode both via `pnpm.overrides` in
+    the root `package.json` to real stable releases
+    (`eslint-plugin-react-hooks@5.1.0`; a patch bump within Next's own 15.x
+    line for the lint plugin only — its rules are static AST checks, not
+    coupled to the Next 14 runtime).
+- [x] Fixed the shared `eqeqeq` rule (`packages/eslint-config/index.js`): it
+      had no `{ null: "ignore" }` exception, so every idiomatic `== null` /
+      `!= null` check across `apps/api` and `apps/web` (the correct,
+      one-line way to catch both `null` and `undefined`) was flagged as an
+      error.
+- [x] Fixed ~25 small, genuine, pre-existing lint findings across both apps
+      and `apps/mobile` — unused imports/params, unnecessary type
+      assertions, an unsafe-`any` BullMQ event handler, an enum/number type
+      mismatch in `http-exception.filter.ts`, and one dead `rentCharge`
+      query in `reports.service.ts` (confirmed dead, not a missing metric —
+      the report's own `notes` field documents actual, not billed, income).
+      `pnpm lint` now passes clean, repo-wide, matching exactly what CI's
+      `static` job runs.
+- [ ] **Found in the process, not yet fixed:** `pnpm format:check` also
+      fails repo-wide — most of the pre-existing codebase (not code touched
+      by this pass) doesn't match the repo's own Prettier config. This is
+      independent of the `next lint` issue and was not listed under "Known
+      blockers" before now. A `prettier --write` across the whole repo does
+      resolve it cleanly (verified), but reformats ~260 files with no
+      semantic change — too large a diff to fold into this pass. CI's
+      `static` job will still fail on `format:check` until that repo-wide
+      reformat is deliberately done (and reviewed) on its own.
+- [ ] WCAG 2.2 AA sweep (axe + manual keyboard / SR).
+- [ ] Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 / 1440 / 1920.
+- [ ] Performance: Lighthouse / CWV against the budget; image + font audit.
+- [ ] Security: add CSP (+ `frame-ancestors 'none'`); re-check headers; confirm no
+      lead-data exposure.
 
 ## Phase 8 — Acceptance & deploy
 
@@ -254,21 +292,25 @@ whenever a project key exists.
 
 ## Decision log
 
-| # | Decision | Why |
-|---|---|---|
-| W1 | `/` is the marketing homepage; root auth-redirect removed; portal entry via "Client Login". | Brief page map + SEO; portal is destined for its own origin. |
-| W2 | Route group renamed `(public)` → `(marketing)`. | Matches brief; route groups don't affect URLs. |
-| W3 | Portal `(owner)/property-rescue` → `(owner)/rescue`. | Next.js forbids the same path in two groups; the public canonical URL `/property-rescue` (brief §10) takes precedence. One nav line changed; API paths untouched. |
-| W4 | Insights = typed file-based content layer now (`src/content/insights.ts`), CMS/API later behind 4 accessors. | Ships a real section fast; zero infra; clean swap seam. (User: "all the above".) |
-| W5 | New public form endpoints extend `apps/api/modules/public` (Phase 3), not Next route handlers. | Keeps every form server-validated, throttled, consent-recording, CRM-connected. |
-| W6 | `pnpm.overrides` pin `@types/react` 18.3.10 / `@types/react-dom` 18.3.0. | Two copies (18.2.79 vs 18.3.10) broke `tsc` in every layout, pre-existing. |
-| W7 | Photography is optional/config-driven; designed non-photo fallback until licensed images exist. | No stock imagery; brief §69 / §3. |
-| W8 | `opengraph-image` on the edge runtime. | Supported target for `next/og`; node prerender throws "Invalid URL". |
+| #   | Decision                                                                                                     | Why                                                                                                                                                               |
+| --- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| W1  | `/` is the marketing homepage; root auth-redirect removed; portal entry via "Client Login".                  | Brief page map + SEO; portal is destined for its own origin.                                                                                                      |
+| W2  | Route group renamed `(public)` → `(marketing)`.                                                              | Matches brief; route groups don't affect URLs.                                                                                                                    |
+| W3  | Portal `(owner)/property-rescue` → `(owner)/rescue`.                                                         | Next.js forbids the same path in two groups; the public canonical URL `/property-rescue` (brief §10) takes precedence. One nav line changed; API paths untouched. |
+| W4  | Insights = typed file-based content layer now (`src/content/insights.ts`), CMS/API later behind 4 accessors. | Ships a real section fast; zero infra; clean swap seam. (User: "all the above".)                                                                                  |
+| W5  | New public form endpoints extend `apps/api/modules/public` (Phase 3), not Next route handlers.               | Keeps every form server-validated, throttled, consent-recording, CRM-connected.                                                                                   |
+| W6  | `pnpm.overrides` pin `@types/react` 18.3.10 / `@types/react-dom` 18.3.0.                                     | Two copies (18.2.79 vs 18.3.10) broke `tsc` in every layout, pre-existing.                                                                                        |
+| W7  | Photography is optional/config-driven; designed non-photo fallback until licensed images exist.              | No stock imagery; brief §69 / §3.                                                                                                                                 |
+| W8  | `opengraph-image` on the edge runtime.                                                                       | Supported target for `next/og`; node prerender throws "Invalid URL".                                                                                              |
 
 ## Known blockers / debt
 
-- `next lint` broken repo-wide (ESLint 9 vs `eslint-config-next@14` + canary
-  `eslint-plugin-react-hooks`). Type checking via `tsc` is green. → Phase 7.
+- ~~`next lint` broken repo-wide (ESLint 9 vs `eslint-config-next@14` +
+  canary `eslint-plugin-react-hooks`).~~ Fixed in Phase 7 (flat-config
+  migration + plugin overrides) — see that section for the full breakdown.
+- `pnpm format:check` fails repo-wide — found while fixing the above; not
+  fixed (see Phase 7's last bullet: the correct fix is a large, separately
+  reviewed reformat, not something to bundle into an unrelated change).
 - `output:"standalone"` local build step fails on Windows (symlink EPERM); builds
   clean with `VERCEL=1` and on Linux hosts. Environmental only.
 - Shared packages (`@nexahaus/types`, `@nexahaus/validation`) must be built

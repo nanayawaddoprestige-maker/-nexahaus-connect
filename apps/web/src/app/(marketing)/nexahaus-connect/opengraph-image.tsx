@@ -6,5 +6,8 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default function OgImage() {
-  return renderOgImage("NexaHaus Connect", "Your Property. Your Data. Your Control.");
+  return renderOgImage(
+    "NexaHaus Connect",
+    "Your Property. Your Data. Your Control.",
+  );
 }

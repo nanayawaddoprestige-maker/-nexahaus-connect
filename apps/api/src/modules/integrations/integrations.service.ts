@@ -51,16 +51,21 @@ export class IntegrationsService {
     if (this.whatsappProvider === "noop") return true; // dev: accept unsigned
     if (!signature) return false;
     const provided = signature.replace(/^sha256=/i, "").trim();
-    const expected = createHmac("sha256", this.whatsappSecret).update(rawBody).digest("hex");
+    const expected = createHmac("sha256", this.whatsappSecret)
+      .update(rawBody)
+      .digest("hex");
     if (provided.length !== expected.length) return false;
     try {
-      return timingSafeEqual(Buffer.from(provided, "hex"), Buffer.from(expected, "hex"));
+      return timingSafeEqual(
+        Buffer.from(provided, "hex"),
+        Buffer.from(expected, "hex"),
+      );
     } catch {
       return false;
     }
   }
 
-  async handleWhatsApp(msg: InboundWhatsApp, rawBody: Buffer) {
+  async handleWhatsApp(msg: InboundWhatsApp, _rawBody: Buffer) {
     const prior = await this.prisma.whatsAppInboundMessage.findUnique({
       where: {
         provider_providerMsgId: {
@@ -75,7 +80,11 @@ export class IntegrationsService {
     const phone = normalisePhone(msg.from);
     const user = await this.prisma.user.findFirst({
       where: { OR: [{ phone }, { tenantProfile: { phone } }] },
-      select: { id: true, tenantProfile: { select: { id: true } }, clientLinks: { select: { clientId: true } } },
+      select: {
+        id: true,
+        tenantProfile: { select: { id: true } },
+        clientLinks: { select: { clientId: true } },
+      },
     });
 
     if (!user) {
@@ -87,11 +96,16 @@ export class IntegrationsService {
           body: msg.text.slice(0, 4000),
         },
       });
-      this.logger.warn({ from: phone }, "Inbound WhatsApp from an unknown number — stored for triage");
+      this.logger.warn(
+        { from: phone },
+        "Inbound WhatsApp from an unknown number — stored for triage",
+      );
       return { status: "unmatched" as const };
     }
 
-    const threadType = user.tenantProfile ? "TENANT_NEXAHAUS" : "OWNER_NEXAHAUS";
+    const threadType = user.tenantProfile
+      ? "TENANT_NEXAHAUS"
+      : "OWNER_NEXAHAUS";
     const thread = await this.prisma.$transaction(async (tx) => {
       let t = await tx.messageThread.findFirst({
         where: {
@@ -104,7 +118,9 @@ export class IntegrationsService {
       if (!t) {
         // Route to support staff as the NexaHaus side.
         const supportStaff = await tx.userRole.findMany({
-          where: { role: { key: { in: ["SUPPORT_STAFF", "PROPERTY_MANAGER"] } } },
+          where: {
+            role: { key: { in: ["SUPPORT_STAFF", "PROPERTY_MANAGER"] } },
+          },
           select: { userId: true },
           take: 3,
         });
@@ -116,8 +132,15 @@ export class IntegrationsService {
             lastMessageAt: new Date(),
             participants: {
               create: [
-                { userId: user.id, role: user.tenantProfile ? "MEMBER" : "OWNER_SIDE", lastReadAt: new Date() },
-                ...supportStaff.map((s) => ({ userId: s.userId, role: "NEXAHAUS_SIDE" as const })),
+                {
+                  userId: user.id,
+                  role: user.tenantProfile ? "MEMBER" : "OWNER_SIDE",
+                  lastReadAt: new Date(),
+                },
+                ...supportStaff.map((s) => ({
+                  userId: s.userId,
+                  role: "NEXAHAUS_SIDE" as const,
+                })),
               ],
             },
           },
@@ -126,9 +149,16 @@ export class IntegrationsService {
         t = created;
       }
       await tx.message.create({
-        data: { threadId: t.id, senderUserId: user.id, body: `[WhatsApp] ${msg.text}` },
+        data: {
+          threadId: t.id,
+          senderUserId: user.id,
+          body: `[WhatsApp] ${msg.text}`,
+        },
       });
-      await tx.messageThread.update({ where: { id: t.id }, data: { lastMessageAt: new Date() } });
+      await tx.messageThread.update({
+        where: { id: t.id },
+        data: { lastMessageAt: new Date() },
+      });
       await tx.whatsAppInboundMessage.create({
         data: {
           provider: this.whatsappProvider,
@@ -144,7 +174,9 @@ export class IntegrationsService {
         DomainEventType.MESSAGE_RECEIVED,
         {
           threadId: t.id,
-          recipientUserIds: t.participants.map((p) => p.userId).filter((id) => id !== user.id),
+          recipientUserIds: t.participants
+            .map((p) => p.userId)
+            .filter((id) => id !== user.id),
           preview: msg.text.slice(0, 140),
         },
         tx,
@@ -178,7 +210,10 @@ export class IntegrationsService {
   // Analytics
   // --------------------------------------------------------------------------
 
-  async track(name: string, opts: { userId?: string; anonId?: string; props?: Record<string, unknown> }) {
+  async track(
+    name: string,
+    opts: { userId?: string; anonId?: string; props?: Record<string, unknown> },
+  ) {
     await this.prisma.analyticsEvent.create({
       data: {
         name,
@@ -190,11 +225,17 @@ export class IntegrationsService {
     if (this.analyticsProvider !== "noop") {
       // Forward to PostHog / vendor here (Phase 10). Kept as a no-op so the
       // pipeline — validate → persist → forward — is exercised in development.
-      this.logger.debug(`analytics forward → ${this.analyticsProvider}: ${name}`);
+      this.logger.debug(
+        `analytics forward → ${this.analyticsProvider}: ${name}`,
+      );
     }
   }
 
-  async recordEvent(user: AuthUser, name: string, props: Record<string, unknown>) {
+  async recordEvent(
+    user: AuthUser,
+    name: string,
+    props: Record<string, unknown>,
+  ) {
     if (!/^[a-z][a-z0-9_]{1,48}$/.test(name)) {
       throw AppError.validation("Invalid event name.");
     }

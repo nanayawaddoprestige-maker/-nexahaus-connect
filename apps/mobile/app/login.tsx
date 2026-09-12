@@ -26,7 +26,11 @@ export default function Login() {
     setError(null);
     setBusy(true);
     try {
-      const result = await login(identifier.trim(), password, mfaCode || undefined);
+      const result = await login(
+        identifier.trim(),
+        password,
+        mfaCode || undefined,
+      );
       if (result.mfaRequired) setMfaRequired(true);
       else router.replace("/(app)/dashboard");
     } catch (err) {
@@ -85,12 +89,16 @@ export default function Login() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Pressable
-          onPress={submit}
+          onPress={() => void submit()}
           disabled={busy}
           style={[styles.button, busy && { opacity: 0.6 }]}
         >
           <Text style={styles.buttonText}>
-            {busy ? "Please wait…" : mfaRequired ? "Verify and continue" : "Sign in"}
+            {busy
+              ? "Please wait…"
+              : mfaRequired
+                ? "Verify and continue"
+                : "Sign in"}
           </Text>
         </Pressable>
       </View>
@@ -138,7 +146,11 @@ const styles = StyleSheet.create({
     fontSize: theme.font.size.base,
     color: theme.color.ink,
   },
-  error: { color: theme.color.critical, marginTop: 12, fontSize: theme.font.size.sm },
+  error: {
+    color: theme.color.critical,
+    marginTop: 12,
+    fontSize: theme.font.size.sm,
+  },
   button: {
     marginTop: 20,
     height: 46,
@@ -147,5 +159,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  buttonText: { color: "#fff", fontWeight: "600", fontSize: theme.font.size.base },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: theme.font.size.base,
+  },
 });

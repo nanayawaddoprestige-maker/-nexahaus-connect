@@ -31,7 +31,8 @@ A feature is done only when **all** of the following exist:
 
 ## 3. Phases
 
-### Phase 0 — Inspection & architecture  ✅ _complete_
+### Phase 0 — Inspection & architecture ✅ _complete_
+
 - [x] Repository inspection (greenfield; no existing code)
 - [x] Toolchain check (Node/pnpm/Docker absent on build machine — see §4)
 - [x] Core documentation: PRD, Architecture, Database, API, Security, Deployment, Testing, Compliance
@@ -43,7 +44,8 @@ A feature is done only when **all** of the following exist:
 
   _Not runtime-verified — `pnpm install` / `tsc` cannot run until the toolchain (B1) is installed._
 
-### Phase 1 — Foundation  _in progress_
+### Phase 1 — Foundation _in progress_
+
 - [x] `apps/api` NestJS bootstrap: config module, structured logging (pino) with secret
       redaction, global exception filter (standard envelope), response-envelope
       interceptor, `/health` + `/ready`, Swagger (non-prod), global throttler
@@ -73,8 +75,7 @@ A feature is done only when **all** of the following exist:
 - [x] `apps/web` Next.js (App Router) bootstrap: navy/gold Tailwind design tokens,
       component library (Button, Card, StatCard, StatusBadge, states: loading/empty/
       error, PageHeader, BrandMark), typed API client with **in-memory access token +
-      silent refresh-and-retry** via the same-origin `/api` proxy rewrite, `AuthProvider`
-      + TanStack Query providers, protected `(owner)` layout + app shell nav
+      silent refresh-and-retry** via the same-origin `/api` proxy rewrite, `AuthProvider` + TanStack Query providers, protected `(owner)` layout + app shell nav
 - [x] **Vertical slice (web):** `/login` (with MFA step) → `/dashboard` (portfolio
       stats + attention counters + expected-vs-collected chart, period filter) →
       `/properties` (search + status filter + pagination, occupancy/collected/
@@ -98,12 +99,12 @@ A feature is done only when **all** of the following exist:
 to create the initial migration; wire `packages/ui` (currently the web app owns its
 components).
 
-### Phase 2 — Core domain  _in progress_
+### Phase 2 — Core domain _in progress_
+
 - [x] **Clients**: scoped CRUD, detail with 10-step onboarding progress + client users +
       contacts, portfolio summary, invite portal user, advance onboarding (completion
       activates the client). Web: `/admin/clients/[id]`.
-- [x] **Units / buildings / floors**: `GET/POST /properties/:id/units` (with active lease
-      + tenant), `GET/PATCH /units/:id`, `POST /properties/:id/buildings`; unit create
+- [x] **Units / buildings / floors**: `GET/POST /properties/:id/units` (with active lease + tenant), `GET/PATCH /units/:id`, `POST /properties/:id/buildings`; unit create
       bumps `unitCount` in-tx. Web: Units & tenancies table on property detail.
 - [x] **Co-ownership**: `POST /properties/:id/owners` (shares must total 100%).
 - [x] **Management agreements**: `POST /properties/:id/agreement` — supersedes (never
@@ -123,7 +124,8 @@ components).
 - [ ] Integration tests: lease lifecycle + rent-charge generation; tenant isolation for
       the new resources
 
-### Phase 3 — Operations  _in progress_
+### Phase 3 — Operations _in progress_
+
 - [x] **Document Vault**: `StorageService` (S3/MinIO, presigned PUT/GET, per-document
       keys), `MalwareScanner` (noop dev / fail-closed prod), `DocumentScopeService`
       (a doc inherits the access rules of what it hangs off). `upload-url` → `finalize`
@@ -150,12 +152,12 @@ components).
 - [ ] Admin maintenance/inspections/documents screens; integration tests
       (maintenance workflow §82, document access §83)
 
-### Phase 4 — Finance  _in progress_
+### Phase 4 — Finance _in progress_
+
 - [x] **Payments**: `PaymentProvider` abstraction (manual / generic-HMAC), oldest-first
       & explicit allocation (`allocation.util`, unit-tested to spec §81), manual entry
       (idempotent), **webhook with `(provider, providerEventId)` dedupe** (replay → 200
-      no-op), settlement in one tx (Transaction + Payment + allocations + charge updates
-      + outbox events + audit), refund (posts a REVERSAL, rolls back allocations).
+      no-op), settlement in one tx (Transaction + Payment + allocations + charge updates + outbox events + audit), refund (posts a REVERSAL, rolls back allocations).
 - [x] **Expenses**: CRUD → submit (over-threshold ⇒ EXPENSE Approval) → decision → pay
       (posts a negative EXPENSE transaction + VendorPayment).
 - [x] **Statements** (spec §18): idempotent `generate` per (client, property, period);
@@ -185,7 +187,8 @@ components).
 
 **Phase 4 complete.**
 
-### Phase 5 — Collaboration  ✅ _complete_
+### Phase 5 — Collaboration ✅ _complete_
+
 - [x] **Outbox worker**: `OutboxService` `@Interval(5s)` drains unprocessed `DomainEvent`
       rows; marks `processedAt`. `DISABLE_SCHEDULERS` gate for multi-instance.
       _(Phase 10: the relay now publishes to a BullMQ `domain-event` queue consumed by the
@@ -212,7 +215,8 @@ components).
       visible only to participants (Owner B → 404, no leak)**; reply → `MESSAGE_RECEIVED`
       notifies the other participant.
 
-### Phase 6 — Intelligence  ✅ _complete_
+### Phase 6 — Intelligence ✅ _complete_
+
 - [x] **Property Health Score**: pure weighted-sum engine (unit-tested to §11); admin
       GET/PUT `/property-health/config` (versioned, must sum to 1); recompute gathers 8
       factors from live data, stores an **explainable** score (each component carries
@@ -234,7 +238,8 @@ components).
       methodology version**, Rescue produces findings + recommendations + a downloadable
       CLEAN PDF.
 
-### Phase 7 — Growth  ✅ _complete_
+### Phase 7 — Growth ✅ _complete_
+
 - [x] **Lead scoring**: configurable A/B/C/D engine (`lead-scoring.util`, unit-tested to
       §74) — property count (banded), diaspora (flag or location-inferred), stated
       management need, assessment completion, consultation booked, engagement (capped),
@@ -244,8 +249,7 @@ components).
       logs `STATUS_CHANGE`), `:id/activities` (re-scores), **`:id/convert`** → creates
       an `ONBOARDING` Client + carries the marketing consent, marks lead `WON`.
 - [x] **Public funnel** (`/api/v1/public/*`, unauthenticated, throttled 5/min, consent
-      captured): `property-health-check` (deterministic self-reported preliminary score
-      + `PropertyHealthCheck` + Lead + `ConsentRecord`; response labels it preliminary,
+      captured): `property-health-check` (deterministic self-reported preliminary score + `PropertyHealthCheck` + Lead + `ConsentRecord`; response labels it preliminary,
       not professional), `early-access` (+ Founding 100), `GET/POST surveys/:key`.
       All entry points upsert a Lead by email and re-score.
 - [x] Seed: **Property Owner Survey** (§38, 15 questions), PUBLISHED.
@@ -260,7 +264,8 @@ components).
       lead + consent; repeat email updates, no duplicate; consultation raises the score;
       convert → `ONBOARDING` client + consent carried + second convert is 409.
 
-### Phase 8 — Tenant portal  ✅ _complete_
+### Phase 8 — Tenant portal ✅ _complete_
+
 - [x] **API** (`/tenant/*`, gated by `tenant:self:*`, bound to the caller's own
       `tenantId`): `me` (profile + current tenancy — no owner figures), `lease` (terms,
       deposit, co-tenants, lease doc), `rent` (per-period paid/outstanding + summary +
@@ -269,8 +274,7 @@ components).
 - [x] Maintenance list for a tenant now also includes requests on their leased unit(s).
 - [x] Seed: first demo tenant linked to `tenant.demo@nexahaus.example`;
       `tenant.paymentInstructions` setting.
-- [x] **Web** (`app/tenant/`): role-gated shell; home, lease, rent (schedule + how-to-pay
-      + history), maintenance (list + inline "Report an issue"), documents, messages,
+- [x] **Web** (`app/tenant/`): role-gated shell; home, lease, rent (schedule + how-to-pay + history), maintenance (list + inline "Report an issue"), documents, messages,
       notifications. Shared `<MessagesView>` (owner `/messages` now uses it too).
 - [x] Tests: **`tenant-portal.e2e-spec`** (release-blocking) — `/tenant/rent` contains
       **no** owner-level key (`managementFee`, `netOwner`, `grossRental`, `distribution`,
@@ -282,7 +286,8 @@ components).
 
 **Phase 8 complete.**
 
-### Phase 9 — Advanced integrations  ✅ _complete_
+### Phase 9 — Advanced integrations ✅ _complete_
+
 - [x] **CSV import** (spec §105): two-phase `POST /imports` (validate every row vs the
       entity's Zod schema, write nothing) → `POST /imports/:id/commit` (per-row
       transactions, `allowPartial` for imports with validation errors), `GET :id/errors`
@@ -306,13 +311,14 @@ components).
 - [x] Seed: demo vendor (`vendor.demo@nexahaus.example`) with a live work order.
 - [x] Tests: `csv` (unit); `imports.e2e-spec` (validate reports per-row errors + writes
       nothing; commit refused with errors then succeeds with `allowPartial`;
-      unknown `clientRef` → per-row commit failure → PARTIALLY_COMPLETED); **`vendor-
-      portal.e2e-spec`** (vendor sees own WOs only, 404 on another vendor's, start+
-      complete drives the request + emits the event, 403 on owner/admin).
+      unknown `clientRef` → per-row commit failure → PARTIALLY_COMPLETED);
+      **`vendor-portal.e2e-spec`** (vendor sees own WOs only, 404 on another
+      vendor's, start+complete drives the request + emits the event, 403 on
+      owner/admin).
 
 **Phase 9 complete.**
 
-### Phase 10 — Production hardening  ✅ _complete_
+### Phase 10 — Production hardening ✅ _complete_
 
 - **Dedicated background worker.** `apps/api/src/modules/queue/` — `QueueService`
   (BullMQ producer, one `Queue` per name, bulk enqueue) + `EventConsumer` (BullMQ
@@ -334,7 +340,7 @@ components).
   `HttpExceptionFilter` reports 5xx to Sentry with only the correlation id + coarse route.
   New env: `SENTRY_TRACES_SAMPLE_RATE`, `OTEL_SERVICE_NAME`, `APP_RELEASE`.
 - **CI/CD.** `.github/workflows/ci.yml` — `static` (lint · typecheck · format · `prisma
-  validate` · `pnpm audit --prod`) → `test` (unit with coverage gates + seed + e2e incl.
+validate` · `pnpm audit --prod`) → `test` (unit with coverage gates + seed + e2e incl.
   the release-blocking isolation / tenant-portal / vendor-portal / statement-reproduction /
   payment-webhook suites, against ephemeral Postgres + Redis) → `build` (all apps + both
   Docker images).
@@ -362,24 +368,24 @@ image-push + deploy jobs to it; run the first load/soak pass and the first resto
 
 ## 4. Current blockers
 
-| # | Blocker | Impact | Resolution |
-|---|---|---|---|
-| B1 | Node.js, a package manager (pnpm/npm), and Docker are not installed on the build machine | Cannot `install`, build, run, migrate, or test any application code. Documentation, schema design and code authoring can proceed; verification cannot. | User installs Node.js 20 LTS + Corepack (pnpm) and Docker Desktop — see [DEPLOYMENT.md](DEPLOYMENT.md#local-prerequisites). Alternatively confirm a target machine / CI where builds run. |
+| #   | Blocker                                                                                  | Impact                                                                                                                                                 | Resolution                                                                                                                                                                                |
+| --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | Node.js, a package manager (pnpm/npm), and Docker are not installed on the build machine | Cannot `install`, build, run, migrate, or test any application code. Documentation, schema design and code authoring can proceed; verification cannot. | User installs Node.js 20 LTS + Corepack (pnpm) and Docker Desktop — see [DEPLOYMENT.md](DEPLOYMENT.md#local-prerequisites). Alternatively confirm a target machine / CI where builds run. |
 
 ## 5. Decision log (assumptions taken)
 
-| # | Topic | Decision | Rationale |
-|---|---|---|---|
-| D1 | Package manager | **pnpm** workspaces + **Turborepo** | Fast, disk-efficient, first-class monorepo support; matches spec stack. |
-| D2 | Monetary storage | Integer **minor units** (`BigInt`) + sibling `currency` (CHAR 3). `Decimal` only for rates/percentages. | Deterministic, auditable; no float. |
-| D3 | Multi-tenancy model | Single NexaHaus org; **data isolation is per-Client (owner)** enforced by an authorization query layer, not by separate schemas/databases. | Matches spec §6; simplest model that scales to thousands of owners. |
-| D4 | Authorization | RBAC (role→permission) **plus** resource-scope checks (client assignment, property assignment). Enforced server-side in guards + repository layer. | Spec §5, §46: never trust client role claims or IDs. |
-| D5 | Mobile app | Architecture + shared packages established in Phase 1; full Expo screens built after web MVP is stable (Phase 8 window), except field-capture for inspections/maintenance which lands with Phase 3. | Spec lists "mobile owner application **architecture**" in MVP, full screens later. |
-| D6 | API style | REST `/api/v1` with OpenAPI. No GraphQL. | Spec §61. |
-| D7 | Real-estate agency features | Built behind feature flags + `PractitionerLicence` gating; **disabled by default**. | Spec §48. |
-| D8 | Payments | `PaymentProvider` interface with a `manual` adapter for launch; real MoMo/bank adapters in Phase 9. Every payment carries an idempotency key; webhook events deduped by provider event id. | Spec §15, §55, §81. |
-| D9 | Background jobs | BullMQ on Redis. Transactional outbox for domain events to guarantee at-least-once delivery. | Reliability for notifications/statements. |
-| D10 | IDs | UUID v7 primary keys; human-facing refs (`NH-000001`, `PLxxxx`) generated per sequence table. | Sortable, non-enumerable externally. |
+| #   | Topic                       | Decision                                                                                                                                                                                            | Rationale                                                                          |
+| --- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| D1  | Package manager             | **pnpm** workspaces + **Turborepo**                                                                                                                                                                 | Fast, disk-efficient, first-class monorepo support; matches spec stack.            |
+| D2  | Monetary storage            | Integer **minor units** (`BigInt`) + sibling `currency` (CHAR 3). `Decimal` only for rates/percentages.                                                                                             | Deterministic, auditable; no float.                                                |
+| D3  | Multi-tenancy model         | Single NexaHaus org; **data isolation is per-Client (owner)** enforced by an authorization query layer, not by separate schemas/databases.                                                          | Matches spec §6; simplest model that scales to thousands of owners.                |
+| D4  | Authorization               | RBAC (role→permission) **plus** resource-scope checks (client assignment, property assignment). Enforced server-side in guards + repository layer.                                                  | Spec §5, §46: never trust client role claims or IDs.                               |
+| D5  | Mobile app                  | Architecture + shared packages established in Phase 1; full Expo screens built after web MVP is stable (Phase 8 window), except field-capture for inspections/maintenance which lands with Phase 3. | Spec lists "mobile owner application **architecture**" in MVP, full screens later. |
+| D6  | API style                   | REST `/api/v1` with OpenAPI. No GraphQL.                                                                                                                                                            | Spec §61.                                                                          |
+| D7  | Real-estate agency features | Built behind feature flags + `PractitionerLicence` gating; **disabled by default**.                                                                                                                 | Spec §48.                                                                          |
+| D8  | Payments                    | `PaymentProvider` interface with a `manual` adapter for launch; real MoMo/bank adapters in Phase 9. Every payment carries an idempotency key; webhook events deduped by provider event id.          | Spec §15, §55, §81.                                                                |
+| D9  | Background jobs             | BullMQ on Redis. Transactional outbox for domain events to guarantee at-least-once delivery.                                                                                                        | Reliability for notifications/statements.                                          |
+| D10 | IDs                         | UUID v7 primary keys; human-facing refs (`NH-000001`, `PLxxxx`) generated per sequence table.                                                                                                       | Sortable, non-enumerable externally.                                               |
 
 ## 6. How to resume
 

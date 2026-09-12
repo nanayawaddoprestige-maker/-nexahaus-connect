@@ -70,7 +70,7 @@ const articles: Insight[] = [
     body: [
       {
         type: "p",
-        text: "In Ghana, \"property management\" can mean very different things depending on who you ask. For some it means a caretaker who collects rent and calls when something breaks. For others it means a fully accountable service covering finances, maintenance, compliance and reporting. Before you hand over a property — or evaluate whether your current arrangement is working — it helps to know what a professional standard of management actually looks like.",
+        text: 'In Ghana, "property management" can mean very different things depending on who you ask. For some it means a caretaker who collects rent and calls when something breaks. For others it means a fully accountable service covering finances, maintenance, compliance and reporting. Before you hand over a property — or evaluate whether your current arrangement is working — it helps to know what a professional standard of management actually looks like.',
       },
       { type: "h2", text: "1. A documented onboarding, not a handshake" },
       {
@@ -82,7 +82,10 @@ const articles: Insight[] = [
         type: "p",
         text: "Every payment should be recorded against the specific tenant, unit and period it covers, with a clear status: paid, partially paid, or outstanding. Cash handled informally, with no reconciliation and no receipt trail, is the single biggest source of disputes between owners, managers and tenants. Ask how payments are recorded and how you, as the owner, can see the same numbers your manager sees.",
       },
-      { type: "h2", text: "3. Maintenance that is reported, approved, and closed out" },
+      {
+        type: "h2",
+        text: "3. Maintenance that is reported, approved, and closed out",
+      },
       {
         type: "p",
         text: "A reported issue should move through a visible sequence: acknowledged, assigned to a vendor, scheduled, completed, and — for larger items — verified before it is marked closed. For any cost above a threshold you set, you should be asked to approve it before work proceeds, with photos and a quoted cost, not informed after the invoice arrives.",
@@ -101,7 +104,10 @@ const articles: Insight[] = [
         type: "callout",
         text: "A simple test: ask your manager to explain how this month's net amount was calculated, line by line. If they cannot, the reporting is not yet at a professional standard.",
       },
-      { type: "h2", text: "Questions worth asking before you sign a management agreement" },
+      {
+        type: "h2",
+        text: "Questions worth asking before you sign a management agreement",
+      },
       {
         type: "ul",
         items: [
@@ -181,7 +187,8 @@ const articles: Insight[] = [
   },
   {
     slug: "why-diaspora-owners-need-regular-inspections",
-    title: "Why Diaspora Owners Need Regular Inspections — Not Just Phone Calls",
+    title:
+      "Why Diaspora Owners Need Regular Inspections — Not Just Phone Calls",
     description:
       "Living outside Ghana makes it harder to know what is really happening at your property. Regular, documented inspections close that gap. Here is why they matter and what a good report should contain.",
     category: "Diaspora",
@@ -209,7 +216,7 @@ const articles: Insight[] = [
         items: [
           "Dated, timestamped photographs — not a description you have to take on faith.",
           "A clear rating per area, so you can see at a glance where attention is needed.",
-          "Specific, prioritised recommendations, not a vague \"all fine\".",
+          'Specific, prioritised recommendations, not a vague "all fine".',
           "A comparison point against the previous inspection, so you can see whether an issue is new, worsening, or resolved.",
         ],
       },
@@ -255,7 +262,10 @@ const articles: Insight[] = [
           "Painting and general exterior upkeep, which protects surfaces as much as it protects appearance",
         ],
       },
-      { type: "h2", text: "Why this is an asset-management decision, not a chore" },
+      {
+        type: "h2",
+        text: "Why this is an asset-management decision, not a chore",
+      },
       {
         type: "p",
         text: "Every property has systems with a working life — a roof, a water heater, an electrical installation. Preventive maintenance does not stop that clock, but it does mean the property reaches the end of a system's working life in a controlled, budgeted way, rather than through a sudden failure that is more expensive to fix and disruptive to a tenant. For an owner comparing properties or managers, the presence of a preventive maintenance schedule — and a record that it is actually being followed — is a meaningful signal of how seriously a property is being looked after.",
@@ -272,7 +282,8 @@ const articles: Insight[] = [
   },
   {
     slug: "what-actually-determines-fair-rent-in-ghana",
-    title: "What Actually Determines a Fair Rent — Beyond \"What the Market Will Bear\"",
+    title:
+      'What Actually Determines a Fair Rent — Beyond "What the Market Will Bear"',
     description:
       "Setting rent by guesswork leaves money on the table or drives good tenants away. Here are the factors a disciplined rent review actually considers.",
     category: "Ghana Property Market",
@@ -281,7 +292,7 @@ const articles: Insight[] = [
     body: [
       {
         type: "p",
-        text: "Ask most owners how their rent was set, and the honest answer is often \"roughly what similar places seem to be going for.\" That is not necessarily wrong, but it is incomplete — and it tends to leave owners either under-charging for a well-kept property or over-pricing one that then sits vacant for months. A more disciplined review looks at several factors together, not rent-of-thumb comparisons alone.",
+        text: 'Ask most owners how their rent was set, and the honest answer is often "roughly what similar places seem to be going for." That is not necessarily wrong, but it is incomplete — and it tends to leave owners either under-charging for a well-kept property or over-pricing one that then sits vacant for months. A more disciplined review looks at several factors together, not rent-of-thumb comparisons alone.',
       },
       { type: "h2", text: "Location and access" },
       {
@@ -331,8 +342,12 @@ export function getAllInsights(): InsightMeta[] {
   return published().map(stripBody);
 }
 
-export function getInsightsByCategory(category: InsightCategory): InsightMeta[] {
-  return published().filter((a) => a.category === category).map(stripBody);
+export function getInsightsByCategory(
+  category: InsightCategory,
+): InsightMeta[] {
+  return published()
+    .filter((a) => a.category === category)
+    .map(stripBody);
 }
 
 export function getFeaturedInsights(limit = 3): InsightMeta[] {
@@ -343,7 +358,11 @@ export function getFeaturedInsights(limit = 3): InsightMeta[] {
 export function getInsight(slug: string): Insight | null {
   const article = published().find((a) => a.slug === slug);
   if (!article) return null;
-  return { ...article, readingMinutes: article.readingMinutes ?? estimateReadingMinutes(article.body) };
+  return {
+    ...article,
+    readingMinutes:
+      article.readingMinutes ?? estimateReadingMinutes(article.body),
+  };
 }
 
 export function getRelatedInsights(slug: string, limit = 3): InsightMeta[] {

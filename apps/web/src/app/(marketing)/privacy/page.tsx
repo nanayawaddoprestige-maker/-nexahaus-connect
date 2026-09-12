@@ -22,27 +22,28 @@ export default function PrivacyPage() {
           Properties &amp; Asset Management Ltd., Accra, Ghana.
         </p>
         <p>
-          <strong className="text-navy-900">What we collect.</strong> The contact
-          details and property information you provide through our forms (Property
-          Health Check, Early Access, surveys), and, for clients, the data needed
-          to manage your property.
+          <strong className="text-navy-900">What we collect.</strong> The
+          contact details and property information you provide through our forms
+          (Property Health Check, Early Access, surveys), and, for clients, the
+          data needed to manage your property.
         </p>
         <p>
           <strong className="text-navy-900">Why.</strong> To respond to your
           enquiry, provide our services, and — only where you have agreed — to
-          contact you about NexaHaus. Marketing consent is recorded with the exact
-          wording you were shown, and you can withdraw it at any time.
+          contact you about NexaHaus. Marketing consent is recorded with the
+          exact wording you were shown, and you can withdraw it at any time.
         </p>
         <p>
-          <strong className="text-navy-900">Your rights.</strong> You may request
-          access to, correction of, or deletion of your personal data, subject to
-          records we are legally required to keep. Contact us to make a request.
+          <strong className="text-navy-900">Your rights.</strong> You may
+          request access to, correction of, or deletion of your personal data,
+          subject to records we are legally required to keep. Contact us to make
+          a request.
         </p>
         <p>
           <strong className="text-navy-900">Retention.</strong> Financial and
-          tenancy records are kept for the periods required by Ghanaian law; other
-          personal data is kept only as long as needed for the purpose it was
-          collected.
+          tenancy records are kept for the periods required by Ghanaian law;
+          other personal data is kept only as long as needed for the purpose it
+          was collected.
         </p>
         <p>
           <strong className="text-navy-900">Security.</strong> Access controls,
@@ -51,8 +52,8 @@ export default function PrivacyPage() {
           links.
         </p>
         <p>
-          This platform is designed to support compliance with Ghana&rsquo;s Data
-          Protection Act, 2012 (Act 843).
+          This platform is designed to support compliance with Ghana&rsquo;s
+          Data Protection Act, 2012 (Act 843).
         </p>
       </div>
     </div>

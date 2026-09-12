@@ -6,5 +6,8 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default function OgImage() {
-  return renderOgImage("Property Health Check", "What Is Your Property's Health Score?");
+  return renderOgImage(
+    "Property Health Check",
+    "What Is Your Property's Health Score?",
+  );
 }

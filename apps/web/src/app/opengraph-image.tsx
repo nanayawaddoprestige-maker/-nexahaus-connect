@@ -53,7 +53,9 @@ export default function OgImage() {
           >
             Property &amp; asset management for owners who expect visibility.
           </div>
-          <div style={{ fontSize: 30, color: "#a7b6d3" }}>{COMPANY.tagline}</div>
+          <div style={{ fontSize: 30, color: "#a7b6d3" }}>
+            {COMPANY.tagline}
+          </div>
         </div>
 
         <div style={{ display: "flex", fontSize: 24, color: "#7b91bd" }}>

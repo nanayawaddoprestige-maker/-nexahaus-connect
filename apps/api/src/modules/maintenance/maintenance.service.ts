@@ -63,7 +63,9 @@ export class MaintenanceService {
               ? { propertyId: { in: user.assignedPropertyIds } }
               : { id: "" },
             user.tenantId ? { reportedByTenantId: user.tenantId } : { id: "" },
-            tenantUnitIds.length ? { unitId: { in: tenantUnitIds } } : { id: "" },
+            tenantUnitIds.length
+              ? { unitId: { in: tenantUnitIds } }
+              : { id: "" },
           ],
         };
 
@@ -119,13 +121,17 @@ export class MaintenanceService {
     const request = await this.prisma.maintenanceRequest.findUnique({
       where: { id },
       include: {
-        property: { select: { id: true, clientId: true, name: true, ref: true } },
+        property: {
+          select: { id: true, clientId: true, name: true, ref: true },
+        },
         unit: { select: { id: true, label: true } },
         reportedByTenant: { select: { id: true, fullName: true } },
         statusHistory: { orderBy: { changedAt: "asc" } },
         workOrders: {
           orderBy: { createdAt: "desc" },
-          include: { vendor: { select: { id: true, name: true, phone: true } } },
+          include: {
+            vendor: { select: { id: true, name: true, phone: true } },
+          },
         },
         media: { orderBy: { createdAt: "asc" } },
       },
@@ -186,7 +192,8 @@ export class MaintenanceService {
         kind: m.kind,
         caption: m.caption,
       })),
-      nextStatuses: MAINTENANCE_TRANSITIONS[request.status as MaintenanceStatus],
+      nextStatuses:
+        MAINTENANCE_TRANSITIONS[request.status as MaintenanceStatus],
     };
   }
 
@@ -194,7 +201,11 @@ export class MaintenanceService {
   // Write
   // --------------------------------------------------------------------------
 
-  async create(user: AuthUser, input: CreateMaintenanceInput, ctx: AuditContext) {
+  async create(
+    user: AuthUser,
+    input: CreateMaintenanceInput,
+    ctx: AuditContext,
+  ) {
     const property = await this.prisma.property.findFirst({
       where: { id: input.propertyId, deletedAt: null },
       select: { id: true, clientId: true },
@@ -208,7 +219,10 @@ export class MaintenanceService {
       const tenancy = await this.prisma.leaseParty.findFirst({
         where: {
           tenantId: user.tenantId ?? "",
-          lease: { propertyId: input.propertyId, status: { in: ["ACTIVE", "EXPIRING"] } },
+          lease: {
+            propertyId: input.propertyId,
+            status: { in: ["ACTIVE", "EXPIRING"] },
+          },
         },
         select: { id: true },
       });
@@ -235,7 +249,9 @@ export class MaintenanceService {
           title: input.title,
           description: input.description,
           status: "REPORTED",
-          statusHistory: { create: { toStatus: "REPORTED", byUserId: user.userId } },
+          statusHistory: {
+            create: { toStatus: "REPORTED", byUserId: user.userId },
+          },
           media: input.mediaDocumentIds
             ? {
                 create: input.mediaDocumentIds.map((documentId) => ({
@@ -289,13 +305,16 @@ export class MaintenanceService {
       );
     }
     if (to === "VERIFIED" && !user.permissions.includes("maintenance:verify")) {
-      throw AppError.forbidden("Only a manager or inspector can verify completion.");
+      throw AppError.forbidden(
+        "Only a manager or inspector can verify completion.",
+      );
     }
 
     const estimateMinor = input.estimatedCost
       ? BigInt(input.estimatedCost.minor)
       : request.estimatedCostMinor;
-    const currency = input.estimatedCost?.currency ?? request.costCurrency ?? "GHS";
+    const currency =
+      input.estimatedCost?.currency ?? request.costCurrency ?? "GHS";
 
     // Cost gate: entering IN_PROGRESS with an estimate over the property's
     // threshold and no prior approval → divert to AWAITING_APPROVAL.
@@ -319,7 +338,9 @@ export class MaintenanceService {
           status: to,
           estimatedCostMinor: estimateMinor ?? undefined,
           costCurrency: currency,
-          scheduledFor: input.scheduledFor ? new Date(input.scheduledFor) : undefined,
+          scheduledFor: input.scheduledFor
+            ? new Date(input.scheduledFor)
+            : undefined,
           completedAt: to === "COMPLETED" ? new Date() : undefined,
           verifiedAt: to === "VERIFIED" ? new Date() : undefined,
           verifiedByUserId: to === "VERIFIED" ? user.userId : undefined,
@@ -329,7 +350,13 @@ export class MaintenanceService {
         },
       });
       await tx.maintenanceStatusHistory.create({
-        data: { requestId: id, fromStatus: from, toStatus: to, byUserId: user.userId, note: input.note ?? null },
+        data: {
+          requestId: id,
+          fromStatus: from,
+          toStatus: to,
+          byUserId: user.userId,
+          note: input.note ?? null,
+        },
       });
 
       if (approvalCreated) {
@@ -387,8 +414,12 @@ export class MaintenanceService {
     ctx: AuditContext,
   ) {
     const request = await this.loadInScope(user, id);
-    if (["CLOSED", "CANCELLED", "VERIFIED", "COMPLETED"].includes(request.status)) {
-      throw AppError.illegalTransition("This request is no longer open for assignment.");
+    if (
+      ["CLOSED", "CANCELLED", "VERIFIED", "COMPLETED"].includes(request.status)
+    ) {
+      throw AppError.illegalTransition(
+        "This request is no longer open for assignment.",
+      );
     }
     if (input.vendorId) {
       const vendor = await this.prisma.vendor.findFirst({
@@ -401,14 +432,15 @@ export class MaintenanceService {
     const estimateMinor = input.estimatedCost
       ? BigInt(input.estimatedCost.minor)
       : request.estimatedCostMinor;
-    const currency = input.estimatedCost?.currency ?? request.costCurrency ?? "GHS";
+    const currency =
+      input.estimatedCost?.currency ?? request.costCurrency ?? "GHS";
     const threshold = await this.thresholdFor(request.propertyId);
     const needsApproval =
       estimateMinor != null &&
       request.approvedCostMinor == null &&
       estimateMinor > threshold;
 
-    const result = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const woRef = await this.refs.next("workorder", tx);
       const workOrder = await tx.workOrder.create({
         data: {
@@ -416,7 +448,9 @@ export class MaintenanceService {
           requestId: id,
           vendorId: input.vendorId ?? null,
           assignedUserId: input.assignedUserId ?? null,
-          scheduledFor: input.scheduledFor ? new Date(input.scheduledFor) : null,
+          scheduledFor: input.scheduledFor
+            ? new Date(input.scheduledFor)
+            : null,
           status: "ISSUED",
           currency,
           createdById: user.userId,
@@ -433,7 +467,9 @@ export class MaintenanceService {
           status: nextStatus,
           estimatedCostMinor: estimateMinor ?? undefined,
           costCurrency: currency,
-          scheduledFor: input.scheduledFor ? new Date(input.scheduledFor) : undefined,
+          scheduledFor: input.scheduledFor
+            ? new Date(input.scheduledFor)
+            : undefined,
         },
       });
       await tx.maintenanceStatusHistory.create({
@@ -623,8 +659,9 @@ export class MaintenanceService {
     const setting = await this.prisma.organizationSetting.findUnique({
       where: { key: "approval.thresholds" },
     });
-    const raw = (setting?.value as { maintenanceCostMinor?: string } | undefined)
-      ?.maintenanceCostMinor;
+    const raw = (
+      setting?.value as { maintenanceCostMinor?: string } | undefined
+    )?.maintenanceCostMinor;
     return raw ? BigInt(raw) : DEFAULT_THRESHOLD_MINOR;
   }
 }

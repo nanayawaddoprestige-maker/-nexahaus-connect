@@ -30,7 +30,7 @@ export class DocumentsService {
   async requestUpload(
     user: AuthUser,
     input: RequestUploadInput,
-    ctx: AuditContext,
+    _ctx: AuditContext,
   ) {
     if (!(await this.scope.canAccess(user, input.scopeType, input.scopeId))) {
       throw AppError.forbidden();
@@ -98,7 +98,9 @@ export class DocumentsService {
 
     const head = await this.storage.head(doc.storageKey);
     if (!head.exists) {
-      throw AppError.validation("No uploaded file was found for this document.");
+      throw AppError.validation(
+        "No uploaded file was found for this document.",
+      );
     }
 
     const scan = await this.scanner.scan(doc.storageKey);
@@ -121,7 +123,9 @@ export class DocumentsService {
       if (doc.expiresAt) {
         const offsets = await this.expiryOffsets();
         for (const days of offsets) {
-          const remindAt = new Date(doc.expiresAt.getTime() - days * 86_400_000);
+          const remindAt = new Date(
+            doc.expiresAt.getTime() - days * 86_400_000,
+          );
           if (remindAt > new Date()) {
             await tx.documentExpiryReminder.create({
               data: { documentId: id, remindAt, offsetDays: days },
@@ -130,7 +134,12 @@ export class DocumentsService {
         }
       }
       await tx.documentAccessLog.create({
-        data: { documentId: id, userId: user.userId, action: "UPLOAD", ip: ctx.ip ?? null },
+        data: {
+          documentId: id,
+          userId: user.userId,
+          action: "UPLOAD",
+          ip: ctx.ip ?? null,
+        },
       });
       await this.audit.record(
         {
@@ -165,10 +174,22 @@ export class DocumentsService {
     }
 
     await this.prisma.documentAccessLog.create({
-      data: { documentId: id, userId: user.userId, action: "DOWNLOAD", ip: ctx.ip ?? null },
+      data: {
+        documentId: id,
+        userId: user.userId,
+        action: "DOWNLOAD",
+        ip: ctx.ip ?? null,
+      },
     });
-    const url = await this.storage.presignDownload(doc.storageKey, safeName(doc.title, doc.mimeType));
-    return { url, expiresInSeconds: undefined as number | undefined, title: doc.title };
+    const url = await this.storage.presignDownload(
+      doc.storageKey,
+      safeName(doc.title, doc.mimeType),
+    );
+    return {
+      url,
+      expiresInSeconds: undefined as number | undefined,
+      title: doc.title,
+    };
   }
 
   async list(user: AuthUser, query: ListDocumentQuery) {
@@ -236,7 +257,10 @@ export class DocumentsService {
   async accessLog(user: AuthUser, id: string) {
     const doc = await this.prisma.document.findUnique({ where: { id } });
     if (!doc) throw AppError.notFound("document");
-    if (!user.scopeExempt && !(await this.scope.canAccess(user, doc.scopeType, doc.scopeId))) {
+    if (
+      !user.scopeExempt &&
+      !(await this.scope.canAccess(user, doc.scopeType, doc.scopeId))
+    ) {
       throw AppError.notFound("document");
     }
     const rows = await this.prisma.documentAccessLog.findMany({
@@ -322,7 +346,7 @@ export class DocumentsService {
     });
     const value = setting?.value as unknown;
     if (Array.isArray(value) && value.every((n) => typeof n === "number")) {
-      return value as number[];
+      return value;
     }
     return DEFAULT_EXPIRY_OFFSETS;
   }
@@ -330,8 +354,11 @@ export class DocumentsService {
 
 function safeName(title: string, mime: string): string {
   const ext =
-    { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[
-      mime
-    ] ?? "bin";
+    {
+      "application/pdf": "pdf",
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+    }[mime] ?? "bin";
   return `${title.replace(/[^\w.-]+/g, "_").slice(0, 80)}.${ext}`;
 }

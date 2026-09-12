@@ -38,7 +38,9 @@ export class EventConsumer implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit(): void {
     if (!this.config.worker.enabled) {
-      this.logger.log("WORKER_ENABLED=false — not starting the domain-event consumer");
+      this.logger.log(
+        "WORKER_ENABLED=false — not starting the domain-event consumer",
+      );
       return;
     }
     this.worker = new Worker<DomainEventJob>(
@@ -57,21 +59,31 @@ export class EventConsumer implements OnModuleInit, OnModuleDestroy {
       },
     );
 
-    this.worker.on("failed", (job, err) => {
-      this.logger.warn(
-        { jobId: job?.id, eventId: job?.data.eventId, attemptsMade: job?.attemptsMade, err: err.message },
-        "domain-event job failed",
-      );
-      if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
-        void this.prisma.domainEvent
-          .update({
-            where: { id: job.data.eventId },
-            data: { lastError: `queue: ${err.message.slice(0, 400)}` },
-          })
-          .catch(() => undefined);
-      }
-    });
-    this.worker.on("error", (err) => this.logger.error({ err }, "domain-event worker error"));
+    this.worker.on(
+      "failed",
+      (job: Job<DomainEventJob> | undefined, err: Error) => {
+        this.logger.warn(
+          {
+            jobId: job?.id,
+            eventId: job?.data.eventId,
+            attemptsMade: job?.attemptsMade,
+            err: err.message,
+          },
+          "domain-event job failed",
+        );
+        if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
+          void this.prisma.domainEvent
+            .update({
+              where: { id: job.data.eventId },
+              data: { lastError: `queue: ${err.message.slice(0, 400)}` },
+            })
+            .catch(() => undefined);
+        }
+      },
+    );
+    this.worker.on("error", (err) =>
+      this.logger.error({ err }, "domain-event worker error"),
+    );
     this.logger.log("domain-event consumer started");
   }
 

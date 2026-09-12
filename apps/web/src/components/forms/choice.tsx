@@ -39,7 +39,7 @@ export function ChoiceGroup<T extends string>({
         )}
       >
         {options.map((o) => {
-          const v = (typeof o === "string" ? o : o.value) as T;
+          const v = typeof o === "string" ? o : o.value;
           const text = typeof o === "string" ? o : o.label;
           const on = value === v;
           return (
@@ -92,7 +92,14 @@ export function YesNo({
         ].map(([t, v]) => {
           const on = value === v;
           return (
-            <label key={t as string} className={cn(pill, "min-w-[4.5rem] text-center", on ? pillOn : pillOff)}>
+            <label
+              key={t as string}
+              className={cn(
+                pill,
+                "min-w-[4.5rem] text-center",
+                on ? pillOn : pillOff,
+              )}
+            >
               <input
                 type="radio"
                 name={name}
