@@ -1,4 +1,12 @@
-import { View, Text, FlatList, StyleSheet, RefreshControl } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  RefreshControl,
+} from "react-native";
+import { Link } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { money, percent, titleCase } from "@/lib/format";
@@ -50,32 +58,34 @@ export default function Properties() {
         </Text>
       }
       renderItem={({ item }) => (
-        <View style={styles.card}>
-          <View style={styles.cardTop}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.badge}>{titleCase(item.status)}</Text>
-          </View>
-          <Text style={styles.sub}>
-            {item.ref} · {titleCase(item.type)} · {item.city}
-          </Text>
-          <View style={styles.metrics}>
-            <Metric label="Occupancy" value={percent(item.occupancy.rate)} />
-            <Metric
-              label="Collected"
-              value={money(
-                item.finance.collectedRentMinor,
-                item.finance.currency,
-              )}
-            />
-            <Metric
-              label="Outstanding"
-              value={money(
-                item.finance.outstandingRentMinor,
-                item.finance.currency,
-              )}
-            />
-          </View>
-        </View>
+        <Link href={`/properties/${item.id}`} asChild>
+          <Pressable style={styles.card}>
+            <View style={styles.cardTop}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.badge}>{titleCase(item.status)}</Text>
+            </View>
+            <Text style={styles.sub}>
+              {item.ref} · {titleCase(item.type)} · {item.city}
+            </Text>
+            <View style={styles.metrics}>
+              <Metric label="Occupancy" value={percent(item.occupancy.rate)} />
+              <Metric
+                label="Collected"
+                value={money(
+                  item.finance.collectedRentMinor,
+                  item.finance.currency,
+                )}
+              />
+              <Metric
+                label="Outstanding"
+                value={money(
+                  item.finance.outstandingRentMinor,
+                  item.finance.currency,
+                )}
+              />
+            </View>
+          </Pressable>
+        </Link>
       )}
     />
   );

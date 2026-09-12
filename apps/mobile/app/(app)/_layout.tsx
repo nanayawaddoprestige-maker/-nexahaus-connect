@@ -29,7 +29,14 @@ export default function AppLayout() {
       }}
     >
       <Tabs.Screen name="dashboard" options={{ title: "Home" }} />
-      <Tabs.Screen name="properties" options={{ title: "Properties" }} />
+      <Tabs.Screen
+        name="properties"
+        options={{ title: "Properties", headerShown: false }}
+      />
+      <Tabs.Screen
+        name="maintenance"
+        options={{ title: "Maintenance", headerShown: false }}
+      />
     </Tabs>
   );
 }
