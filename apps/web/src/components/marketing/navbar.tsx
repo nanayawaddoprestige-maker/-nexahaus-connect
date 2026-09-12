@@ -33,7 +33,6 @@ export function Navbar() {
         <Link
           href={routes.home}
           className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
-          aria-label={`${COMPANY.shortName} home`}
         >
           <BrandMark className="h-8 w-8" />
           <span className="leading-tight">

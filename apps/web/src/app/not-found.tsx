@@ -13,11 +13,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col bg-surface">
       <header className="border-b border-line">
         <div className="nx-container flex h-16 items-center">
-          <Link
-            href={routes.home}
-            className="flex items-center gap-2.5"
-            aria-label="NexaHaus home"
-          >
+          <Link href={routes.home} className="flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" />
             <span className="text-sm font-semibold text-navy-900">
               NexaHaus

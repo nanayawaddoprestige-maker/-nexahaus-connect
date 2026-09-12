@@ -11,6 +11,7 @@ export function HealthSection() {
           <HealthGauge
             score={health.exampleScore}
             caption="Illustrative example"
+            onNavy
           />
           <p className="mt-4 text-center text-xs text-navy-300">
             One score, updated as your property&rsquo;s occupancy, collection,

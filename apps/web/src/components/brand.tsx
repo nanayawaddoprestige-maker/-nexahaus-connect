@@ -1,13 +1,18 @@
 import { cn } from "@/lib/cn";
 
-/** NexaHaus wordmark — an abstract "N/H" gable in gold on navy. */
+/**
+ * NexaHaus wordmark — an abstract "N/H" gable in gold on navy. Every usage
+ * pairs it with adjacent visible "NexaHaus" text, so it's decorative here
+ * rather than separately labelled — a label on both would either repeat
+ * ("NexaHaus NexaHaus...") or, worse, override the parent link's accessible
+ * name so it no longer matches the visible text (WCAG 2.5.3).
+ */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"
       className={cn("h-8 w-8", className)}
-      role="img"
-      aria-label="NexaHaus"
+      aria-hidden="true"
     >
       <rect width="32" height="32" rx="7" className="fill-navy-900" />
       <path

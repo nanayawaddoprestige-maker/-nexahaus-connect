@@ -3,11 +3,34 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
-/** Colour band for a 0–100 score: <60 critical, <80 warning, else positive. */
-function band(score: number) {
-  if (score < 60) return { stroke: "#b91c1c", label: "Needs attention" };
-  if (score < 80) return { stroke: "#b45309", label: "Room to improve" };
-  return { stroke: "#0f766e", label: "Healthy" };
+/**
+ * Colour band for a 0–100 score: <60 critical, <80 warning, else positive.
+ * The `--positive`/`--warning`/`--critical` tokens (used for the arc and,
+ * on a light background, the label) are all under 3:1 against `navy-900`
+ * (checked against WCAG's contrast formula) — nowhere near the 4.5:1 text
+ * needs, so a gauge placed on a dark card (as the homepage does) needs a
+ * lighter set for the label text specifically.
+ */
+function band(score: number, onNavy: boolean) {
+  if (score < 60) {
+    return {
+      stroke: "#b91c1c",
+      labelColor: onNavy ? "#f87171" : "#b91c1c",
+      label: "Needs attention",
+    };
+  }
+  if (score < 80) {
+    return {
+      stroke: "#b45309",
+      labelColor: onNavy ? "#fbbf24" : "#b45309",
+      label: "Room to improve",
+    };
+  }
+  return {
+    stroke: "#0f766e",
+    labelColor: onNavy ? "#5eead4" : "#0f766e",
+    label: "Healthy",
+  };
 }
 
 /**
@@ -21,16 +44,21 @@ export function HealthGauge({
   caption,
   size = 240,
   className,
+  onNavy = false,
 }: {
   score: number;
   caption?: string;
   size?: number;
   className?: string;
+  /** Set when the gauge sits on a dark (navy-900) card — swaps the score
+   *  number, "out of 100", label and caption for colours that stay
+   *  readable there (the default palette is tuned for a light background). */
+  onNavy?: boolean;
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(score)));
   const ref = useRef<HTMLDivElement>(null);
   const [display, setDisplay] = useState(0);
-  const { stroke, label } = band(clamped);
+  const { stroke, labelColor, label } = band(clamped, onNavy);
 
   // Geometry: 180° arc, stroke inside the box.
   const r = size / 2 - 16;
@@ -111,7 +139,10 @@ export function HealthGauge({
           x={cx}
           y={cy - 8}
           textAnchor="middle"
-          className="fill-navy-900 font-semibold tabular-nums"
+          className={cn(
+            "font-semibold tabular-nums",
+            onNavy ? "fill-white" : "fill-navy-900",
+          )}
           style={{ fontSize: size * 0.22 }}
         >
           {display}
@@ -120,17 +151,24 @@ export function HealthGauge({
           x={cx}
           y={cy + 12}
           textAnchor="middle"
-          className="fill-ink-subtle"
+          className={onNavy ? "fill-navy-200" : "fill-ink-subtle"}
           style={{ fontSize: size * 0.075 }}
         >
           out of 100
         </text>
       </svg>
-      <span className="mt-1 text-sm font-medium" style={{ color: stroke }}>
+      <span className="mt-1 text-sm font-medium" style={{ color: labelColor }}>
         {label}
       </span>
       {caption ? (
-        <span className="mt-1 text-xs text-ink-subtle">{caption}</span>
+        <span
+          className={cn(
+            "mt-1 text-xs",
+            onNavy ? "text-navy-200" : "text-ink-subtle",
+          )}
+        >
+          {caption}
+        </span>
       ) : null}
     </div>
   );

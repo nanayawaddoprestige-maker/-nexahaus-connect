@@ -27,18 +27,21 @@ export function InsightCard({
         className,
       )}
     >
-      <Link href={href} className="block" aria-label={article.title}>
+      {/* Decorative — the h3 link below is the real, accessible way to this
+          article. aria-hidden + tabIndex avoid a redundant, and when there's
+          no heroImage, mismatched (WCAG 2.5.3) accessible name. */}
+      <Link href={href} className="block" aria-hidden="true" tabIndex={-1}>
         <div className="relative aspect-[16/9] bg-navy-50">
           {article.heroImage ? (
             <Image
               src={article.heroImage}
-              alt={article.heroAlt ?? ""}
+              alt=""
               fill
               sizes="(min-width: 1024px) 24rem, (min-width: 640px) 50vw, 100vw"
               className="object-cover"
             />
           ) : (
-            <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-xs font-medium uppercase tracking-wide text-navy-300">
+            <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-xs font-medium uppercase tracking-wide text-navy-500">
               {article.category}
             </span>
           )}
