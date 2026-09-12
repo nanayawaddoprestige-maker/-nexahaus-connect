@@ -197,7 +197,7 @@ export function HealthCheckForm() {
       preliminaryScore: number;
       band: string;
       headline: string;
-    }>("/property-health-check", parsed.data);
+    }>("/property-health-check", parsed.data, { honeypot });
     setSubmitting(false);
     if (res.ok && res.data) {
       track("form_completed", { form: "health_check" });

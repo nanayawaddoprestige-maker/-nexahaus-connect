@@ -98,6 +98,16 @@ const marketingConsent = z.object({
   wording: z.string().trim().min(3).max(2000),
 });
 
+/**
+ * Honeypot: a form field hidden from sighted users (components/forms/
+ * fields.tsx's `Honeypot`) that only a bot filling every input would
+ * populate. The form itself already short-circuits client-side when it's
+ * non-empty, but that's JS-only and does nothing against a bot that skips
+ * the page and POSTs straight to this endpoint — the real defence is this
+ * schema rejecting any non-empty value server-side.
+ */
+const honeypotField = z.string().max(0).optional();
+
 export const propertyHealthCheckSchema = z
   .object({
     contactName: z.string().trim().min(2).max(160),
@@ -134,6 +144,7 @@ export const propertyHealthCheckSchema = z
     biggestChallenge: z.string().trim().max(1000).optional(),
     serviceInterest: z.array(z.string().trim().max(60)).max(12).optional(),
     attribution: attributionSchema.optional(),
+    honeypot: honeypotField,
     consent: marketingConsent,
   })
   .strict();
@@ -152,6 +163,7 @@ export const earlyAccessSchema = z
       .enum(["FOUNDING_100", "EARLY_ACCESS", "OWNER_CLUB"])
       .default("EARLY_ACCESS"),
     attribution: attributionSchema.optional(),
+    honeypot: honeypotField,
     consent: marketingConsent,
   })
   .strict();
@@ -181,6 +193,7 @@ export const contactEnquirySchema = z
     preferredContact: z.enum(["EMAIL", "PHONE", "WHATSAPP"]).default("EMAIL"),
     livesInGhana: z.boolean().optional(),
     attribution: attributionSchema.optional(),
+    honeypot: honeypotField,
     consent: marketingConsent,
   })
   .strict();
@@ -223,6 +236,7 @@ export const propertyRescueSchema = z
     }),
     biggestConcern: z.string().trim().max(1000).optional(),
     attribution: attributionSchema.optional(),
+    honeypot: honeypotField,
     consent: marketingConsent,
   })
   .strict();
@@ -247,6 +261,7 @@ export const propertyOwnerSurveySchema = z
       z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
     ),
     attribution: attributionSchema.optional(),
+    honeypot: honeypotField,
     consent: marketingConsent,
   })
   .strict();

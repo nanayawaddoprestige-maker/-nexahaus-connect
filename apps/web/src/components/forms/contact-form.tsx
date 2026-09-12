@@ -119,6 +119,7 @@ export function ContactForm() {
     const result = await submitPublic<{ message: string }>(
       "/contact",
       parsed.data,
+      { honeypot },
     );
     if (result.ok) {
       track("form_completed", { form: "contact" });

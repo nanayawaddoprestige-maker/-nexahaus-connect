@@ -198,6 +198,7 @@ export function PropertyOwnerSurveyForm() {
     const res = await submitPublic<{ message: string }>(
       "/property-owner-survey",
       parsed.data,
+      { honeypot },
     );
     setSubmitting(false);
     if (res.ok) {

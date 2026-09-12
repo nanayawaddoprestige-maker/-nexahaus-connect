@@ -211,6 +211,7 @@ export function PropertyRescueForm() {
     const res = await submitPublic<RescueResponse>(
       "/property-rescue",
       parsed.data,
+      { honeypot },
     );
     setSubmitting(false);
     if (res.ok && res.data) {

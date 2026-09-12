@@ -109,6 +109,7 @@ function EarlyAccessFormInner({ lockCampaign }: { lockCampaign?: Campaign }) {
     const res = await submitPublic<{ message: string }>(
       "/early-access",
       parsed.data,
+      { honeypot },
     );
     setSubmitting(false);
     if (res.ok) {

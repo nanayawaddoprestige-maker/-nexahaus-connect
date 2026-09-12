@@ -18,9 +18,19 @@ export interface SubmitResult<T> {
 export async function submitPublic<T = unknown>(
   path: string,
   payload: object,
-  opts: { includeAttribution?: boolean; signal?: AbortSignal } = {},
+  opts: {
+    includeAttribution?: boolean;
+    /** Honeypot field value (empty for a real submitter) — see
+     *  components/forms/fields.tsx's `Honeypot` and the matching
+     *  `honeypot` field the API schemas reject if non-empty. */
+    honeypot?: string;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<SubmitResult<T>> {
-  const body: Record<string, unknown> = { ...payload };
+  const body: Record<string, unknown> = {
+    ...payload,
+    honeypot: opts.honeypot ?? "",
+  };
   if (opts.includeAttribution !== false) {
     const attr = getAttribution();
     if (Object.keys(attr).length > 0) {
