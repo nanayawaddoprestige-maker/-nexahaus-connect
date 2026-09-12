@@ -6,6 +6,8 @@ export interface OutboundMessage {
   to: string;
   subject?: string;
   body: string;
+  /** Email only: rendered HTML alternative to `body`. Other channels ignore it. */
+  html?: string;
   /** Structured data for push payloads / templating. */
   data?: Record<string, unknown>;
 }
@@ -37,7 +39,8 @@ export class ConsoleEmailAdapter extends EmailAdapter {
   }
   send(msg: OutboundMessage): Promise<void> {
     this.logger.log(
-      `EMAIL from ${this.config.email.from} → ${msg.to} :: ${msg.subject ?? "(no subject)"} :: ${msg.body}`,
+      `EMAIL from ${this.config.email.from} → ${msg.to} :: ${msg.subject ?? "(no subject)"} :: ${msg.body}` +
+        (msg.html ? " (html body included)" : ""),
     );
     return Promise.resolve();
   }

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import type {
   AttributionInput,
@@ -14,9 +14,17 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { RefService } from "../../common/ref.service";
 import { AuditService } from "../../audit/audit.service";
+import { EmailAdapter } from "../notifications/channels/channel-adapter";
 import { computeLeadScore } from "../crm/lead-scoring.util";
 import { scoreHealthCheck } from "./public-health-check.util";
 import { scoreRescue } from "./property-rescue.util";
+import {
+  contactConfirmationEmail,
+  earlyAccessConfirmationEmail,
+  propertyHealthCheckConfirmationEmail,
+  propertyOwnerSurveyConfirmationEmail,
+  propertyRescueConfirmationEmail,
+} from "./public-email-templates";
 
 /** Consent-record evidence blob, shared shape across the public endpoints. */
 function evidence(
@@ -32,6 +40,19 @@ function campaignFrom(attribution?: AttributionInput): string | undefined {
   return attribution?.utm_campaign ?? undefined;
 }
 
+/** Map the wire attribution shape onto the Lead's first-touch UTM columns. */
+function leadAttributionFields(attribution?: AttributionInput) {
+  return {
+    utmSource: attribution?.utm_source ?? null,
+    utmMedium: attribution?.utm_medium ?? null,
+    utmContent: attribution?.utm_content ?? null,
+    utmTerm: attribution?.utm_term ?? null,
+    clickId: attribution?.click_id ?? null,
+    landingPath: attribution?.landing_path ?? null,
+    referrer: attribution?.referrer ?? null,
+  };
+}
+
 /**
  * Public (unauthenticated) lead-capture funnel: Property Health Check, Early
  * Access / Founding 100, and survey submissions. Every entry point records
@@ -40,11 +61,24 @@ function campaignFrom(attribution?: AttributionInput): string | undefined {
  */
 @Injectable()
 export class PublicService {
+  private readonly logger = new Logger(PublicService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly refs: RefService,
     private readonly audit: AuditService,
+    private readonly email: EmailAdapter,
   ) {}
+
+  /** Best-effort confirmation email — never fails the caller's request; the
+   *  lead is already saved by the time this runs. */
+  private sendConfirmation(to: string, template: { subject: string; text: string; html: string }) {
+    this.email
+      .send({ to, subject: template.subject, body: template.text, html: template.html })
+      .catch((err: unknown) =>
+        this.logger.warn(`Confirmation email to ${to} failed: ${String(err)}`),
+      );
+  }
 
   async submitHealthCheck(input: PropertyHealthCheckInput, ipHash: string) {
     const result = scoreHealthCheck(input.answers);
@@ -63,6 +97,7 @@ export class PublicService {
         serviceInterest: input.serviceInterest,
         biggestChallenge: input.biggestChallenge,
         assessmentCompleted: true,
+        attribution: input.attribution,
       });
       await tx.propertyHealthCheck.create({
         data: {
@@ -105,6 +140,15 @@ export class PublicService {
       );
     });
 
+    this.sendConfirmation(
+      input.email,
+      propertyHealthCheckConfirmationEmail({
+        name: input.contactName,
+        score: result.score,
+        band: result.band,
+      }),
+    );
+
     return {
       preliminaryScore: result.score,
       band: result.band,
@@ -139,6 +183,7 @@ export class PublicService {
         livesInGhana: input.livesInGhana,
         serviceInterest: input.serviceInterest,
         biggestChallenge: input.interest,
+        attribution: input.attribution,
       });
       await tx.consentRecord.create({
         data: {
@@ -161,6 +206,12 @@ export class PublicService {
         tx,
       );
     });
+
+    this.sendConfirmation(
+      input.email,
+      earlyAccessConfirmationEmail({ name: input.name, campaign: input.campaign }),
+    );
+
     return {
       registered: true,
       message:
@@ -184,6 +235,7 @@ export class PublicService {
         livesInGhana: input.livesInGhana ?? null,
         serviceInterest: input.serviceNeeded ? [input.serviceNeeded] : undefined,
         biggestChallenge: input.message.slice(0, 1000),
+        attribution: input.attribution,
       });
       await tx.leadActivity.create({
         data: {
@@ -220,6 +272,9 @@ export class PublicService {
         tx,
       );
     });
+
+    this.sendConfirmation(input.email, contactConfirmationEmail({ name: input.name }));
+
     return {
       received: true,
       message:
@@ -243,6 +298,7 @@ export class PublicService {
         livesInGhana: input.ownerLocation === "GHANA",
         biggestChallenge: input.biggestConcern,
         assessmentCompleted: true,
+        attribution: input.attribution,
       });
       await tx.propertyHealthCheck.create({
         data: {
@@ -294,6 +350,11 @@ export class PublicService {
       );
     });
 
+    this.sendConfirmation(
+      input.email,
+      propertyRescueConfirmationEmail({ name: input.name, score: result.score, band: result.band }),
+    );
+
     return {
       preliminaryScore: result.score,
       band: result.band,
@@ -318,6 +379,7 @@ export class PublicService {
         livesInGhana: input.livesInGhana,
         serviceInterest: input.serviceInterest,
         biggestChallenge: input.biggestChallenge,
+        attribution: input.attribution,
       });
       await tx.leadActivity.create({
         data: {
@@ -351,6 +413,9 @@ export class PublicService {
         tx,
       );
     });
+
+    this.sendConfirmation(input.email, propertyOwnerSurveyConfirmationEmail({ name: input.name }));
+
     return {
       submitted: true,
       message:
@@ -438,6 +503,7 @@ export class PublicService {
       serviceInterest?: string[];
       biggestChallenge?: string;
       assessmentCompleted?: boolean;
+      attribution?: AttributionInput;
     },
   ) {
     const existing = await tx.lead.findFirst({
@@ -496,6 +562,7 @@ export class PublicService {
         livesInGhana: data.livesInGhana ?? null,
         serviceInterest: data.serviceInterest ?? [],
         biggestChallenge: data.biggestChallenge ?? null,
+        ...leadAttributionFields(data.attribution),
         score: scored.score,
         grade: scored.grade,
         status: "NEW",

@@ -359,6 +359,15 @@ model Lead {
   phone            String
   source           LeadSource   @default(OTHER)
   campaign         String?
+  /// First-touch attribution (see apps/web/src/lib/utm.ts). Set once, at
+  /// creation — a later submission from the same lead never overwrites it.
+  utmSource        String?
+  utmMedium        String?
+  utmContent       String?
+  utmTerm          String?
+  clickId          String?
+  landingPath      String?
+  referrer         String?
   segment          String?
   propertyCount    Int?
   propertyType     String?
