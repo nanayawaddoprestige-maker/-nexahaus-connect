@@ -3,10 +3,16 @@ import type { ExecutionContext } from "@nestjs/common";
 import type { AuthUser } from "@nexahaus/types";
 import { ApiErrorCode } from "@nexahaus/types";
 import { ResourceScopeGuard } from "./resource-scope.guard";
-import type { ScopeResolverService, ResourceOwner } from "./scope-resolver.service";
+import type {
+  ScopeResolverService,
+  ResourceOwner,
+} from "./scope-resolver.service";
 import { AppError } from "../../common/app-error";
 
-function ctx(user: AuthUser | undefined, params: Record<string, string>): ExecutionContext {
+function ctx(
+  user: AuthUser | undefined,
+  params: Record<string, string>,
+): ExecutionContext {
   return {
     switchToHttp: () => ({ getRequest: () => ({ user, params }) }),
     getHandler: () => ({}),
@@ -39,7 +45,10 @@ describe("ResourceScopeGuard", () => {
 
   beforeEach(() => {
     resolver = { resolve: jest.fn() };
-    guard = new ResourceScopeGuard(reflector, resolver as unknown as ScopeResolverService);
+    guard = new ResourceScopeGuard(
+      reflector,
+      resolver as unknown as ScopeResolverService,
+    );
   });
 
   it("passes through when no @ScopedResource metadata is present", async () => {
@@ -49,7 +58,9 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("allows an owner to reach a property owned by their client", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "property", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "property", param: "id" });
     resolver.resolve.mockResolvedValue({
       clientId: "c1",
       propertyId: "p1",
@@ -62,14 +73,18 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("denies Owner B reaching Owner A's property with a generic 403 (no existence leak)", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "property", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "property", param: "id" });
     resolver.resolve.mockResolvedValue({
       clientId: "ownerA-client",
       propertyId: "pA",
       tenantId: null,
     });
     try {
-      await guard.canActivate(ctx(baseUser({ clientIds: ["ownerB-client"] }), { id: "pA" }));
+      await guard.canActivate(
+        ctx(baseUser({ clientIds: ["ownerB-client"] }), { id: "pA" }),
+      );
       fail("expected AppError");
     } catch (err) {
       expect(err).toBeInstanceOf(AppError);
@@ -78,7 +93,9 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("denies with the SAME error when the resource does not exist", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "property", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "property", param: "id" });
     resolver.resolve.mockResolvedValue(null);
     await expect(
       guard.canActivate(ctx(baseUser({ clientIds: ["c1"] }), { id: "ghost" })),
@@ -86,7 +103,9 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("lets a scope-exempt user through without resolving", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "property", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "property", param: "id" });
     const ok = await guard.canActivate(
       ctx(baseUser({ scopeExempt: true }), { id: "anything" }),
     );
@@ -95,7 +114,9 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("allows a tenant to reach their own tenancy resource", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "maintenance", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "maintenance", param: "id" });
     resolver.resolve.mockResolvedValue({
       clientId: "cX",
       propertyId: "pX",
@@ -108,7 +129,9 @@ describe("ResourceScopeGuard", () => {
   });
 
   it("rejects when no id is present and the route is not marked optional", async () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue({ type: "property", param: "id" });
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue({ type: "property", param: "id" });
     await expect(
       guard.canActivate(ctx(baseUser({ clientIds: ["c1"] }), {})),
     ).rejects.toBeInstanceOf(AppError);

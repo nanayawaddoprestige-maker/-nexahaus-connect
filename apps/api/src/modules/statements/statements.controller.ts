@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import type { Request } from "express";
 import {
@@ -46,7 +38,8 @@ export class StatementsController {
   @RequirePermission("statement:generate")
   generate(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(generateStatementSchema)) body: GenerateStatementInput,
+    @Body(new ZodValidationPipe(generateStatementSchema))
+    body: GenerateStatementInput,
     @Req() req: Request,
   ) {
     return this.statements.generate(user, body, auditCtxFromRequest(req, user));

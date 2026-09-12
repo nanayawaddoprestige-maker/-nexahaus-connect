@@ -114,7 +114,9 @@ export class ClientsService {
             relationship: true,
             canApprove: true,
             acceptedAt: true,
-            user: { select: { id: true, fullName: true, email: true, status: true } },
+            user: {
+              select: { id: true, fullName: true, email: true, status: true },
+            },
           },
         },
         _count: { select: { managedProperties: true } },
@@ -157,7 +159,8 @@ export class ClientsService {
               current: i + 1 === client.onboarding!.currentStep,
             })),
             completionPercent: Math.round(
-              ((client.onboarding.currentStep - 1) / ONBOARDING_STEPS.length) * 100,
+              ((client.onboarding.currentStep - 1) / ONBOARDING_STEPS.length) *
+                100,
             ),
           }
         : null,
@@ -172,7 +175,8 @@ export class ClientsService {
         where: { id, deletedAt: null },
         select: { id: true },
       });
-      if (!exists || !clientInScope(user, id)) throw AppError.notFound("client");
+      if (!exists || !clientInScope(user, id))
+        throw AppError.notFound("client");
     }
     const range = periodRange("this_month");
     const [propertyGroups, rent, openMaintenance] = await Promise.all([
@@ -205,8 +209,10 @@ export class ClientsService {
       currency: "GHS",
       properties: {
         total,
-        occupied: propertyGroups.find((g) => g.status === "OCCUPIED")?._count._all ?? 0,
-        vacant: propertyGroups.find((g) => g.status === "VACANT")?._count._all ?? 0,
+        occupied:
+          propertyGroups.find((g) => g.status === "OCCUPIED")?._count._all ?? 0,
+        vacant:
+          propertyGroups.find((g) => g.status === "VACANT")?._count._all ?? 0,
       },
       rent: {
         expectedMinor: expected.toString(),
@@ -260,7 +266,8 @@ export class ClientsService {
     const existing = await this.prisma.client.findFirst({
       where: { id, deletedAt: null },
     });
-    if (!existing || !clientInScope(user, id)) throw AppError.notFound("client");
+    if (!existing || !clientInScope(user, id))
+      throw AppError.notFound("client");
 
     const updated = await this.prisma.client.update({
       where: { id },
@@ -291,11 +298,7 @@ export class ClientsService {
     return this.getById(user, id);
   }
 
-  async addContact(
-    id: string,
-    input: ClientContactInput,
-    ctx: AuditContext,
-  ) {
+  async addContact(id: string, input: ClientContactInput, ctx: AuditContext) {
     await this.assertExists(id);
     const contact = await this.prisma.clientContact.create({
       data: {
@@ -366,7 +369,10 @@ export class ClientsService {
           canApprove: input.canApprove,
           invitedById: ctx.actorUserId ?? null,
         },
-        update: { relationship: input.relationship, canApprove: input.canApprove },
+        update: {
+          relationship: input.relationship,
+          canApprove: input.canApprove,
+        },
       });
 
       await this.audit.record(

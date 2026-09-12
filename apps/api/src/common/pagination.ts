@@ -13,7 +13,12 @@ export interface Paginated<T> {
   meta: Omit<ListMeta, "requestId">;
 }
 
-export function pageParams(args: PageArgs): { skip: number; take: number; page: number; pageSize: number } {
+export function pageParams(args: PageArgs): {
+  skip: number;
+  take: number;
+  page: number;
+  pageSize: number;
+} {
   const page = Math.max(1, Math.trunc(args.page ?? 1));
   const pageSize = Math.min(
     MAX_PAGE_SIZE,
@@ -35,7 +40,10 @@ export function parseSort(
   const parsed = sort
     .split(",")
     .map((part) => part.trim().split(":"))
-    .filter(([field, dir]) => allowed.includes(field ?? "") && (dir === "asc" || dir === "desc"))
+    .filter(
+      ([field, dir]) =>
+        allowed.includes(field ?? "") && (dir === "asc" || dir === "desc"),
+    )
     .map(([field, dir]) => ({ [field as string]: dir as "asc" | "desc" }));
   return parsed.length > 0 ? parsed : [fallback];
 }

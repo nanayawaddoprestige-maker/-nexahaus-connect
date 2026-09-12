@@ -25,8 +25,10 @@ interface ImportJob {
 }
 
 const TEMPLATES: Record<string, string> = {
-  CLIENT: "type,displayName,segment,primaryEmail,primaryPhone\nINDIVIDUAL,Kofi Owusu,DIASPORA,kofi@example.com,+233201112223",
-  PROPERTY: "clientRef,name,type,addressLine,city,region,bedrooms\nCL-000001,Labone Flat,APARTMENT,12 Labone Cres,Accra,Greater Accra,2",
+  CLIENT:
+    "type,displayName,segment,primaryEmail,primaryPhone\nINDIVIDUAL,Kofi Owusu,DIASPORA,kofi@example.com,+233201112223",
+  PROPERTY:
+    "clientRef,name,type,addressLine,city,region,bedrooms\nCL-000001,Labone Flat,APARTMENT,12 Labone Cres,Accra,Greater Accra,2",
   UNIT: "propertyRef,label,bedrooms,bathrooms,marketRentMinor,marketRentCurrency,status\nNH-000001,Unit 201,2,2,750000,GHS,VACANT",
   TENANT: "fullName,phone,email\nAma Serwaa,+233241234567,ama@example.com",
 };
@@ -50,17 +52,21 @@ export default function AdminImportsPage() {
       setError(null);
       void qc.invalidateQueries({ queryKey: ["admin", "imports"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Validation failed."),
+    onError: (e) =>
+      setError(e instanceof ApiError ? e.message : "Validation failed."),
   });
 
   const commit = useMutation({
     mutationFn: (allowPartial: boolean) =>
-      api.post<ImportJob>(`/imports/${job!.id}/commit${allowPartial ? "?allowPartial=true" : ""}`),
+      api.post<ImportJob>(
+        `/imports/${job!.id}/commit${allowPartial ? "?allowPartial=true" : ""}`,
+      ),
     onSuccess: (j) => {
       setJob(j);
       void qc.invalidateQueries({ queryKey: ["admin", "imports"] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Commit failed."),
+    onError: (e) =>
+      setError(e instanceof ApiError ? e.message : "Commit failed."),
   });
 
   async function downloadErrors(id: string) {
@@ -78,7 +84,10 @@ export default function AdminImportsPage() {
 
   return (
     <div>
-      <PageHeader title="Data import" subtitle="Bring existing records in from a spreadsheet. Validate first, then commit." />
+      <PageHeader
+        title="Data import"
+        subtitle="Bring existing records in from a spreadsheet. Validate first, then commit."
+      />
 
       <Card className="mb-6">
         <CardHeader title="New import" />
@@ -93,7 +102,9 @@ export default function AdminImportsPage() {
               }}
               className={
                 "rounded-md px-2.5 py-1 text-xs font-medium " +
-                (entity === e ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+                (entity === e
+                  ? "bg-navy-900 text-white"
+                  : "text-ink-muted hover:text-navy-900")
               }
             >
               {titleCase(e)}
@@ -108,11 +119,15 @@ export default function AdminImportsPage() {
           className="w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
         />
         <p className="mt-1 text-xs text-ink-subtle">
-          First row is the header. The template above shows the accepted columns for {titleCase(entity)}.
+          First row is the header. The template above shows the accepted columns
+          for {titleCase(entity)}.
         </p>
         {error ? <p className="mt-2 text-sm text-critical">{error}</p> : null}
         <div className="mt-3 flex gap-2">
-          <Button loading={validate.isPending} onClick={() => validate.mutate()}>
+          <Button
+            loading={validate.isPending}
+            onClick={() => validate.mutate()}
+          >
             Validate
           </Button>
         </div>
@@ -127,15 +142,24 @@ export default function AdminImportsPage() {
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
               <p className="nx-label">Total rows</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums text-navy-900">{job.totalRows}</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-navy-900">
+                {job.totalRows}
+              </p>
             </div>
             <div>
               <p className="nx-label">Valid</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums text-positive">{job.validRows}</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-positive">
+                {job.validRows}
+              </p>
             </div>
             <div>
               <p className="nx-label">Errors</p>
-              <p className={"mt-1 text-lg font-semibold tabular-nums " + (job.errorRows ? "text-critical" : "text-navy-900")}>
+              <p
+                className={
+                  "mt-1 text-lg font-semibold tabular-nums " +
+                  (job.errorRows ? "text-critical" : "text-navy-900")
+                }
+              >
                 {job.errorRows}
               </p>
             </div>
@@ -155,8 +179,12 @@ export default function AdminImportsPage() {
                   {job.errors.map((e, i) => (
                     <tr key={i} className="border-b border-line last:border-0">
                       <td className="px-3 py-1.5 tabular-nums">{e.row}</td>
-                      <td className="px-3 py-1.5 font-mono">{e.field ?? "—"}</td>
-                      <td className="px-3 py-1.5 text-ink-muted">{e.message}</td>
+                      <td className="px-3 py-1.5 font-mono">
+                        {e.field ?? "—"}
+                      </td>
+                      <td className="px-3 py-1.5 text-ink-muted">
+                        {e.message}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -166,30 +194,42 @@ export default function AdminImportsPage() {
 
           {job.createdRefs.length > 0 ? (
             <p className="mt-3 text-sm text-positive">
-              Created {job.createdRefs.length}: {job.createdRefs.slice(0, 8).join(", ")}
+              Created {job.createdRefs.length}:{" "}
+              {job.createdRefs.slice(0, 8).join(", ")}
               {job.createdRefs.length > 8 ? "…" : ""}
             </p>
           ) : null}
           {job.commitFailures.length > 0 ? (
             <p className="mt-2 text-sm text-critical">
-              {job.commitFailures.length} row(s) failed at commit — download the error report.
+              {job.commitFailures.length} row(s) failed at commit — download the
+              error report.
             </p>
           ) : null}
 
           <div className="mt-4 flex gap-2">
             {job.status === "VALIDATED" ? (
               job.errorRows === 0 ? (
-                <Button loading={commit.isPending} onClick={() => commit.mutate(false)}>
+                <Button
+                  loading={commit.isPending}
+                  onClick={() => commit.mutate(false)}
+                >
                   Commit {job.validRows} rows
                 </Button>
               ) : (
-                <Button variant="danger" loading={commit.isPending} onClick={() => commit.mutate(true)}>
+                <Button
+                  variant="danger"
+                  loading={commit.isPending}
+                  onClick={() => commit.mutate(true)}
+                >
                   Commit {job.validRows} valid rows, skip {job.errorRows}
                 </Button>
               )
             ) : null}
             {job.errorRows > 0 || job.commitFailures.length > 0 ? (
-              <Button variant="secondary" onClick={() => void downloadErrors(job.id)}>
+              <Button
+                variant="secondary"
+                onClick={() => void downloadErrors(job.id)}
+              >
                 Download error report
               </Button>
             ) : null}
@@ -198,11 +238,17 @@ export default function AdminImportsPage() {
       ) : null}
 
       <Card className="overflow-x-auto p-0">
-        <div className="border-b border-line px-4 py-3 text-sm font-semibold text-navy-900">Recent imports</div>
+        <div className="border-b border-line px-4 py-3 text-sm font-semibold text-navy-900">
+          Recent imports
+        </div>
         {history.isLoading ? (
-          <div className="p-4"><Skeleton className="h-24 w-full" /></div>
+          <div className="p-4">
+            <Skeleton className="h-24 w-full" />
+          </div>
         ) : history.isError ? (
-          <div className="p-4"><ErrorState onRetry={() => void history.refetch()} /></div>
+          <div className="p-4">
+            <ErrorState onRetry={() => void history.refetch()} />
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -217,14 +263,26 @@ export default function AdminImportsPage() {
             <tbody>
               {(history.data?.items ?? []).map((h) => (
                 <tr key={h.id} className="border-b border-line last:border-0">
-                  <td className="px-4 py-2.5 font-mono text-xs text-navy-700">{h.ref}</td>
-                  <td className="px-4 py-2.5 text-ink-muted">{titleCase(h.entity)}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-navy-700">
+                    {h.ref}
+                  </td>
+                  <td className="px-4 py-2.5 text-ink-muted">
+                    {titleCase(h.entity)}
+                  </td>
                   <td className="px-4 py-2.5 tabular-nums text-navy-900">
                     {h.validRows}/{h.totalRows}
-                    {h.errorRows ? <span className="ml-1 text-xs text-critical">({h.errorRows} err)</span> : null}
+                    {h.errorRows ? (
+                      <span className="ml-1 text-xs text-critical">
+                        ({h.errorRows} err)
+                      </span>
+                    ) : null}
                   </td>
-                  <td className="px-4 py-2.5"><StatusBadge status={h.status} /></td>
-                  <td className="px-4 py-2.5 text-ink-subtle">{formatDate(h.committedAt ?? h.createdAt)}</td>
+                  <td className="px-4 py-2.5">
+                    <StatusBadge status={h.status} />
+                  </td>
+                  <td className="px-4 py-2.5 text-ink-subtle">
+                    {formatDate(h.committedAt ?? h.createdAt)}
+                  </td>
                 </tr>
               ))}
             </tbody>

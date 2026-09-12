@@ -17,16 +17,16 @@ Last updated: 2026-09-09
 
 ## 2. Implementation
 
-| Concern | Where |
-|---|---|
-| Per-page metadata | `buildMetadata()` in `src/lib/seo.ts`, called from each page's `generateMetadata` / `metadata` export |
-| Global defaults, title template, `metadataBase` | `src/app/layout.tsx` |
-| Canonical | `alternates.canonical` set by `buildMetadata` from the page `path` |
-| `robots.txt` | `src/app/robots.ts` — allow all, disallow `/api/`, `/admin/`, portal routes; `NEXT_PUBLIC_ALLOW_INDEXING=false` blocks everything (staging) |
-| `sitemap.xml` | `src/app/sitemap.ts` — static routes from `src/lib/routes.ts` + published Insight slugs |
-| Default OG image | `src/app/opengraph-image.tsx` (generated, 1200×630); per-page override via `buildMetadata({ image })` |
-| Favicon | `src/app/icon.svg` |
-| Structured data | `src/components/marketing/jsonld.tsx` |
+| Concern                                         | Where                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Per-page metadata                               | `buildMetadata()` in `src/lib/seo.ts`, called from each page's `generateMetadata` / `metadata` export                                       |
+| Global defaults, title template, `metadataBase` | `src/app/layout.tsx`                                                                                                                        |
+| Canonical                                       | `alternates.canonical` set by `buildMetadata` from the page `path`                                                                          |
+| `robots.txt`                                    | `src/app/robots.ts` — allow all, disallow `/api/`, `/admin/`, portal routes; `NEXT_PUBLIC_ALLOW_INDEXING=false` blocks everything (staging) |
+| `sitemap.xml`                                   | `src/app/sitemap.ts` — static routes from `src/lib/routes.ts` + published Insight slugs                                                     |
+| Default OG image                                | `src/app/opengraph-image.tsx` (generated, 1200×630); per-page override via `buildMetadata({ image })`                                       |
+| Favicon                                         | `src/app/icon.svg`                                                                                                                          |
+| Structured data                                 | `src/components/marketing/jsonld.tsx`                                                                                                       |
 
 ### Structured data coverage
 
@@ -39,18 +39,18 @@ Last updated: 2026-09-09
 
 ## 3. Keyword map (primary theme per page)
 
-| Page | Primary theme |
-|---|---|
-| `/` | property management Ghana / Accra |
-| `/property-management` | property management services Ghana; rental property management Ghana |
-| `/asset-management` | property asset management Ghana |
-| `/diaspora` | diaspora property management Ghana; property management for diaspora Ghana |
-| `/property-rescue` | underperforming rental property Ghana; property management review |
-| `/property-health-check` | property assessment Ghana; property health check |
-| `/nexahaus-connect` | property management software / platform Ghana |
-| `/about` | property management company Accra |
-| `/insights/*` | long-tail educational queries (per article) |
-| `/contact` | property managers Ghana; property management company Accra |
+| Page                     | Primary theme                                                              |
+| ------------------------ | -------------------------------------------------------------------------- |
+| `/`                      | property management Ghana / Accra                                          |
+| `/property-management`   | property management services Ghana; rental property management Ghana       |
+| `/asset-management`      | property asset management Ghana                                            |
+| `/diaspora`              | diaspora property management Ghana; property management for diaspora Ghana |
+| `/property-rescue`       | underperforming rental property Ghana; property management review          |
+| `/property-health-check` | property assessment Ghana; property health check                           |
+| `/nexahaus-connect`      | property management software / platform Ghana                              |
+| `/about`                 | property management company Accra                                          |
+| `/insights/*`            | long-tail educational queries (per article)                                |
+| `/contact`               | property managers Ghana; property management company Accra                 |
 
 Secondary terms to weave in where natural: property maintenance Ghana, property
 investment Ghana, property management for landlords Ghana, property managers
@@ -81,8 +81,8 @@ generated; fonts are self-hosted; JS is minimal.
 ## 7. Known gaps / TODO
 
 - `next lint` is currently broken repo-wide (ESLint 9 vs `eslint-config-next@14`
-  + canary `eslint-plugin-react-hooks`). Fix in QA (flat-config migration or
-  ESLint 8 pin). Does not affect runtime SEO.
+  - canary `eslint-plugin-react-hooks`). Fix in QA (flat-config migration or
+    ESLint 8 pin). Does not affect runtime SEO.
 - OG image font is system sans; swap to the brand display face once a static
   font file is added to the repo for `next/og`.
 - Add `hreflang` only if/when localised routes are introduced.

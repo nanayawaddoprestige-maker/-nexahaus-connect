@@ -6,7 +6,11 @@ import { useAuth } from "@/lib/auth-context";
 import { isTenant, isStaff } from "@/lib/nav";
 import { TenantShell } from "@/components/tenant-shell";
 
-export default function TenantLayout({ children }: { children: React.ReactNode }) {
+export default function TenantLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const { status, user } = useAuth();
   const tenant = isTenant(user);

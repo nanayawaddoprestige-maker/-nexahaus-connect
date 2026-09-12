@@ -30,14 +30,18 @@ export function VendorShell({ children }: { children: ReactNode }) {
         <nav className="flex-1 space-y-1 p-3">
           {NAV.map((item) => {
             const active =
-              item.href === "/vendor" ? pathname === "/vendor" : pathname.startsWith(item.href);
+              item.href === "/vendor"
+                ? pathname === "/vendor"
+                : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
                   "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-navy-900 text-white" : "text-ink-muted hover:bg-navy-50 hover:text-navy-900",
+                  active
+                    ? "bg-navy-900 text-white"
+                    : "text-ink-muted hover:bg-navy-50 hover:text-navy-900",
                 )}
               >
                 {item.label}
@@ -46,8 +50,13 @@ export function VendorShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t border-line p-4">
-          <p className="truncate text-sm font-medium text-navy-900">{user?.fullName}</p>
-          <button onClick={() => void logout()} className="mt-1 text-xs text-ink-subtle hover:text-navy-900">
+          <p className="truncate text-sm font-medium text-navy-900">
+            {user?.fullName}
+          </p>
+          <button
+            onClick={() => void logout()}
+            className="mt-1 text-xs text-ink-subtle hover:text-navy-900"
+          >
             Sign out
           </button>
         </div>
@@ -58,13 +67,17 @@ export function VendorShell({ children }: { children: ReactNode }) {
           <BrandLockup subtle />
           <div className="flex items-center gap-2">
             <NotificationBell viewAllHref="/vendor" />
-            <Button variant="ghost" size="sm" onClick={() => void logout()}>Sign out</Button>
+            <Button variant="ghost" size="sm" onClick={() => void logout()}>
+              Sign out
+            </Button>
           </div>
         </header>
         <div className="hidden items-center justify-end border-b border-line bg-surface px-8 py-2.5 lg:flex">
           <NotificationBell viewAllHref="/vendor" />
         </div>
-        <main className="mx-auto w-full max-w-3xl flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="mx-auto w-full max-w-3xl flex-1 p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

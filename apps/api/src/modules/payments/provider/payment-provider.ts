@@ -50,7 +50,10 @@ export abstract class PaymentProvider {
   abstract readonly name: string;
   /** Whether this provider delivers webhooks at all. */
   abstract readonly supportsWebhook: boolean;
-  abstract verifyWebhook(rawBody: Buffer, signatureHeader: string | undefined): boolean;
+  abstract verifyWebhook(
+    rawBody: Buffer,
+    signatureHeader: string | undefined,
+  ): boolean;
   abstract parseEvent(rawBody: Buffer): ProviderPaymentEvent | null;
   /** Begin a payment. Confirmation still arrives via the webhook. */
   abstract initiate(args: InitiateArgs): Promise<InitiateResult>;
@@ -114,10 +117,15 @@ export class GenericHmacPaymentProvider extends PaymentProvider {
   verifyWebhook(rawBody: Buffer, signatureHeader: string | undefined): boolean {
     if (!signatureHeader) return false;
     const provided = signatureHeader.replace(/^sha256=/i, "").trim();
-    const expected = createHmac("sha256", this.secret).update(rawBody).digest("hex");
+    const expected = createHmac("sha256", this.secret)
+      .update(rawBody)
+      .digest("hex");
     if (provided.length !== expected.length) return false;
     try {
-      return timingSafeEqual(Buffer.from(provided, "hex"), Buffer.from(expected, "hex"));
+      return timingSafeEqual(
+        Buffer.from(provided, "hex"),
+        Buffer.from(expected, "hex"),
+      );
     } catch {
       return false;
     }
@@ -138,7 +146,9 @@ export class GenericHmacPaymentProvider extends PaymentProvider {
     if (!eventId || !ref || amount == null || !statusRaw) return null;
 
     const status =
-      statusRaw === "SUCCESS" || statusRaw === "CONFIRMED" || statusRaw === "PAID"
+      statusRaw === "SUCCESS" ||
+      statusRaw === "CONFIRMED" ||
+      statusRaw === "PAID"
         ? "CONFIRMED"
         : statusRaw === "REFUNDED"
           ? "REFUNDED"
@@ -150,7 +160,9 @@ export class GenericHmacPaymentProvider extends PaymentProvider {
       amountMinor: BigInt(String(amount)),
       currency,
       status,
-      occurredAt: body.occurred_at ? new Date(String(body.occurred_at)) : new Date(),
+      occurredAt: body.occurred_at
+        ? new Date(String(body.occurred_at))
+        : new Date(),
       method:
         (str(body.channel)?.toUpperCase() as ProviderPaymentEvent["method"]) ??
         "MOBILE_MONEY",

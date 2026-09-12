@@ -1,7 +1,11 @@
 import { Money } from "@nexahaus/types";
 
 export interface FeeAgreement {
-  feeType: "PERCENT_OF_COLLECTED" | "PERCENT_OF_EXPECTED" | "FIXED_MONTHLY" | "CUSTOM";
+  feeType:
+    | "PERCENT_OF_COLLECTED"
+    | "PERCENT_OF_EXPECTED"
+    | "FIXED_MONTHLY"
+    | "CUSTOM";
   feePercent: number | null;
   feeFixedMinor: bigint | null;
   feeCurrency: string;
@@ -27,15 +31,17 @@ export function computeManagementFee(
   const ccy = agreement.feeCurrency || "GHS";
   switch (agreement.feeType) {
     case "PERCENT_OF_COLLECTED":
-      return Money.of(inputs.collectedMinor, ccy)
-        .percentage(agreement.feePercent ?? 0)
-        .minor;
+      return Money.of(inputs.collectedMinor, ccy).percentage(
+        agreement.feePercent ?? 0,
+      ).minor;
     case "PERCENT_OF_EXPECTED":
-      return Money.of(inputs.expectedMinor, ccy)
-        .percentage(agreement.feePercent ?? 0)
-        .minor;
+      return Money.of(inputs.expectedMinor, ccy).percentage(
+        agreement.feePercent ?? 0,
+      ).minor;
     case "FIXED_MONTHLY":
-      return (agreement.feeFixedMinor ?? 0n) * BigInt(Math.max(1, inputs.months));
+      return (
+        (agreement.feeFixedMinor ?? 0n) * BigInt(Math.max(1, inputs.months))
+      );
     case "CUSTOM":
     default:
       return 0n;

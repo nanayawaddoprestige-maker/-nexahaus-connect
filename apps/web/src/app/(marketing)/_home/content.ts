@@ -9,14 +9,20 @@ export const hero = {
   subhead:
     "Professional property and asset management for owners who expect visibility, accountability and performance.",
   body: "NexaHaus helps property owners protect their properties, improve rental performance and manage their assets with confidence — wherever they are.",
-  primaryCta: { label: "Request Property Assessment", href: "/property-health-check" },
+  primaryCta: {
+    label: "Request Property Assessment",
+    href: "/property-health-check",
+  },
   secondaryCta: { label: "Explore Our Services", href: "/property-management" },
 } as const;
 
 export const trustStrip: { label: string; caption: string }[] = [
   { label: "Property Management", caption: "Day-to-day operations, handled" },
   { label: "Asset Performance", caption: "Measured, not assumed" },
-  { label: "Transparent Reporting", caption: "Reproducible from every transaction" },
+  {
+    label: "Transparent Reporting",
+    caption: "Reproducible from every transaction",
+  },
   { label: "Technology", caption: "NexaHaus Connect" },
   { label: "Accountability", caption: "Every decision logged" },
 ];
@@ -124,7 +130,8 @@ export const services = {
     {
       title: "Short-Stay Management",
       href: "/property-management#short-stay",
-      summary: "Professional oversight for owners who operate short-stay properties.",
+      summary:
+        "Professional oversight for owners who operate short-stay properties.",
       includes: [
         "Guest coordination",
         "Property readiness",
@@ -139,7 +146,8 @@ export const services = {
     {
       title: "Property Advisory",
       href: "/asset-management#advisory",
-      summary: "Practical insight to help property owners make better decisions.",
+      summary:
+        "Practical insight to help property owners make better decisions.",
       includes: [
         "Property assessment",
         "Rental performance review",
@@ -160,12 +168,27 @@ export const diaspora = {
   body: "Whether you live in Dubai, London, New York, Toronto or elsewhere, NexaHaus is being built to give you visibility into what is happening with your property in Ghana.",
   flow: [
     { label: "Your property", detail: "The asset you own in Ghana." },
-    { label: "Your NexaHaus team", detail: "A professional layer between you and the property." },
-    { label: "Real-time updates", detail: "Status, tenants, rent and issues — with dates." },
+    {
+      label: "Your NexaHaus team",
+      detail: "A professional layer between you and the property.",
+    },
+    {
+      label: "Real-time updates",
+      detail: "Status, tenants, rent and issues — with dates.",
+    },
     { label: "Reports", detail: "A branded owner statement every month." },
-    { label: "Maintenance", detail: "Tracked from report to completion, with your approval." },
-    { label: "Financial visibility", detail: "What came in, what went out, what is outstanding." },
-    { label: "Peace of mind", detail: "You know what is happening without being there." },
+    {
+      label: "Maintenance",
+      detail: "Tracked from report to completion, with your approval.",
+    },
+    {
+      label: "Financial visibility",
+      detail: "What came in, what went out, what is outstanding.",
+    },
+    {
+      label: "Peace of mind",
+      detail: "You know what is happening without being there.",
+    },
   ],
   cta: { label: "Explore Diaspora Property Management", href: "/diaspora" },
 } as const;
@@ -278,8 +301,14 @@ export const transparency = {
   principles: [
     { title: "See it", body: "Know what is happening." },
     { title: "Track it", body: "Follow issues and activities." },
-    { title: "Approve it", body: "Maintain control over significant decisions." },
-    { title: "Report it", body: "Understand the financial and operational performance." },
+    {
+      title: "Approve it",
+      body: "Maintain control over significant decisions.",
+    },
+    {
+      title: "Report it",
+      body: "Understand the financial and operational performance.",
+    },
   ],
 } as const;
 
@@ -288,11 +317,26 @@ export const whyNexahaus = {
   headline: "Built Differently.",
   body: "We are building NexaHaus around the belief that professional property management should give owners more than a rent collection service.",
   pillars: [
-    { title: "Professional management", body: "Structured processes, not ad-hoc caretaking." },
-    { title: "Technology", body: "NexaHaus Connect gives you a live view of your asset." },
-    { title: "Transparency", body: "Statements reproducible from every transaction." },
-    { title: "Accountability", body: "Every decision, approval and action is logged." },
-    { title: "Asset performance", body: "We manage with an asset-performance mindset, not just occupancy." },
+    {
+      title: "Professional management",
+      body: "Structured processes, not ad-hoc caretaking.",
+    },
+    {
+      title: "Technology",
+      body: "NexaHaus Connect gives you a live view of your asset.",
+    },
+    {
+      title: "Transparency",
+      body: "Statements reproducible from every transaction.",
+    },
+    {
+      title: "Accountability",
+      body: "Every decision, approval and action is logged.",
+    },
+    {
+      title: "Asset performance",
+      body: "We manage with an asset-performance mindset, not just occupancy.",
+    },
   ],
 } as const;
 
@@ -304,7 +348,10 @@ export const earlyAccess = {
     "We are speaking with property owners now to understand the real challenges they face and build our services around those needs.",
   ],
   primary: { label: "Join NexaHaus Early Access", href: "/early-access" },
-  secondary: { label: "Take the Property Owner Survey", href: "/property-owner-survey" },
+  secondary: {
+    label: "Take the Property Owner Survey",
+    href: "/property-owner-survey",
+  },
 } as const;
 
 export const founding100 = {
@@ -341,6 +388,9 @@ export const insightsTeaser = {
 export const finalCta = {
   headline: "Let's Start With Your Property.",
   body: "Tell us about your property and the challenges you want solved.",
-  primary: { label: "Request Property Assessment", href: "/property-health-check" },
+  primary: {
+    label: "Request Property Assessment",
+    href: "/property-health-check",
+  },
   secondary: { label: "Join Early Access", href: "/early-access" },
 } as const;

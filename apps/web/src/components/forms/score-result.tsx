@@ -12,7 +12,10 @@ export function ScoreResult({
   headline,
   body,
   disclaimer,
-  primary = { label: "Request a professional assessment", href: routes.contact },
+  primary = {
+    label: "Request a professional assessment",
+    href: routes.contact,
+  },
   primaryEvent = "assessment_requested",
   breakdown,
 }: {
@@ -34,12 +37,17 @@ export function ScoreResult({
         <HealthGauge score={score} size={220} />
       </div>
       <p className="mt-4 text-lg font-semibold text-navy-900">{headline}</p>
-      {body ? <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">{body}</p> : null}
+      {body ? (
+        <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">{body}</p>
+      ) : null}
 
       {breakdown && breakdown.length > 0 ? (
         <ul className="mx-auto mt-6 max-w-md space-y-2 text-left">
           {breakdown.map((b) => (
-            <li key={b.area} className="rounded-lg border border-line bg-surface px-3 py-2 text-sm">
+            <li
+              key={b.area}
+              className="rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+            >
               <span className="font-medium text-navy-900">{b.area}:</span>{" "}
               <span className="text-ink-muted">{b.note}</span>
             </li>
@@ -47,10 +55,17 @@ export function ScoreResult({
         </ul>
       ) : null}
 
-      <p className="mx-auto mt-6 max-w-md text-xs text-ink-subtle">{disclaimer}</p>
+      <p className="mx-auto mt-6 max-w-md text-xs text-ink-subtle">
+        {disclaimer}
+      </p>
 
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <Cta href={primary.href} size="lg" event={primaryEvent} eventProps={{ location: "score_result" }}>
+        <Cta
+          href={primary.href}
+          size="lg"
+          event={primaryEvent}
+          eventProps={{ location: "score_result" }}
+        >
           {primary.label}
         </Cta>
         <Cta href={routes.home} variant="secondary" size="lg">

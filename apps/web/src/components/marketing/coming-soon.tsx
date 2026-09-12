@@ -15,7 +15,10 @@ export function ComingSoon({
   bullets,
   breadcrumb,
   primary = { label: "Join Early Access", href: "/early-access" },
-  secondary = { label: "Request Property Assessment", href: "/property-health-check" },
+  secondary = {
+    label: "Request Property Assessment",
+    href: "/property-health-check",
+  },
 }: {
   eyebrow: string;
   title: string;
@@ -36,14 +39,21 @@ export function ComingSoon({
             <Eyebrow>{eyebrow}</Eyebrow>
             <LaunchBadge />
           </div>
-          <h1 className="nx-display mt-4 text-display-lg text-navy-900">{title}</h1>
-          <p className="mt-4 text-lg leading-relaxed text-ink-muted">{description}</p>
+          <h1 className="nx-display mt-4 text-display-lg text-navy-900">
+            {title}
+          </h1>
+          <p className="mt-4 text-lg leading-relaxed text-ink-muted">
+            {description}
+          </p>
 
           {bullets?.length ? (
             <ul className="mt-6 space-y-2 text-sm text-ink-muted">
               {bullets.map((b) => (
                 <li key={b} className="flex items-start gap-2">
-                  <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
+                  <span
+                    aria-hidden
+                    className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500"
+                  />
                   {b}
                 </li>
               ))}
@@ -60,8 +70,8 @@ export function ComingSoon({
           </div>
 
           <p className="mt-6 text-xs text-ink-subtle">
-            This page is being built. Nothing on it is final and no details shown are
-            promotional commitments.
+            This page is being built. Nothing on it is final and no details
+            shown are promotional commitments.
           </p>
         </div>
       </Container>

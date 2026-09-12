@@ -4,16 +4,16 @@ Targets, the load model, what the code already does, and how to investigate a re
 
 ## 1. Service level objectives
 
-| Surface | Metric | Target |
-|---|---|---|
-| API read endpoints (`GET`, list) | p95 latency | ≤ 250 ms |
-| API write endpoints | p95 latency | ≤ 500 ms |
-| Statement generation | wall time | ≤ 3 s for a 12-month, single-property period |
-| Health-score recompute | wall time | ≤ 1 s per property |
-| Web (SSR pages) | TTFB p95 | ≤ 400 ms |
-| Domain event → notification dispatched | p95 | ≤ 30 s |
-| Availability (api + web) | monthly | ≥ 99.9 % |
-| Error budget | 5xx / total | ≤ 0.1 % |
+| Surface                                | Metric      | Target                                       |
+| -------------------------------------- | ----------- | -------------------------------------------- |
+| API read endpoints (`GET`, list)       | p95 latency | ≤ 250 ms                                     |
+| API write endpoints                    | p95 latency | ≤ 500 ms                                     |
+| Statement generation                   | wall time   | ≤ 3 s for a 12-month, single-property period |
+| Health-score recompute                 | wall time   | ≤ 1 s per property                           |
+| Web (SSR pages)                        | TTFB p95    | ≤ 400 ms                                     |
+| Domain event → notification dispatched | p95         | ≤ 30 s                                       |
+| Availability (api + web)               | monthly     | ≥ 99.9 %                                     |
+| Error budget                           | 5xx / total | ≤ 0.1 %                                      |
 
 ## 2. Load model (launch + 12 months)
 

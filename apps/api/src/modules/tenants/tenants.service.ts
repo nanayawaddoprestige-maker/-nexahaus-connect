@@ -1,4 +1,9 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import type { AppConfig } from "@nexahaus/config";
@@ -44,7 +49,9 @@ export class TenantsService {
         some: {
           lease: {
             OR: [
-              user.clientIds.length ? { clientId: { in: user.clientIds } } : { id: "" },
+              user.clientIds.length
+                ? { clientId: { in: user.clientIds } }
+                : { id: "" },
               user.assignedPropertyIds.length
                 ? { propertyId: { in: user.assignedPropertyIds } }
                 : { id: "" },
@@ -71,7 +78,11 @@ export class TenantsService {
         this.scopeWhere(user),
         query.status ? { status: query.status } : {},
         query.propertyId
-          ? { leaseParties: { some: { lease: { propertyId: query.propertyId } } } }
+          ? {
+              leaseParties: {
+                some: { lease: { propertyId: query.propertyId } },
+              },
+            }
           : {},
         query.q
           ? {
@@ -189,7 +200,10 @@ export class TenantsService {
         status: p.lease.status,
         startDate: p.lease.startDate.toISOString(),
         endDate: p.lease.endDate.toISOString(),
-        rent: { minor: p.lease.rentMinor.toString(), currency: p.lease.rentCurrency },
+        rent: {
+          minor: p.lease.rentMinor.toString(),
+          currency: p.lease.rentCurrency,
+        },
         property: p.lease.property,
         unit: p.lease.unit.label,
       })),

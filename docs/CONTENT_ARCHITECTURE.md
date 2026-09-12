@@ -6,15 +6,15 @@ Last updated: 2026-09-09
 
 ## 1. Where content lives
 
-| Content type | Source (now) | Future |
-|---|---|---|
-| Page copy (home, services, about) | Typed modules under `src/app/(marketing)/**/_*` and `src/content/*` | CMS entries; same shape |
-| Navigation, routes, CTAs | `src/lib/routes.ts` | unchanged |
-| Site facts, launch status, URLs, contact, social | `src/lib/site-config.ts` (env-driven) | admin-editable settings |
-| Insights (articles) | `src/content/insights.ts` — typed `Insight[]`, currently empty | CMS or `apps/api` `insights` module |
-| FAQs | `src/content/faq.ts` (Phase 2) | CMS |
-| Legal (privacy / terms / cookies) | Page components | CMS / legal review |
-| Illustrative dashboard data | Colocated constants in preview components, labelled illustrative | unchanged (never real data) |
+| Content type                                     | Source (now)                                                        | Future                              |
+| ------------------------------------------------ | ------------------------------------------------------------------- | ----------------------------------- |
+| Page copy (home, services, about)                | Typed modules under `src/app/(marketing)/**/_*` and `src/content/*` | CMS entries; same shape             |
+| Navigation, routes, CTAs                         | `src/lib/routes.ts`                                                 | unchanged                           |
+| Site facts, launch status, URLs, contact, social | `src/lib/site-config.ts` (env-driven)                               | admin-editable settings             |
+| Insights (articles)                              | `src/content/insights.ts` — typed `Insight[]`, currently empty      | CMS or `apps/api` `insights` module |
+| FAQs                                             | `src/content/faq.ts` (Phase 2)                                      | CMS                                 |
+| Legal (privacy / terms / cookies)                | Page components                                                     | CMS / legal review                  |
+| Illustrative dashboard data                      | Colocated constants in preview components, labelled illustrative    | unchanged (never real data)         |
 
 **Rule:** copy is data, not markup. Layout components take content as props so a
 CMS swap is a change to four accessor functions, not to pages.

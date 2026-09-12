@@ -85,7 +85,8 @@ export class PropertiesController {
   @RequirePermission("property:write")
   create(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(createPropertySchema)) body: CreatePropertyInput,
+    @Body(new ZodValidationPipe(createPropertySchema))
+    body: CreatePropertyInput,
     @Req() req: Request,
   ) {
     return this.properties.create(user, body, auditCtxFromRequest(req, user));
@@ -97,10 +98,16 @@ export class PropertiesController {
   update(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(updatePropertySchema)) body: UpdatePropertyInput,
+    @Body(new ZodValidationPipe(updatePropertySchema))
+    body: UpdatePropertyInput,
     @Req() req: Request,
   ) {
-    return this.properties.update(user, id, body, auditCtxFromRequest(req, user));
+    return this.properties.update(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/agreement")
@@ -162,7 +169,8 @@ export class PropertiesController {
   setOwners(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(ownersSchema)) body: z.infer<typeof ownersSchema>,
+    @Body(new ZodValidationPipe(ownersSchema))
+    body: z.infer<typeof ownersSchema>,
     @Req() req: Request,
   ) {
     return this.properties.setOwners(

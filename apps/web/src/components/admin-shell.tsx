@@ -60,7 +60,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <p className="truncate text-sm font-medium text-white">{user?.fullName}</p>
+          <p className="truncate text-sm font-medium text-white">
+            {user?.fullName}
+          </p>
           <p className="truncate text-xs text-navy-300">
             {user?.roles.join(", ")}
           </p>
@@ -77,11 +79,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <header className="flex items-center justify-between border-b border-line bg-navy-900 px-4 py-3 lg:hidden">
           <div className="flex items-center gap-2">
             <BrandMark className="h-6 w-6" />
-            <span className="text-sm font-semibold text-white">Staff console</span>
+            <span className="text-sm font-semibold text-white">
+              Staff console
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <Button variant="ghost" size="sm" className="text-navy-200" onClick={() => void logout()}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-navy-200"
+              onClick={() => void logout()}
+            >
               Sign out
             </Button>
           </div>

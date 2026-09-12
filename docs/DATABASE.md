@@ -5,18 +5,18 @@ source of truth for `apps/api/prisma/schema.prisma`.
 
 ## 1. Conventions
 
-| Concern | Rule |
-|---|---|
-| Primary keys | `id` — UUID v7 (`@default(dbgenerated("uuidv7()"))` or app-generated). Sortable, non-enumerable. |
-| Human refs | Separate `ref` column from a `Sequence` table: `NH-000001` (property), `PL-000001` (payment), `MR-…`, `WO-…`, `INS-…`, `EXP-…`, `STMT-…`. Unique, indexed. |
-| Timestamps | `createdAt` / `updatedAt` on every table. Business time (e.g. `occurredAt`, `receivedAt`, `dueDate`) is separate from row time. |
-| Soft delete | `deletedAt` (nullable) + `deletedById` where deletion is allowed. Financial and audit rows are **never** hard-deleted casually — use status/adjustments. |
-| Money | `<name>Minor BigInt` + `<name>Currency Char(3)`. Never Float/Decimal for stored amounts. `Decimal(9,6)` for rates/percentages only. |
-| Enums | Postgres enums via Prisma `enum`. Adding values is a migration. |
-| JSON | `Json` columns only for genuinely open/versioned structures (score component snapshots, survey answers, consent evidence, event payloads). Everything queried is a real column. |
-| Multi-tenancy | Owner-facing rows carry a resolvable path to `clientId` (direct FK or via `propertyId`). Enforced in the repository layer. |
-| Indexes | FK columns, `ref`, `status`, `(propertyId, status)`, `(clientId, …)`, `dueDate`, `occurredAt`, `expiresAt`, and every column used in list filters (spec §53). |
-| Audit | `AuditLog` is append-only (no update/delete grant to app role). |
+| Concern       | Rule                                                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary keys  | `id` — UUID v7 (`@default(dbgenerated("uuidv7()"))` or app-generated). Sortable, non-enumerable.                                                                                |
+| Human refs    | Separate `ref` column from a `Sequence` table: `NH-000001` (property), `PL-000001` (payment), `MR-…`, `WO-…`, `INS-…`, `EXP-…`, `STMT-…`. Unique, indexed.                      |
+| Timestamps    | `createdAt` / `updatedAt` on every table. Business time (e.g. `occurredAt`, `receivedAt`, `dueDate`) is separate from row time.                                                 |
+| Soft delete   | `deletedAt` (nullable) + `deletedById` where deletion is allowed. Financial and audit rows are **never** hard-deleted casually — use status/adjustments.                        |
+| Money         | `<name>Minor BigInt` + `<name>Currency Char(3)`. Never Float/Decimal for stored amounts. `Decimal(9,6)` for rates/percentages only.                                             |
+| Enums         | Postgres enums via Prisma `enum`. Adding values is a migration.                                                                                                                 |
+| JSON          | `Json` columns only for genuinely open/versioned structures (score component snapshots, survey answers, consent evidence, event payloads). Everything queried is a real column. |
+| Multi-tenancy | Owner-facing rows carry a resolvable path to `clientId` (direct FK or via `propertyId`). Enforced in the repository layer.                                                      |
+| Indexes       | FK columns, `ref`, `status`, `(propertyId, status)`, `(clientId, …)`, `dueDate`, `occurredAt`, `expiresAt`, and every column used in list filters (spec §53).                   |
+| Audit         | `AuditLog` is append-only (no update/delete grant to app role).                                                                                                                 |
 
 ## 2. Domain: Identity & Access
 

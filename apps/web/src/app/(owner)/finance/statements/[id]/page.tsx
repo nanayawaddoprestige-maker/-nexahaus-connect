@@ -21,7 +21,10 @@ export default function StatementDetailPage() {
   });
 
   const download = useMutation({
-    mutationFn: () => api.get<{ url: string }>(`/documents/${data!.pdfDocumentId}/download-url`),
+    mutationFn: () =>
+      api.get<{ url: string }>(
+        `/documents/${data!.pdfDocumentId}/download-url`,
+      ),
     onSuccess: (res) => window.open(res.url, "_blank", "noopener"),
   });
 
@@ -30,7 +33,9 @@ export default function StatementDetailPage() {
     const notFound = error instanceof ApiError && error.status === 404;
     return (
       <ErrorState
-        title={notFound ? "Statement not found" : "We couldn't load this statement."}
+        title={
+          notFound ? "Statement not found" : "We couldn't load this statement."
+        }
         onRetry={notFound ? undefined : () => void refetch()}
       />
     );
@@ -41,7 +46,10 @@ export default function StatementDetailPage() {
     ["Opening balance", formatMinor(data.openingBalanceMinor, c), true],
     ["Gross rental income", formatMinor(data.grossRentalIncomeMinor, c)],
     ["Management fees", `− ${formatMinor(data.managementFeesMinor, c)}`],
-    ["Maintenance expenses", `− ${formatMinor(data.maintenanceExpensesMinor, c)}`],
+    [
+      "Maintenance expenses",
+      `− ${formatMinor(data.maintenanceExpensesMinor, c)}`,
+    ],
     ["Other approved expenses", `− ${formatMinor(data.otherExpensesMinor, c)}`],
     ["Net for the period", formatMinor(data.netAmountMinor, c), true],
     ["Owner distributions", `− ${formatMinor(data.distributionsMinor, c)}`],
@@ -50,7 +58,10 @@ export default function StatementDetailPage() {
 
   return (
     <div>
-      <button onClick={() => router.push("/finance")} className="mb-4 text-sm text-ink-muted hover:text-navy-900">
+      <button
+        onClick={() => router.push("/finance")}
+        className="mb-4 text-sm text-ink-muted hover:text-navy-900"
+      >
         ← Back to finance
       </button>
       <PageHeader
@@ -63,7 +74,12 @@ export default function StatementDetailPage() {
         subtitle={`${data.ref} · ${data.property?.name ?? "Portfolio"} · ${formatDate(data.periodStart)} – ${formatDate(data.periodEnd)}`}
         action={
           data.pdfDocumentId ? (
-            <Button size="sm" variant="secondary" loading={download.isPending} onClick={() => download.mutate()}>
+            <Button
+              size="sm"
+              variant="secondary"
+              loading={download.isPending}
+              onClick={() => download.mutate()}
+            >
               Download PDF
             </Button>
           ) : undefined
@@ -77,7 +93,9 @@ export default function StatementDetailPage() {
               key={label}
               className={
                 "flex items-center justify-between " +
-                (bold ? "border-t border-line pt-2 font-semibold text-navy-900" : "text-ink-muted")
+                (bold
+                  ? "border-t border-line pt-2 font-semibold text-navy-900"
+                  : "text-ink-muted")
               }
             >
               <dt>{label}</dt>
@@ -102,12 +120,16 @@ export default function StatementDetailPage() {
           <tbody>
             {data.lines.map((l, i) => (
               <tr key={i} className="border-b border-line last:border-0">
-                <td className="px-4 py-2.5 text-ink-muted">{formatDate(l.occurredAt)}</td>
+                <td className="px-4 py-2.5 text-ink-muted">
+                  {formatDate(l.occurredAt)}
+                </td>
                 <td className="px-4 py-2.5 text-navy-900">{l.description}</td>
                 <td
                   className={
                     "px-4 py-2.5 text-right tabular-nums " +
-                    (l.direction === "CREDIT" ? "text-positive" : "text-navy-900")
+                    (l.direction === "CREDIT"
+                      ? "text-positive"
+                      : "text-navy-900")
                   }
                 >
                   {l.direction === "CREDIT" ? "" : "− "}

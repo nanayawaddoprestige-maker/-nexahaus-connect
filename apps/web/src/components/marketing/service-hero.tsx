@@ -14,7 +14,10 @@ export function ServiceHero({
   lede,
   breadcrumb,
   jsonLd,
-  primary = { label: "Request Property Assessment", href: siteCta.primary.href },
+  primary = {
+    label: "Request Property Assessment",
+    href: siteCta.primary.href,
+  },
   secondary = { label: "Join Early Access", href: siteCta.secondary.href },
 }: {
   eyebrow: string;
@@ -34,10 +37,17 @@ export function ServiceHero({
       <Container className="pb-16 pt-2">
         <div className="max-w-3xl">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="nx-display mt-3 text-display-lg text-navy-900">{title}</h1>
+          <h1 className="nx-display mt-3 text-display-lg text-navy-900">
+            {title}
+          </h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-muted">{lede}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Cta href={primary.href} size="lg" event="assessment_requested" eventProps={{ location: "service_hero" }}>
+            <Cta
+              href={primary.href}
+              size="lg"
+              event="assessment_requested"
+              eventProps={{ location: "service_hero" }}
+            >
               {primary.label}
             </Cta>
             <Cta href={secondary.href} variant="secondary" size="lg">

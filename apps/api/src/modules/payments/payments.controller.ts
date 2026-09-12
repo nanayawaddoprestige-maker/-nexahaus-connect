@@ -19,7 +19,11 @@ import {
 } from "@nexahaus/validation";
 import type { AuthUser } from "@nexahaus/types";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe";
-import { CurrentUser, Public, RequirePermission } from "../../common/decorators";
+import {
+  CurrentUser,
+  Public,
+  RequirePermission,
+} from "../../common/decorators";
 import { auditCtxFromRequest } from "../../common/audit-context";
 import { AppError } from "../../common/app-error";
 import { PaymentsService } from "./payments.service";
@@ -56,11 +60,19 @@ export class PaymentsController {
   @RequirePermission("payment:record")
   reconcile(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).strict(),
+      ),
+    )
     body: { ids: string[] },
     @Req() req: Request,
   ) {
-    return this.payments.reconcile(user, body.ids, auditCtxFromRequest(req, user));
+    return this.payments.reconcile(
+      user,
+      body.ids,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @ApiBearerAuth()
@@ -102,7 +114,11 @@ export class PaymentsController {
     @Body(new ZodValidationPipe(recordPaymentSchema)) body: RecordPaymentInput,
     @Req() req: Request,
   ) {
-    return this.payments.recordManual(user, body, auditCtxFromRequest(req, user));
+    return this.payments.recordManual(
+      user,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @ApiBearerAuth()
@@ -111,11 +127,20 @@ export class PaymentsController {
   refund(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(z.object({ reason: z.string().trim().min(3).max(300) }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ reason: z.string().trim().min(3).max(300) }).strict(),
+      ),
+    )
     body: { reason: string },
     @Req() req: Request,
   ) {
-    return this.payments.refund(user, id, body.reason, auditCtxFromRequest(req, user));
+    return this.payments.refund(
+      user,
+      id,
+      body.reason,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   /** Provider callback — no auth; verified by signature over the raw body. */

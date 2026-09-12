@@ -17,12 +17,12 @@ and the first two screens wired to real API data:
 ## Full owner screen list (spec §67 — built out in later phases)
 
 1. Splash · 2. Login · 3. Forgot Password · 4. OTP / Verification ·
-5. Dashboard · 6. Property List · 7. Property Detail · 8. Property Health ·
-9. Maintenance List · 10. Maintenance Detail · 11. Create Maintenance Request ·
-12. Inspection List · 13. Inspection Detail · 14. Finance Dashboard ·
-15. Payment History · 16. Statement List · 17. Statement Detail · 18. Documents ·
-19. Document Detail · 20. Notifications · 21. Messages · 22. Approvals ·
-23. Profile · 24. Settings · 25. Help / Support
+2. Dashboard · 6. Property List · 7. Property Detail · 8. Property Health ·
+3. Maintenance List · 10. Maintenance Detail · 11. Create Maintenance Request ·
+4. Inspection List · 13. Inspection Detail · 14. Finance Dashboard ·
+5. Payment History · 16. Statement List · 17. Statement Detail · 18. Documents ·
+6. Document Detail · 20. Notifications · 21. Messages · 22. Approvals ·
+7. Profile · 24. Settings · 25. Help / Support
 
 Field-staff capture (inspectors, maintenance officers) — photos, videos, notes,
 inspection results, with offline draft + sync — lands with Phase 3.

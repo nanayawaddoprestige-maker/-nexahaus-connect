@@ -28,7 +28,8 @@ import {
     {
       provide: EmailAdapter,
       inject: [APP_CONFIG],
-      useFactory: (config: AppConfig): EmailAdapter => new ConsoleEmailAdapter(config),
+      useFactory: (config: AppConfig): EmailAdapter =>
+        new ConsoleEmailAdapter(config),
     },
     { provide: SmsAdapter, useClass: ConsoleSmsAdapter },
     { provide: WhatsAppAdapter, useClass: NoopWhatsAppAdapter },

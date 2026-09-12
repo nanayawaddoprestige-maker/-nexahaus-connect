@@ -49,16 +49,23 @@ export default function VendorWorkOrderPage() {
   const start = useMutation({
     mutationFn: () => api.post(`/vendor/work-orders/${params.id}/start`),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["vendor"] }),
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Could not start the job."),
+    onError: (e) =>
+      setError(e instanceof ApiError ? e.message : "Could not start the job."),
   });
   const complete = useMutation({
     mutationFn: () =>
       api.post(`/vendor/work-orders/${params.id}/complete`, {
-        actualCost: { minor: String(Math.round(Number(cedis) * 100)), currency: "GHS" },
+        actualCost: {
+          minor: String(Math.round(Number(cedis) * 100)),
+          currency: "GHS",
+        },
         completionNotes: notes.trim() || undefined,
       }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["vendor"] }),
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Could not complete the job."),
+    onError: (e) =>
+      setError(
+        e instanceof ApiError ? e.message : "Could not complete the job.",
+      ),
   });
 
   if (wo.isLoading) return <Skeleton className="h-96 w-full" />;
@@ -66,7 +73,11 @@ export default function VendorWorkOrderPage() {
     const notFound = wo.error instanceof ApiError && wo.error.status === 404;
     return (
       <ErrorState
-        title={notFound ? "Work order not found" : "We couldn't load this work order."}
+        title={
+          notFound
+            ? "Work order not found"
+            : "We couldn't load this work order."
+        }
         onRetry={notFound ? undefined : () => void wo.refetch()}
       />
     );
@@ -75,7 +86,10 @@ export default function VendorWorkOrderPage() {
 
   return (
     <div>
-      <button onClick={() => router.push("/vendor")} className="mb-4 text-sm text-ink-muted hover:text-navy-900">
+      <button
+        onClick={() => router.push("/vendor")}
+        className="mb-4 text-sm text-ink-muted hover:text-navy-900"
+      >
         ← All work orders
       </button>
       <PageHeader
@@ -90,15 +104,33 @@ export default function VendorWorkOrderPage() {
 
       <Card className="mb-6">
         <CardHeader title="Job details" />
-        <p className="whitespace-pre-line text-sm text-ink">{w.request.description}</p>
+        <p className="whitespace-pre-line text-sm text-ink">
+          {w.request.description}
+        </p>
         <dl className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 border-t border-line pt-4 text-sm">
-          <div><dt className="nx-label">Location</dt><dd className="mt-0.5 text-navy-900">{w.request.location}</dd></div>
-          <div><dt className="nx-label">Address</dt><dd className="mt-0.5 text-navy-900">{w.request.address}</dd></div>
-          <div><dt className="nx-label">Scheduled</dt><dd className="mt-0.5 text-navy-900">{formatDate(w.scheduledFor)}</dd></div>
-          <div><dt className="nx-label">Started</dt><dd className="mt-0.5 text-navy-900">{formatDate(w.startedAt)}</dd></div>
+          <div>
+            <dt className="nx-label">Location</dt>
+            <dd className="mt-0.5 text-navy-900">{w.request.location}</dd>
+          </div>
+          <div>
+            <dt className="nx-label">Address</dt>
+            <dd className="mt-0.5 text-navy-900">{w.request.address}</dd>
+          </div>
+          <div>
+            <dt className="nx-label">Scheduled</dt>
+            <dd className="mt-0.5 text-navy-900">
+              {formatDate(w.scheduledFor)}
+            </dd>
+          </div>
+          <div>
+            <dt className="nx-label">Started</dt>
+            <dd className="mt-0.5 text-navy-900">{formatDate(w.startedAt)}</dd>
+          </div>
         </dl>
         {w.request.photos.length > 0 ? (
-          <p className="mt-3 text-xs text-ink-subtle">{w.request.photos.length} reported photo(s) available on request.</p>
+          <p className="mt-3 text-xs text-ink-subtle">
+            {w.request.photos.length} reported photo(s) available on request.
+          </p>
         ) : null}
       </Card>
 
@@ -125,7 +157,9 @@ export default function VendorWorkOrderPage() {
           <CardHeader title="Complete the job" />
           <div className="space-y-3">
             <label className="block text-sm">
-              <span className="mb-1 block font-medium text-navy-900">Actual cost (GHS)</span>
+              <span className="mb-1 block font-medium text-navy-900">
+                Actual cost (GHS)
+              </span>
               <input
                 inputMode="decimal"
                 value={cedis}
@@ -134,7 +168,9 @@ export default function VendorWorkOrderPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-medium text-navy-900">What did you do?</span>
+              <span className="mb-1 block font-medium text-navy-900">
+                What did you do?
+              </span>
               <textarea
                 rows={4}
                 value={notes}
@@ -142,16 +178,28 @@ export default function VendorWorkOrderPage() {
                 className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
               />
             </label>
-            <Button loading={complete.isPending} disabled={!Number(cedis)} onClick={() => complete.mutate()}>
+            <Button
+              loading={complete.isPending}
+              disabled={!Number(cedis)}
+              onClick={() => complete.mutate()}
+            >
               Mark complete
             </Button>
           </div>
         </Card>
       ) : (
         <Card>
-          <p className="text-sm text-navy-900">This job is {titleCase(w.status).toLowerCase()}.</p>
-          {w.cost ? <p className="mt-1 text-sm text-ink-muted">Billed: {formatMoney(w.cost)}</p> : null}
-          {w.completionNotes ? <p className="mt-1 text-sm text-ink-muted">{w.completionNotes}</p> : null}
+          <p className="text-sm text-navy-900">
+            This job is {titleCase(w.status).toLowerCase()}.
+          </p>
+          {w.cost ? (
+            <p className="mt-1 text-sm text-ink-muted">
+              Billed: {formatMoney(w.cost)}
+            </p>
+          ) : null}
+          {w.completionNotes ? (
+            <p className="mt-1 text-sm text-ink-muted">{w.completionNotes}</p>
+          ) : null}
         </Card>
       )}
     </div>

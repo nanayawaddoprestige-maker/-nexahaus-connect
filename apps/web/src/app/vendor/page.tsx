@@ -7,7 +7,12 @@ import { api } from "@/lib/api";
 import { formatDate, formatMoney, titleCase } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 interface WorkOrderRow {
   id: string;
@@ -38,16 +43,26 @@ export default function VendorHome() {
   const [openOnly, setOpenOnly] = useState(true);
   const list = useQuery({
     queryKey: ["vendor", "work-orders", openOnly],
-    queryFn: () => api.list<WorkOrderRow>("/vendor/work-orders", { query: { openOnly: openOnly ? "true" : undefined } }),
+    queryFn: () =>
+      api.list<WorkOrderRow>("/vendor/work-orders", {
+        query: { openOnly: openOnly ? "true" : undefined },
+      }),
   });
 
   const rows = list.data?.items ?? [];
 
   return (
     <div>
-      <PageHeader title="Work orders" subtitle="Jobs NexaHaus has assigned to you." />
+      <PageHeader
+        title="Work orders"
+        subtitle="Jobs NexaHaus has assigned to you."
+      />
       <label className="mb-4 flex items-center gap-2 text-sm text-ink-muted">
-        <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={openOnly}
+          onChange={(e) => setOpenOnly(e.target.checked)}
+        />
         Open jobs only
       </label>
 
@@ -60,7 +75,10 @@ export default function VendorHome() {
       ) : list.isError ? (
         <ErrorState onRetry={() => void list.refetch()} />
       ) : rows.length === 0 ? (
-        <EmptyState title={openOnly ? "No open jobs" : "No work orders"} description="Assigned jobs appear here." />
+        <EmptyState
+          title={openOnly ? "No open jobs" : "No work orders"}
+          description="Assigned jobs appear here."
+        />
       ) : (
         <div className="space-y-3">
           {rows.map((w) => (
@@ -69,20 +87,34 @@ export default function VendorHome() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <StatusBadge status={w.request.priority} tone={PRIORITY_TONE[w.request.priority]} />
-                      <span className="font-medium text-navy-900">{w.request.title}</span>
+                      <StatusBadge
+                        status={w.request.priority}
+                        tone={PRIORITY_TONE[w.request.priority]}
+                      />
+                      <span className="font-medium text-navy-900">
+                        {w.request.title}
+                      </span>
                     </div>
                     <p className="mt-1 text-xs text-ink-subtle">
-                      <span className="font-mono">{w.ref}</span> · {titleCase(w.request.category)} · {w.request.location}
+                      <span className="font-mono">{w.ref}</span> ·{" "}
+                      {titleCase(w.request.category)} · {w.request.location}
                     </p>
-                    <p className="text-xs text-ink-subtle">{w.request.address}</p>
+                    <p className="text-xs text-ink-subtle">
+                      {w.request.address}
+                    </p>
                   </div>
                   <div className="text-right">
                     <StatusBadge status={w.status} />
                     {w.scheduledFor ? (
-                      <p className="mt-1 text-xs text-ink-subtle">{formatDate(w.scheduledFor)}</p>
+                      <p className="mt-1 text-xs text-ink-subtle">
+                        {formatDate(w.scheduledFor)}
+                      </p>
                     ) : null}
-                    {w.cost ? <p className="text-xs tabular-nums text-ink-muted">{formatMoney(w.cost)}</p> : null}
+                    {w.cost ? (
+                      <p className="text-xs tabular-nums text-ink-muted">
+                        {formatMoney(w.cost)}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </Card>

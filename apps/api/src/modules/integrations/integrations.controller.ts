@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { z } from "zod";
@@ -13,7 +6,11 @@ import type { RawBodyRequest } from "@nestjs/common";
 import type { Request } from "express";
 import type { AuthUser } from "@nexahaus/types";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe";
-import { CurrentUser, Public, RequirePermission } from "../../common/decorators";
+import {
+  CurrentUser,
+  Public,
+  RequirePermission,
+} from "../../common/decorators";
 import { AppError } from "../../common/app-error";
 import { IntegrationsService } from "./integrations.service";
 
@@ -43,9 +40,7 @@ export class IntegrationsController {
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Post("whatsapp/webhook")
   @HttpCode(200)
-  whatsapp(
-    @Req() req: RawBodyRequest<Request>,
-  ) {
+  whatsapp(@Req() req: RawBodyRequest<Request>) {
     const raw = req.rawBody;
     if (!raw) throw AppError.webhookSignatureInvalid();
     const sig = req.header("x-signature");
@@ -61,7 +56,8 @@ export class IntegrationsController {
         }
       })(),
     );
-    if (!parsed.success) throw AppError.validation("Unparseable WhatsApp payload.");
+    if (!parsed.success)
+      throw AppError.validation("Unparseable WhatsApp payload.");
     return this.integrations.handleWhatsApp(
       {
         providerMsgId: parsed.data.messageId,
@@ -84,7 +80,8 @@ export class IntegrationsController {
   @HttpCode(202)
   event(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(analyticsSchema)) body: z.infer<typeof analyticsSchema>,
+    @Body(new ZodValidationPipe(analyticsSchema))
+    body: z.infer<typeof analyticsSchema>,
   ) {
     return this.integrations.recordEvent(user, body.name, body.props ?? {});
   }

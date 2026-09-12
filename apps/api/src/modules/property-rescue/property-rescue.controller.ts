@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { z } from "zod";
 import type { Request } from "express";
@@ -29,14 +21,20 @@ export class PropertyRescueController {
   @Get(":propertyId")
   @RequirePermission("rescue:read")
   @ScopedResource({ type: "property", param: "propertyId" })
-  latest(@CurrentUser() user: AuthUser, @Param("propertyId") propertyId: string) {
+  latest(
+    @CurrentUser() user: AuthUser,
+    @Param("propertyId") propertyId: string,
+  ) {
     return this.rescue.latest(user, propertyId);
   }
 
   @Get(":propertyId/history")
   @RequirePermission("rescue:read")
   @ScopedResource({ type: "property", param: "propertyId" })
-  history(@CurrentUser() user: AuthUser, @Param("propertyId") propertyId: string) {
+  history(
+    @CurrentUser() user: AuthUser,
+    @Param("propertyId") propertyId: string,
+  ) {
     return this.rescue.list(user, propertyId);
   }
 
@@ -44,11 +42,19 @@ export class PropertyRescueController {
   @RequirePermission("rescue:write")
   assess(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(z.object({ propertyId: z.string().uuid() }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ propertyId: z.string().uuid() }).strict(),
+      ),
+    )
     body: { propertyId: string },
     @Req() req: Request,
   ) {
-    return this.rescue.assess(user, body.propertyId, auditCtxFromRequest(req, user));
+    return this.rescue.assess(
+      user,
+      body.propertyId,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Get("assessments/:id")
@@ -62,7 +68,15 @@ export class PropertyRescueController {
   updateRecommendation(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(z.object({ status: z.enum(["OPEN", "IN_PROGRESS", "DONE", "DISMISSED"]) }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z
+          .object({
+            status: z.enum(["OPEN", "IN_PROGRESS", "DONE", "DISMISSED"]),
+          })
+          .strict(),
+      ),
+    )
     body: { status: "OPEN" | "IN_PROGRESS" | "DONE" | "DISMISSED" },
     @Req() req: Request,
   ) {

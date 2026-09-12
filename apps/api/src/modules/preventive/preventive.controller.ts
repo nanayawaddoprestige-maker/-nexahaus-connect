@@ -38,7 +38,8 @@ export class PreventiveController {
   @RequirePermission("preventive:write")
   create(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(preventivePlanSchema)) body: PreventivePlanInput,
+    @Body(new ZodValidationPipe(preventivePlanSchema))
+    body: PreventivePlanInput,
     @Req() req: Request,
   ) {
     return this.preventive.create(user, body, auditCtxFromRequest(req, user));
@@ -49,7 +50,8 @@ export class PreventiveController {
   update(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(updateSchema)) body: z.infer<typeof updateSchema>,
+    @Body(new ZodValidationPipe(updateSchema))
+    body: z.infer<typeof updateSchema>,
     @Req() req: Request,
   ) {
     return this.preventive.update(

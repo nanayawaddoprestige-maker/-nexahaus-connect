@@ -26,9 +26,17 @@ export default function GhanaReportPage() {
         "Reporting and technology expectations",
         "Property performance",
       ]}
-      breadcrumb={[{ label: "The Ghana Property Owner Report", href: routes.ghanaReport }]}
-      primary={{ label: "Contribute via the Property Owner Survey", href: routes.propertyOwnerSurvey }}
-      secondary={{ label: "Get the report on release", href: routes.earlyAccess }}
+      breadcrumb={[
+        { label: "The Ghana Property Owner Report", href: routes.ghanaReport },
+      ]}
+      primary={{
+        label: "Contribute via the Property Owner Survey",
+        href: routes.propertyOwnerSurvey,
+      }}
+      secondary={{
+        label: "Get the report on release",
+        href: routes.earlyAccess,
+      }}
     />
   );
 }

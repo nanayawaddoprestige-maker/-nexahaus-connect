@@ -51,7 +51,10 @@ export function clientScopeWhere(user: AuthUser): Prisma.ClientWhereInput {
  * services when they have already loaded a row and need to confirm ownership
  * before returning it.
  */
-export function clientInScope(user: AuthUser, clientId: string | null): boolean {
+export function clientInScope(
+  user: AuthUser,
+  clientId: string | null,
+): boolean {
   if (user.scopeExempt) return true;
   return clientId !== null && user.clientIds.includes(clientId);
 }
@@ -61,6 +64,7 @@ export function propertyInScope(
   property: { id: string; clientId: string | null },
 ): boolean {
   if (user.scopeExempt) return true;
-  if (property.clientId && user.clientIds.includes(property.clientId)) return true;
+  if (property.clientId && user.clientIds.includes(property.clientId))
+    return true;
   return user.assignedPropertyIds.includes(property.id);
 }

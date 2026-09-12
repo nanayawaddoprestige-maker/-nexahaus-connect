@@ -3,7 +3,10 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { AnalyticsProvider } from "@/components/marketing/analytics-provider";
 import { CookieBanner } from "@/components/marketing/cookie-banner";
 import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
-import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/marketing/jsonld";
+import {
+  OrganizationJsonLd,
+  WebSiteJsonLd,
+} from "@/components/marketing/jsonld";
 
 export default function MarketingLayout({
   children,

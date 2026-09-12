@@ -16,7 +16,10 @@ export function formatMoney(
 }
 
 /** Format a bare minor-unit string with an explicit currency. */
-export function formatMinor(minor: string | null | undefined, currency = "GHS"): string {
+export function formatMinor(
+  minor: string | null | undefined,
+  currency = "GHS",
+): string {
   if (minor == null) return "—";
   return formatMoney({ minor, currency });
 }

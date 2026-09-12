@@ -81,7 +81,11 @@ export class VendorsController {
   assign(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(z.object({ propertyId: z.string().uuid() }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ propertyId: z.string().uuid() }).strict(),
+      ),
+    )
     body: { propertyId: string },
     @Req() req: Request,
   ) {

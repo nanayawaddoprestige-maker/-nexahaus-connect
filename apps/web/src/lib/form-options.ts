@@ -22,7 +22,15 @@ export const SERVICE_OPTIONS = [
   "Not sure yet",
 ] as const;
 
-export const PROPERTY_COUNT_OPTIONS = ["1", "2", "3", "4", "5", "6-10", "10+"] as const;
+export const PROPERTY_COUNT_OPTIONS = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6-10",
+  "10+",
+] as const;
 
 export const PREFERRED_CONTACT = [
   { value: "EMAIL", label: "Email" },

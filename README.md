@@ -19,10 +19,10 @@ It is **not** a rent-collection app. It is the system of record that connects:
 
 ## Repository status
 
-| Item | State |
-|---|---|
-| Project type | **New** (greenfield) |
-| Phase | **Phase 0 → Phase 1** (foundation + auth/RBAC) |
+| Item                       | State                                                                                                                       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Project type               | **New** (greenfield)                                                                                                        |
+| Phase                      | **Phase 0 → Phase 1** (foundation + auth/RBAC)                                                                              |
 | Toolchain on build machine | Node.js / package manager / Docker **not yet installed** — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#local-prerequisites) |
 
 The documentation in [`/docs`](docs) is authoritative and complete for Phase 0. Application
@@ -52,17 +52,17 @@ nexahaus-connect/
 
 ## Documentation
 
-| Doc | Contents |
-|---|---|
-| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Phased delivery plan, current status, decision log |
-| [docs/PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md) | Product vision, personas, roles, module scope, MVP definition, key journeys |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, runtime topology, cross-cutting patterns (RBAC, tenant isolation, money, events, storage) |
-| [docs/DATABASE.md](docs/DATABASE.md) | Data model conventions, domain entity catalog, indexing, migrations, seeding |
-| [docs/API.md](docs/API.md) | API conventions, response envelope, error codes, pagination, module map |
-| [docs/SECURITY.md](docs/SECURITY.md) | Authentication, authorization, multi-tenant isolation, file security, audit, threat model |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Environments, containers, env catalog, migrations, health checks, backups, CI/CD |
-| [docs/TESTING.md](docs/TESTING.md) | Test strategy, critical financial/permission cases, security tests, CI gates |
-| [docs/COMPLIANCE.md](docs/COMPLIANCE.md) | Ghana Data Protection Act alignment, real-estate regulatory boundaries, financial controls |
+| Doc                                                          | Contents                                                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)   | Phased delivery plan, current status, decision log                                               |
+| [docs/PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md) | Product vision, personas, roles, module scope, MVP definition, key journeys                      |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                 | Stack, runtime topology, cross-cutting patterns (RBAC, tenant isolation, money, events, storage) |
+| [docs/DATABASE.md](docs/DATABASE.md)                         | Data model conventions, domain entity catalog, indexing, migrations, seeding                     |
+| [docs/API.md](docs/API.md)                                   | API conventions, response envelope, error codes, pagination, module map                          |
+| [docs/SECURITY.md](docs/SECURITY.md)                         | Authentication, authorization, multi-tenant isolation, file security, audit, threat model        |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                     | Environments, containers, env catalog, migrations, health checks, backups, CI/CD                 |
+| [docs/TESTING.md](docs/TESTING.md)                           | Test strategy, critical financial/permission cases, security tests, CI gates                     |
+| [docs/COMPLIANCE.md](docs/COMPLIANCE.md)                     | Ghana Data Protection Act alignment, real-estate regulatory boundaries, financial controls       |
 
 ## Quick start (once the toolchain is installed)
 

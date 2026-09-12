@@ -19,7 +19,12 @@ import { MessagesService } from "./messages.service";
 
 const createThreadSchema = z
   .object({
-    type: z.enum(["OWNER_NEXAHAUS", "TENANT_NEXAHAUS", "INTERNAL", "MAINTENANCE"]),
+    type: z.enum([
+      "OWNER_NEXAHAUS",
+      "TENANT_NEXAHAUS",
+      "INTERNAL",
+      "MAINTENANCE",
+    ]),
     title: z.string().trim().min(2).max(160),
     clientId: z.string().uuid().optional(),
     propertyId: z.string().uuid().optional(),
@@ -70,10 +75,15 @@ export class MessagesController {
   @RequirePermission("message:write")
   createThread(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(createThreadSchema)) body: z.infer<typeof createThreadSchema>,
+    @Body(new ZodValidationPipe(createThreadSchema))
+    body: z.infer<typeof createThreadSchema>,
     @Req() req: Request,
   ) {
-    return this.messages.createThread(user, body, auditCtxFromRequest(req, user));
+    return this.messages.createThread(
+      user,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post("threads/:id/messages")
@@ -81,7 +91,8 @@ export class MessagesController {
   postMessage(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(postMessageSchema)) body: z.infer<typeof postMessageSchema>,
+    @Body(new ZodValidationPipe(postMessageSchema))
+    body: z.infer<typeof postMessageSchema>,
     @Req() req: Request,
   ) {
     return this.messages.postMessage(

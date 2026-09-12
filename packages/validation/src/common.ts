@@ -42,11 +42,18 @@ export const positiveMinor = z
   .regex(/^\d+$/, "must be a non-negative integer string");
 
 export const isoDate = z.string().datetime({ offset: true });
-export const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD");
+export const dateOnly = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD");
 
 export const paginationQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
+  pageSize: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(MAX_PAGE_SIZE)
+    .default(DEFAULT_PAGE_SIZE),
   cursor: z.string().optional(),
   sort: z
     .string()

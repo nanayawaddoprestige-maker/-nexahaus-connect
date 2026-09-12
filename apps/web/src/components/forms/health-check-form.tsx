@@ -11,7 +11,14 @@ import {
   SERVICE_OPTIONS,
   parsePropertyCount,
 } from "@/lib/form-options";
-import { TextInput, SelectInput, TextArea, ConsentCheckbox, Honeypot, FormError } from "./fields";
+import {
+  TextInput,
+  SelectInput,
+  TextArea,
+  ConsentCheckbox,
+  Honeypot,
+  FormError,
+} from "./fields";
 import { ChoiceGroup, YesNo, MultiChoice } from "./choice";
 import { useSteps, StepProgress, StepPanel, StepNav } from "./steps";
 import { ScoreResult } from "./score-result";
@@ -89,7 +96,11 @@ export function HealthCheckForm() {
   const [consent, setConsent] = useState(false);
   const [stepError, setStepError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ preliminaryScore: number; band: string; headline: string } | null>(null);
+  const [result, setResult] = useState<{
+    preliminaryScore: number;
+    band: string;
+    headline: string;
+  } | null>(null);
   const startedRef = useRef(false);
 
   const steps = useSteps(STEPS);
@@ -105,13 +116,25 @@ export function HealthCheckForm() {
   const stepValid = useMemo(() => {
     switch (steps.current.id) {
       case "you":
-        return s.contactName.trim().length >= 2 && /.+@.+\..+/.test(s.email) && s.phone.trim().length >= 7;
+        return (
+          s.contactName.trim().length >= 2 &&
+          /.+@.+\..+/.test(s.email) &&
+          s.phone.trim().length >= 7
+        );
       case "property":
         return !!s.propertyCount && s.occupied !== null;
       case "management":
-        return s.managedProfessionally !== null && !!s.rentCollection && !!s.maintenanceHandler;
+        return (
+          s.managedProfessionally !== null &&
+          !!s.rentCollection &&
+          !!s.maintenanceHandler
+        );
       case "money":
-        return !!s.tenantsPayOnTime && s.receivesFinancialReports !== null && s.documentsInOrder !== null;
+        return (
+          !!s.tenantsPayOnTime &&
+          s.receivesFinancialReports !== null &&
+          s.documentsInOrder !== null
+        );
       case "upkeep":
         return !!s.inspectionFrequency && s.lastMaintenanceRecent !== null;
       case "needs":
@@ -163,22 +186,30 @@ export function HealthCheckForm() {
 
     const parsed = propertyHealthCheckSchema.safeParse(payload);
     if (!parsed.success) {
-      setStepError("Something in your answers looks off. Please review and try again.");
+      setStepError(
+        "Something in your answers looks off. Please review and try again.",
+      );
       return;
     }
 
     setSubmitting(true);
-    const res = await submitPublic<{ preliminaryScore: number; band: string; headline: string }>(
-      "/property-health-check",
-      parsed.data,
-    );
+    const res = await submitPublic<{
+      preliminaryScore: number;
+      band: string;
+      headline: string;
+    }>("/property-health-check", parsed.data);
     setSubmitting(false);
     if (res.ok && res.data) {
       track("form_completed", { form: "health_check" });
-      track("health_check_completed", { score: res.data.preliminaryScore, band: res.data.band });
+      track("health_check_completed", {
+        score: res.data.preliminaryScore,
+        band: res.data.band,
+      });
       setResult(res.data);
     } else {
-      setStepError(res.error ?? "We couldn't score your property. Please try again.");
+      setStepError(
+        res.error ?? "We couldn't score your property. Please try again.",
+      );
     }
   }
 
@@ -188,7 +219,10 @@ export function HealthCheckForm() {
         score={result.preliminaryScore}
         headline={result.headline}
         disclaimer="This is a preliminary digital assessment based on your own answers. It is not a professional property assessment or valuation. For a full picture, request a professional property assessment from NexaHaus."
-        primary={{ label: "Request a professional assessment", href: "/contact" }}
+        primary={{
+          label: "Request a professional assessment",
+          href: "/contact",
+        }}
       />
     );
   }
@@ -200,38 +234,111 @@ export function HealthCheckForm() {
       <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-navy-50">
         <div
           className="h-full rounded-full bg-navy-900 transition-all"
-          style={{ width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%` }}
+          style={{
+            width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%`,
+          }}
         />
       </div>
 
       <div className="mt-6">
         {steps.current.id === "you" && (
-          <StepPanel stepKey="you" title="About you" description="So we can send your result and follow up if you want us to.">
+          <StepPanel
+            stepKey="you"
+            title="About you"
+            description="So we can send your result and follow up if you want us to."
+          >
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextInput label="Your name" required value={s.contactName} onChange={(e) => set("contactName", e.target.value)} autoComplete="name" />
-              <TextInput label="Email" type="email" required value={s.email} onChange={(e) => set("email", e.target.value)} autoComplete="email" />
-              <TextInput label="Phone" type="tel" required placeholder="+233…" value={s.phone} onChange={(e) => set("phone", e.target.value)} hint="Include the country code." />
-              <SelectInput label="Where do you live?" options={COUNTRY_OPTIONS} value={s.country} onChange={(e) => set("country", e.target.value)} />
+              <TextInput
+                label="Your name"
+                required
+                value={s.contactName}
+                onChange={(e) => set("contactName", e.target.value)}
+                autoComplete="name"
+              />
+              <TextInput
+                label="Email"
+                type="email"
+                required
+                value={s.email}
+                onChange={(e) => set("email", e.target.value)}
+                autoComplete="email"
+              />
+              <TextInput
+                label="Phone"
+                type="tel"
+                required
+                placeholder="+233…"
+                value={s.phone}
+                onChange={(e) => set("phone", e.target.value)}
+                hint="Include the country code."
+              />
+              <SelectInput
+                label="Where do you live?"
+                options={COUNTRY_OPTIONS}
+                value={s.country}
+                onChange={(e) => set("country", e.target.value)}
+              />
             </div>
           </StepPanel>
         )}
 
         {steps.current.id === "property" && (
-          <StepPanel stepKey="property" title="Your property" description="If you have more than one, answer for the one you most want reviewed.">
+          <StepPanel
+            stepKey="property"
+            title="Your property"
+            description="If you have more than one, answer for the one you most want reviewed."
+          >
             <div className="grid gap-4 sm:grid-cols-2">
-              <SelectInput label="How many properties do you own?" options={PROPERTY_COUNT_OPTIONS} value={s.propertyCount} onChange={(e) => set("propertyCount", e.target.value)} required />
-              <SelectInput label="Property type" options={PROPERTY_TYPES} value={s.propertyType} onChange={(e) => set("propertyType", e.target.value)} />
-              <TextInput label="Where is it?" placeholder="e.g. East Legon, Accra" value={s.location} onChange={(e) => set("location", e.target.value)} wrapClassName="sm:col-span-2" />
+              <SelectInput
+                label="How many properties do you own?"
+                options={PROPERTY_COUNT_OPTIONS}
+                value={s.propertyCount}
+                onChange={(e) => set("propertyCount", e.target.value)}
+                required
+              />
+              <SelectInput
+                label="Property type"
+                options={PROPERTY_TYPES}
+                value={s.propertyType}
+                onChange={(e) => set("propertyType", e.target.value)}
+              />
+              <TextInput
+                label="Where is it?"
+                placeholder="e.g. East Legon, Accra"
+                value={s.location}
+                onChange={(e) => set("location", e.target.value)}
+                wrapClassName="sm:col-span-2"
+              />
             </div>
-            <YesNo label="Is it currently occupied?" value={s.occupied} onChange={(v) => set("occupied", v)} />
+            <YesNo
+              label="Is it currently occupied?"
+              value={s.occupied}
+              onChange={(v) => set("occupied", v)}
+            />
           </StepPanel>
         )}
 
         {steps.current.id === "management" && (
           <StepPanel stepKey="management" title="How it's managed today">
-            <YesNo label="Is it managed by a professional company?" value={s.managedProfessionally} onChange={(v) => set("managedProfessionally", v)} />
-            <ChoiceGroup label="Who collects the rent?" options={WHO_OPTIONS} value={s.rentCollection} onChange={(v) => set("rentCollection", v)} columns={3} />
-            <ChoiceGroup label="Who handles maintenance?" options={WHO_OPTIONS} value={s.maintenanceHandler} onChange={(v) => set("maintenanceHandler", v)} columns={3} />
+            <YesNo
+              label="Is it managed by a professional company?"
+              value={s.managedProfessionally}
+              onChange={(v) => set("managedProfessionally", v)}
+            />
+            <ChoiceGroup
+              label="Who collects the rent?"
+              options={WHO_OPTIONS}
+              value={s.rentCollection}
+              onChange={(v) => set("rentCollection", v)}
+              columns={3}
+            />
+            <ChoiceGroup
+              label="Who handles maintenance?"
+              options={WHO_OPTIONS}
+              value={s.maintenanceHandler}
+              onChange={(v) => set("maintenanceHandler", v)}
+              columns={3}
+            />
           </StepPanel>
         )}
 
@@ -248,8 +355,16 @@ export function HealthCheckForm() {
               value={s.tenantsPayOnTime}
               onChange={(v) => set("tenantsPayOnTime", v)}
             />
-            <YesNo label="Do you receive regular financial reports?" value={s.receivesFinancialReports} onChange={(v) => set("receivesFinancialReports", v)} />
-            <YesNo label="Are the property documents in order (title, tenancy, insurance)?" value={s.documentsInOrder} onChange={(v) => set("documentsInOrder", v)} />
+            <YesNo
+              label="Do you receive regular financial reports?"
+              value={s.receivesFinancialReports}
+              onChange={(v) => set("receivesFinancialReports", v)}
+            />
+            <YesNo
+              label="Are the property documents in order (title, tenancy, insurance)?"
+              value={s.documentsInOrder}
+              onChange={(v) => set("documentsInOrder", v)}
+            />
           </StepPanel>
         )}
 
@@ -266,12 +381,20 @@ export function HealthCheckForm() {
               value={s.inspectionFrequency}
               onChange={(v) => set("inspectionFrequency", v)}
             />
-            <YesNo label="Has maintenance been done in the last 6 months (if needed)?" value={s.lastMaintenanceRecent} onChange={(v) => set("lastMaintenanceRecent", v)} />
+            <YesNo
+              label="Has maintenance been done in the last 6 months (if needed)?"
+              value={s.lastMaintenanceRecent}
+              onChange={(v) => set("lastMaintenanceRecent", v)}
+            />
           </StepPanel>
         )}
 
         {steps.current.id === "needs" && (
-          <StepPanel stepKey="needs" title="What matters most" description="Optional, but it helps us give you a more useful follow-up.">
+          <StepPanel
+            stepKey="needs"
+            title="What matters most"
+            description="Optional, but it helps us give you a more useful follow-up."
+          >
             <TextArea
               label="Your biggest property-management challenge"
               rows={3}

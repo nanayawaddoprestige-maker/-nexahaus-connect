@@ -11,7 +11,9 @@ describe("Money", () => {
   });
 
   it("rejects mixed-currency arithmetic", () => {
-    expect(() => Money.of(1n, "GHS").add(Money.of(1n, "USD"))).toThrow(MoneyError);
+    expect(() => Money.of(1n, "GHS").add(Money.of(1n, "USD"))).toThrow(
+      MoneyError,
+    );
   });
 
   it("rejects non-integer minor units", () => {

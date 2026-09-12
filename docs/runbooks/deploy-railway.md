@@ -33,11 +33,11 @@ Config files in the repo root: [`railway.api.json`](../../railway.api.json),
 For **each** of `api`, `worker`, `web`: **+ New** → **GitHub Repo** → this repo, then in
 the service's **Settings**:
 
-| Setting | Value |
-|---|---|
-| **Root Directory** | *(leave blank — the Dockerfiles need repo-root context)* |
+| Setting                                  | Value                                                           |
+| ---------------------------------------- | --------------------------------------------------------------- |
+| **Root Directory**                       | _(leave blank — the Dockerfiles need repo-root context)_        |
 | **Config-as-code / Railway Config File** | `railway.api.json` · `railway.worker.json` · `railway.web.json` |
-| **Networking → Public Domain** | Generate for `api` and `web`. **Not** for `worker`. |
+| **Networking → Public Domain**           | Generate for `api` and `web`. **Not** for `worker`.             |
 
 The config file sets the builder, Dockerfile path, start command, health check, and (for
 `api`) the `prisma migrate deploy` pre-deploy step.

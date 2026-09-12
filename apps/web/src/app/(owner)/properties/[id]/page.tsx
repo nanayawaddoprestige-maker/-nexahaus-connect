@@ -51,7 +51,9 @@ export default function PropertyDetailPage() {
     const notFound = error instanceof ApiError && error.status === 404;
     return (
       <ErrorState
-        title={notFound ? "Property not found" : "We couldn't load this property."}
+        title={
+          notFound ? "Property not found" : "We couldn't load this property."
+        }
         description={
           notFound
             ? "It may have been archived, or you may not have access to it."
@@ -68,7 +70,9 @@ export default function PropertyDetailPage() {
       : data.agreement.feeType === "FIXED_MONTHLY"
         ? `${formatMoney(data.agreement.feeFixed)} / month`
         : `${data.agreement.feePercent ?? 0}% of ${
-            data.agreement.feeType === "PERCENT_OF_EXPECTED" ? "expected" : "collected"
+            data.agreement.feeType === "PERCENT_OF_EXPECTED"
+              ? "expected"
+              : "collected"
           } rent`;
 
   return (
@@ -89,7 +93,11 @@ export default function PropertyDetailPage() {
         }
         subtitle={`${data.ref} · ${titleCase(data.type)} · ${data.address.line}, ${data.address.city}`}
         action={
-          <Button variant="secondary" size="sm" onClick={() => router.push(`/properties/${data.id}/maintenance`)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push(`/properties/${data.id}/maintenance`)}
+          >
             View maintenance
           </Button>
         }
@@ -118,7 +126,9 @@ export default function PropertyDetailPage() {
         <div>
           <p className="nx-label">Property health</p>
           <p className="mt-1 font-medium text-navy-900">
-            {data.healthScore ? `${data.healthScore.score}/100` : "Not yet scored"}
+            {data.healthScore
+              ? `${data.healthScore.score}/100`
+              : "Not yet scored"}
           </p>
           <p className="text-xs text-ink-subtle">
             {data.healthScore
@@ -136,17 +146,28 @@ export default function PropertyDetailPage() {
         />
         <StatCard
           label="Expected rent (mo.)"
-          value={formatMinor(data.finance.expectedRentMinor, data.finance.currency)}
+          value={formatMinor(
+            data.finance.expectedRentMinor,
+            data.finance.currency,
+          )}
         />
         <StatCard
           label="Collected (mo.)"
-          value={formatMinor(data.finance.collectedRentMinor, data.finance.currency)}
+          value={formatMinor(
+            data.finance.collectedRentMinor,
+            data.finance.currency,
+          )}
           tone="positive"
         />
         <StatCard
           label="Outstanding"
-          value={formatMinor(data.finance.outstandingRentMinor, data.finance.currency)}
-          tone={data.finance.outstandingRentMinor === "0" ? "default" : "warning"}
+          value={formatMinor(
+            data.finance.outstandingRentMinor,
+            data.finance.currency,
+          )}
+          tone={
+            data.finance.outstandingRentMinor === "0" ? "default" : "warning"
+          }
         />
       </section>
 
@@ -154,7 +175,10 @@ export default function PropertyDetailPage() {
         <Card className="lg:col-span-2">
           <CardHeader title="Management" />
           <dl className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-            <Row label="Managing client" value={`${data.client.displayName} (${data.client.ref})`} />
+            <Row
+              label="Managing client"
+              value={`${data.client.displayName} (${data.client.ref})`}
+            />
             <Row label="Management fee" value={fee} />
             <Row
               label="Maintenance approval threshold"
@@ -166,11 +190,17 @@ export default function PropertyDetailPage() {
             />
             <Row
               label="Inspection frequency"
-              value={data.agreement ? titleCase(data.agreement.inspectionFrequency) : "—"}
+              value={
+                data.agreement
+                  ? titleCase(data.agreement.inspectionFrequency)
+                  : "—"
+              }
             />
             <Row
               label="Estimated value"
-              value={data.estimatedValue ? formatMoney(data.estimatedValue) : "—"}
+              value={
+                data.estimatedValue ? formatMoney(data.estimatedValue) : "—"
+              }
             />
             <Row
               label="Agreement"
@@ -189,7 +219,10 @@ export default function PropertyDetailPage() {
             ) : (
               <ul className="space-y-1 text-sm">
                 {data.team.map((t) => (
-                  <li key={`${t.role}-${t.user.id}`} className="flex justify-between">
+                  <li
+                    key={`${t.role}-${t.user.id}`}
+                    className="flex justify-between"
+                  >
                     <span className="text-navy-900">{t.user.fullName}</span>
                     <span className="text-ink-subtle">{titleCase(t.role)}</span>
                   </li>
@@ -224,8 +257,8 @@ export default function PropertyDetailPage() {
             </div>
           ) : (
             <p className="text-sm text-ink-subtle">
-              No completed inspection yet. The first inspection is part of property
-              onboarding.
+              No completed inspection yet. The first inspection is part of
+              property onboarding.
             </p>
           )}
 
@@ -238,7 +271,9 @@ export default function PropertyDetailPage() {
             </div>
             <div className="mt-1 flex justify-between">
               <span className="text-ink-muted">Units</span>
-              <span className="font-medium text-navy-900">{data.counts.units}</span>
+              <span className="font-medium text-navy-900">
+                {data.counts.units}
+              </span>
             </div>
           </div>
         </Card>
@@ -269,13 +304,17 @@ export default function PropertyDetailPage() {
                   <tr key={u.id} className="border-b border-line last:border-0">
                     <td className="py-2.5 pr-4 font-medium text-navy-900">
                       {u.label}
-                      <span className="ml-2 font-mono text-[10.5px] text-ink-subtle">{u.ref}</span>
+                      <span className="ml-2 font-mono text-[10.5px] text-ink-subtle">
+                        {u.ref}
+                      </span>
                     </td>
                     <td className="py-2.5 pr-4 text-ink-muted">
                       {u.bedrooms ?? "—"} / {u.bathrooms ?? "—"}
                     </td>
                     <td className="py-2.5 pr-4 text-navy-900">
-                      {u.activeLease?.tenant?.fullName ?? <span className="text-ink-subtle">Vacant</span>}
+                      {u.activeLease?.tenant?.fullName ?? (
+                        <span className="text-ink-subtle">Vacant</span>
+                      )}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums text-navy-900">
                       {u.activeLease
@@ -296,7 +335,9 @@ export default function PropertyDetailPage() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-ink-subtle">No units recorded for this property yet.</p>
+          <p className="text-sm text-ink-subtle">
+            No units recorded for this property yet.
+          </p>
         )}
       </Card>
     </div>

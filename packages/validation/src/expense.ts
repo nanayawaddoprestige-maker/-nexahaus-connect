@@ -32,7 +32,13 @@ export const listExpenseQuery = paginationQuery.extend({
 
 export const payExpenseSchema = z
   .object({
-    method: z.enum(["MOBILE_MONEY", "BANK_TRANSFER", "BANK_DEPOSIT", "CASH", "OTHER"]),
+    method: z.enum([
+      "MOBILE_MONEY",
+      "BANK_TRANSFER",
+      "BANK_DEPOSIT",
+      "CASH",
+      "OTHER",
+    ]),
     reference: z.string().trim().max(120).optional(),
     paidAt: isoDate.optional(),
   })

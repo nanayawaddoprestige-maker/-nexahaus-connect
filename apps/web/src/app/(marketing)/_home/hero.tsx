@@ -107,7 +107,9 @@ function HeroPanel() {
           ["87", "Health / 100"],
         ].map(([v, l]) => (
           <div key={l} className="rounded-lg bg-navy-800/60 p-3 text-center">
-            <div className="text-xl font-semibold tabular-nums text-white">{v}</div>
+            <div className="text-xl font-semibold tabular-nums text-white">
+              {v}
+            </div>
             <div className="mt-0.5 text-[11px] text-navy-200">{l}</div>
           </div>
         ))}
@@ -123,7 +125,10 @@ function HeroPanel() {
       </dl>
 
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-navy-800">
-        <div className="h-full rounded-full bg-gold-400" style={{ width: "86%" }} />
+        <div
+          className="h-full rounded-full bg-gold-400"
+          style={{ width: "86%" }}
+        />
       </div>
       <p className="mt-2 text-[11px] text-navy-300">
         86% of expected rent collected this period · example data

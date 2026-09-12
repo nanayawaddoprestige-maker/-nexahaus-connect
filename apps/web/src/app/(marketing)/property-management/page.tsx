@@ -24,14 +24,38 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const AREAS = [
-  { title: "Tenant management", body: "Tenant records, screening processes, lease coordination and a professional channel for tenant communication." },
-  { title: "Rent collection", body: "Rent tracking and receipts, with clear monthly figures for what was expected, collected and outstanding." },
-  { title: "Property inspections", body: "Scheduled inspections with area-by-area findings, photos and a branded report in NexaHaus Connect." },
-  { title: "Maintenance", body: "Issues tracked from first report to completion, with vendor coordination and your approval for costs above your threshold." },
-  { title: "Reporting", body: "A monthly owner statement reproducible from every transaction — nothing edited by hand." },
-  { title: "Documentation", body: "Secure storage for title, tenancy, insurance and inspection documents, with expiry reminders." },
-  { title: "Owner communication", body: "A single place for updates and approvals, so you are not chasing a caretaker for a status." },
-  { title: "Property performance", body: "Occupancy, collection rate and Property Health tracked over time, not just this month." },
+  {
+    title: "Tenant management",
+    body: "Tenant records, screening processes, lease coordination and a professional channel for tenant communication.",
+  },
+  {
+    title: "Rent collection",
+    body: "Rent tracking and receipts, with clear monthly figures for what was expected, collected and outstanding.",
+  },
+  {
+    title: "Property inspections",
+    body: "Scheduled inspections with area-by-area findings, photos and a branded report in NexaHaus Connect.",
+  },
+  {
+    title: "Maintenance",
+    body: "Issues tracked from first report to completion, with vendor coordination and your approval for costs above your threshold.",
+  },
+  {
+    title: "Reporting",
+    body: "A monthly owner statement reproducible from every transaction — nothing edited by hand.",
+  },
+  {
+    title: "Documentation",
+    body: "Secure storage for title, tenancy, insurance and inspection documents, with expiry reminders.",
+  },
+  {
+    title: "Owner communication",
+    body: "A single place for updates and approvals, so you are not chasing a caretaker for a status.",
+  },
+  {
+    title: "Property performance",
+    body: "Occupancy, collection rate and Property Health tracked over time, not just this month.",
+  },
 ];
 
 const PROPERTY_TYPES = [
@@ -51,9 +75,18 @@ export default function PropertyManagementPage() {
         eyebrow="Service"
         title="Professional Management for Properties That Matter."
         lede="NexaHaus provides structured property management designed to protect your asset, improve operational efficiency and give you confidence in what is happening on the ground."
-        breadcrumb={[{ label: "Property Management", href: routes.propertyManagement }]}
-        jsonLd={{ name: "Property Management", description: DESCRIPTION, path: routes.propertyManagement }}
-        primary={{ label: "Request Property Management", href: routes.propertyHealthCheck }}
+        breadcrumb={[
+          { label: "Property Management", href: routes.propertyManagement },
+        ]}
+        jsonLd={{
+          name: "Property Management",
+          description: DESCRIPTION,
+          path: routes.propertyManagement,
+        }}
+        primary={{
+          label: "Request Property Management",
+          href: routes.propertyHealthCheck,
+        }}
       />
 
       <Section>
@@ -87,7 +120,10 @@ export default function PropertyManagementPage() {
       <CtaBand
         title="Let's start with your property."
         body="Tell us about the property and what you want solved. We'll come back with a property assessment."
-        primary={{ label: "Request Property Management", href: routes.propertyHealthCheck }}
+        primary={{
+          label: "Request Property Management",
+          href: routes.propertyHealthCheck,
+        }}
       />
     </>
   );

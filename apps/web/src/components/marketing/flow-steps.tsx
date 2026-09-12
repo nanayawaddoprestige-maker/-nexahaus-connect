@@ -22,10 +22,7 @@ export function FlowSteps({
 }) {
   return (
     <ol
-      className={cn(
-        "grid gap-3 sm:auto-cols-fr sm:grid-flow-col",
-        className,
-      )}
+      className={cn("grid gap-3 sm:auto-cols-fr sm:grid-flow-col", className)}
     >
       {steps.map((step, i) => (
         <li key={step.label} className="relative flex sm:block">

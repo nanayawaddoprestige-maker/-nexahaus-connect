@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import type { Request } from "express";
 import {
@@ -45,7 +37,11 @@ export class DocumentsController {
     @Body(new ZodValidationPipe(requestUploadSchema)) body: RequestUploadInput,
     @Req() req: Request,
   ) {
-    return this.documents.requestUpload(user, body, auditCtxFromRequest(req, user));
+    return this.documents.requestUpload(
+      user,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/finalize")
@@ -53,10 +49,16 @@ export class DocumentsController {
   finalize(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(finalizeUploadSchema)) body: FinalizeUploadInput,
+    @Body(new ZodValidationPipe(finalizeUploadSchema))
+    body: FinalizeUploadInput,
     @Req() req: Request,
   ) {
-    return this.documents.finalize(user, id, body, auditCtxFromRequest(req, user));
+    return this.documents.finalize(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Get(":id/download-url")

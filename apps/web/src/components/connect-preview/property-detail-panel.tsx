@@ -3,11 +3,18 @@ import { ConnectFrame, ModuleRail, Row, Tag } from "./frame";
 /** Illustrative "Property profile" screen. All data fictional. */
 export function PropertyDetailPanel() {
   return (
-    <ConnectFrame title="NexaHaus Connect — Property" sidebar={<ModuleRail active="Properties" />}>
+    <ConnectFrame
+      title="NexaHaus Connect — Property"
+      sidebar={<ModuleRail active="Properties" />}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-navy-900">Cantonments Court, Block B</h3>
-          <p className="text-xs text-ink-subtle">6-unit apartment building · Accra · NH-000142</p>
+          <h3 className="text-base font-semibold text-navy-900">
+            Cantonments Court, Block B
+          </h3>
+          <p className="text-xs text-ink-subtle">
+            6-unit apartment building · Accra · NH-000142
+          </p>
         </div>
         <Tag tone="positive">Managed</Tag>
       </div>
@@ -20,7 +27,9 @@ export function PropertyDetailPanel() {
           ["84", "Health / 100"],
         ].map(([v, l]) => (
           <div key={l} className="rounded-lg bg-surface-sunken p-3 text-center">
-            <div className="text-lg font-semibold tabular-nums text-navy-900">{v}</div>
+            <div className="text-lg font-semibold tabular-nums text-navy-900">
+              {v}
+            </div>
             <div className="mt-0.5 text-[11px] text-ink-subtle">{l}</div>
           </div>
         ))}

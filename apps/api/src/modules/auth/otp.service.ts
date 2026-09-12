@@ -83,7 +83,9 @@ export class OtpService {
         where: { id: challengeId },
         data: { consumedAt: new Date() },
       });
-      throw AppError.validation("Too many incorrect attempts. Request a new code.");
+      throw AppError.validation(
+        "Too many incorrect attempts. Request a new code.",
+      );
     }
 
     if (challenge.codeHash !== this.hash(code)) {

@@ -38,22 +38,22 @@ documents and media.
 
 ## 2. Technology stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| Monorepo | pnpm workspaces + Turborepo | Task graph, caching, `--filter` |
-| Language | TypeScript (strict) everywhere | Shared `packages/typescript-config` |
-| API | NestJS | Modular DI, guards/interceptors/pipes, `@nestjs/swagger` |
-| ORM | Prisma + PostgreSQL 16 | Migrations, type-safe client |
-| Validation | Zod (shared) + `nestjs-zod` DTOs | One schema, client + server |
-| Web | Next.js (App Router), React, Tailwind, shadcn/ui | TanStack Query for server state, React Hook Form + Zod |
-| Charts | Recharts | Dashboard visualisations |
-| Mobile | Expo, React Native, Expo Router | Shares `types`, `validation`, API client |
-| Auth | Argon2id + JWT access/refresh with rotation | `packages/config` holds tunables |
-| Cache / queue | Redis + BullMQ | Jobs: notifications, statements, reminders, health scoring, PDF render |
-| Storage | S3-compatible (MinIO locally) | Private buckets, presigned URLs |
-| Logging | pino (structured JSON) | Request id correlation |
-| Monitoring | Sentry + OpenTelemetry (OTLP) | DSN/endpoint via env |
-| Containers | Docker + docker compose | `web`, `api`, `worker`, `postgres`, `redis`, `minio` |
+| Layer         | Choice                                           | Notes                                                                  |
+| ------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| Monorepo      | pnpm workspaces + Turborepo                      | Task graph, caching, `--filter`                                        |
+| Language      | TypeScript (strict) everywhere                   | Shared `packages/typescript-config`                                    |
+| API           | NestJS                                           | Modular DI, guards/interceptors/pipes, `@nestjs/swagger`               |
+| ORM           | Prisma + PostgreSQL 16                           | Migrations, type-safe client                                           |
+| Validation    | Zod (shared) + `nestjs-zod` DTOs                 | One schema, client + server                                            |
+| Web           | Next.js (App Router), React, Tailwind, shadcn/ui | TanStack Query for server state, React Hook Form + Zod                 |
+| Charts        | Recharts                                         | Dashboard visualisations                                               |
+| Mobile        | Expo, React Native, Expo Router                  | Shares `types`, `validation`, API client                               |
+| Auth          | Argon2id + JWT access/refresh with rotation      | `packages/config` holds tunables                                       |
+| Cache / queue | Redis + BullMQ                                   | Jobs: notifications, statements, reminders, health scoring, PDF render |
+| Storage       | S3-compatible (MinIO locally)                    | Private buckets, presigned URLs                                        |
+| Logging       | pino (structured JSON)                           | Request id correlation                                                 |
+| Monitoring    | Sentry + OpenTelemetry (OTLP)                    | DSN/endpoint via env                                                   |
+| Containers    | Docker + docker compose                          | `web`, `api`, `worker`, `postgres`, `redis`, `minio`                   |
 
 ## 3. Monorepo layout
 
@@ -79,7 +79,7 @@ Dependency rule: `apps/*` may depend on `packages/*`; `packages/*` never depend 
 1. **Helmet + CORS + rate limiter** (per-IP; stricter bucket for `/auth`).
 2. **Request-context middleware** — assigns request id, starts pino child logger.
 3. **AuthGuard** — verifies JWT access token, loads `AuthUser { userId, roles[],
-   permissions[], clientIds[], assignedPropertyIds[] }` (permissions/scope cached in Redis,
+permissions[], clientIds[], assignedPropertyIds[] }` (permissions/scope cached in Redis,
    short TTL, invalidated on role change).
 4. **PermissionGuard** — checks `@RequirePermission('property:read')`.
 5. **ResourceScopeGuard** — for routes acting on a specific resource, confirms the resource
@@ -98,7 +98,9 @@ Dependency rule: `apps/*` may depend on `packages/*`; `packages/*` never depend 
 ## 5. Cross-cutting concerns
 
 ### 5.1 Authorization & multi-tenant isolation
+
 See [SECURITY.md](SECURITY.md). Two enforced layers:
+
 - **Guard layer** — coarse (authenticated? has permission? resource in scope?).
 - **Repository layer** — every owner-facing model access goes through
   `ScopedRepository<T>` which injects `WHERE clientId IN (:scope)` (or a property/lease
@@ -106,6 +108,7 @@ See [SECURITY.md](SECURITY.md). Two enforced layers:
   is a lint/review failure.
 
 ### 5.2 Money
+
 - Stored as integer **minor units** (`BigInt`, e.g. pesewas) plus a `currency` `CHAR(3)`.
 - A `Money` value object (`packages/types`) provides add/subtract/allocate/percentage with
   banker's-rounding rules; **no floating point**.
@@ -115,6 +118,7 @@ See [SECURITY.md](SECURITY.md). Two enforced layers:
   transactions that reference the original.
 
 ### 5.3 Domain events (transactional outbox)
+
 State changes append a `DomainEvent` row **in the same transaction** as the business write.
 A worker polls the outbox and publishes to BullMQ. Consumers are **idempotent** (keyed by
 event id). This powers notifications, statement regeneration, health-score recompute,
@@ -126,6 +130,7 @@ DOCUMENT_EXPIRING, LEASE_EXPIRING, STATEMENT_GENERATED, MESSAGE_RECEIVED,
 HEALTH_SCORE_UPDATED, PAYMENT_RECEIVED, PROPERTY_RESCUE_READY`.
 
 ### 5.4 Storage
+
 - All binaries in S3-compatible storage under keys like
   `client/<clientId>/property/<propertyId>/<documentId>/<versionId>`.
 - **No public URLs.** Downloads are short-lived presigned URLs (TTL from
@@ -137,12 +142,14 @@ HEALTH_SCORE_UPDATED, PAYMENT_RECEIVED, PROPERTY_RESCUE_READY`.
   policy permits hard deletion.
 
 ### 5.5 Notification engine
+
 `NotificationChannel` interface with adapters: `EmailAdapter`, `SmsAdapter`,
 `WhatsAppAdapter`, `PushAdapter`. A `NotificationService` consumes domain events, resolves
 recipients + their `NotificationPreference`, renders templates, and dispatches per enabled
 channel. In-app notifications are always written. Console adapters in development.
 
 ### 5.6 Payments abstraction
+
 `PaymentProvider` interface: `initiate()`, `verifyWebhook(signature, rawBody)`,
 `parseEvent()`. Adapters registered by `PAYMENT_PROVIDER`. Launch adapter: `manual`
 (finance officer records a received payment with reference + evidence). Webhook endpoint
@@ -151,6 +158,7 @@ verifies signature, dedupes on `provider + providerEventId`
 transaction + `PAYMENT_RECEIVED` event in one DB transaction. Replays are no-ops.
 
 ### 5.7 Configuration
+
 `packages/config` parses `process.env` against a Zod schema at boot and **fails fast**.
 Business configuration (health-score weights, approval thresholds, maintenance/expense
 categories, property types, inspection templates, lease-reminder offsets, fee defaults)
@@ -158,17 +166,20 @@ lives in `OrganizationSetting` / `SystemSetting` tables and is editable by `SUPE
 never hardcoded in components or services.
 
 ### 5.8 Caching & jobs
+
 Redis caches permission/scope resolution and expensive dashboard aggregates (short TTL,
 event-invalidated). BullMQ queues: `notifications`, `documents` (PDF render, scan),
 `finance` (statement generation, distributions), `scheduling` (lease/inspection/document
 reminders, preventive maintenance), `scoring` (health score, rescue).
 
 ### 5.9 Error model
+
 Standard envelope (see [API.md](API.md)). Error `code` is a stable machine string
 (`PROPERTY_NOT_FOUND`, `FORBIDDEN`, `VALIDATION_FAILED`, …). 4xx carries a safe message;
 5xx carries a generic message + a correlation id logged server-side.
 
 ### 5.10 Observability
+
 Structured logs with request id + user id (never secrets/PII beyond ids). `/health`
 (liveness) and `/ready` (checks Postgres + Redis + storage). Sentry for exceptions; OTel
 traces for API + worker when an endpoint is configured.

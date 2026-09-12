@@ -33,7 +33,8 @@ export class PublicController {
 
   @Post("property-health-check")
   healthCheck(
-    @Body(new ZodValidationPipe(propertyHealthCheckSchema)) body: PropertyHealthCheckInput,
+    @Body(new ZodValidationPipe(propertyHealthCheckSchema))
+    body: PropertyHealthCheckInput,
     @Req() req: Request,
   ) {
     return this.pub.submitHealthCheck(body, hashIp(req.ip));
@@ -49,7 +50,8 @@ export class PublicController {
 
   @Post("contact")
   contact(
-    @Body(new ZodValidationPipe(contactEnquirySchema)) body: ContactEnquiryInput,
+    @Body(new ZodValidationPipe(contactEnquirySchema))
+    body: ContactEnquiryInput,
     @Req() req: Request,
   ) {
     return this.pub.submitContact(body, hashIp(req.ip));
@@ -57,7 +59,8 @@ export class PublicController {
 
   @Post("property-rescue")
   propertyRescue(
-    @Body(new ZodValidationPipe(propertyRescueSchema)) body: PropertyRescueInput,
+    @Body(new ZodValidationPipe(propertyRescueSchema))
+    body: PropertyRescueInput,
     @Req() req: Request,
   ) {
     return this.pub.submitPropertyRescue(body, hashIp(req.ip));
@@ -65,7 +68,8 @@ export class PublicController {
 
   @Post("property-owner-survey")
   propertyOwnerSurvey(
-    @Body(new ZodValidationPipe(propertyOwnerSurveySchema)) body: PropertyOwnerSurveyInput,
+    @Body(new ZodValidationPipe(propertyOwnerSurveySchema))
+    body: PropertyOwnerSurveyInput,
     @Req() req: Request,
   ) {
     return this.pub.submitPropertyOwnerSurvey(body, hashIp(req.ip));
@@ -79,7 +83,8 @@ export class PublicController {
   @Post("surveys/:key/respond")
   respond(
     @Param("key") key: string,
-    @Body(new ZodValidationPipe(surveyResponseSchema)) body: SurveyResponseInput,
+    @Body(new ZodValidationPipe(surveyResponseSchema))
+    body: SurveyResponseInput,
     @Req() req: Request,
   ) {
     return this.pub.submitSurvey(key, body, hashIp(req.ip));

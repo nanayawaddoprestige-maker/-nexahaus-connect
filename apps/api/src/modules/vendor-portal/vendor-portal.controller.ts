@@ -40,7 +40,11 @@ export class VendorPortalController {
 
   @Post("work-orders/:id/start")
   @RequirePermission("workorder:read")
-  start(@CurrentUser() user: AuthUser, @Param("id") id: string, @Req() req: Request) {
+  start(
+    @CurrentUser() user: AuthUser,
+    @Param("id") id: string,
+    @Req() req: Request,
+  ) {
     return this.portal.start(user, id, auditCtxFromRequest(req, user));
   }
 
@@ -49,7 +53,8 @@ export class VendorPortalController {
   complete(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(completeWorkOrderSchema)) body: CompleteWorkOrderInput,
+    @Body(new ZodValidationPipe(completeWorkOrderSchema))
+    body: CompleteWorkOrderInput,
     @Req() req: Request,
   ) {
     return this.portal.complete(user, id, body, auditCtxFromRequest(req, user));

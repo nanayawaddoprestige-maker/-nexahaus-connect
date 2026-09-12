@@ -118,22 +118,39 @@ export class AdminService {
     const expected = rent._sum.amountMinor ?? 0n;
     const collected = rent._sum.paidMinor ?? 0n;
 
-    const alerts: { level: "URGENT" | "ACTION" | "WARNING"; message: string }[] = [];
+    const alerts: {
+      level: "URGENT" | "ACTION" | "WARNING";
+      message: string;
+    }[] = [];
     if (urgent > 0)
-      alerts.push({ level: "URGENT", message: `${urgent} urgent maintenance request${urgent === 1 ? "" : "s"}` });
+      alerts.push({
+        level: "URGENT",
+        message: `${urgent} urgent maintenance request${urgent === 1 ? "" : "s"}`,
+      });
     if (pendingApprovals > 0)
-      alerts.push({ level: "ACTION", message: `${pendingApprovals} owner approval${pendingApprovals === 1 ? "" : "s"} awaiting a decision` });
+      alerts.push({
+        level: "ACTION",
+        message: `${pendingApprovals} owner approval${pendingApprovals === 1 ? "" : "s"} awaiting a decision`,
+      });
     if (documentsExpiring > 0)
-      alerts.push({ level: "WARNING", message: `${documentsExpiring} document${documentsExpiring === 1 ? "" : "s"} expiring within 30 days` });
+      alerts.push({
+        level: "WARNING",
+        message: `${documentsExpiring} document${documentsExpiring === 1 ? "" : "s"} expiring within 30 days`,
+      });
     if (overdueCharges > 0)
-      alerts.push({ level: "WARNING", message: `${overdueCharges} rent charge${overdueCharges === 1 ? "" : "s"} overdue` });
+      alerts.push({
+        level: "WARNING",
+        message: `${overdueCharges} rent charge${overdueCharges === 1 ? "" : "s"} overdue`,
+      });
 
     return {
       currency: "GHS",
       portfolio: {
         propertiesManaged: properties.length,
-        occupiedProperties: properties.filter((p) => p.status === "OCCUPIED").length,
-        vacantProperties: properties.filter((p) => p.status === "VACANT").length,
+        occupiedProperties: properties.filter((p) => p.status === "OCCUPIED")
+          .length,
+        vacantProperties: properties.filter((p) => p.status === "VACANT")
+          .length,
         occupancyRate:
           totalUnits === 0 ? 0 : Math.round((occupiedUnits / totalUnits) * 100),
       },
@@ -142,7 +159,9 @@ export class AdminService {
         monthlyCollectedMinor: collected.toString(),
         outstandingMinor: (expected - collected).toString(),
         collectionRate:
-          expected === 0n ? 0 : Math.round((Number(collected) / Number(expected)) * 100),
+          expected === 0n
+            ? 0
+            : Math.round((Number(collected) / Number(expected)) * 100),
       },
       operations: {
         openMaintenance,
@@ -159,12 +178,20 @@ export class AdminService {
 
   async listClients(
     user: AuthUser,
-    query: { page?: number; pageSize?: number; sort?: string; status?: string; q?: string },
+    query: {
+      page?: number;
+      pageSize?: number;
+      sort?: string;
+      status?: string;
+      q?: string;
+    },
   ) {
     const { skip, take, page, pageSize } = pageParams(query);
     const where: Prisma.ClientWhereInput = {
       deletedAt: null,
-      ...(query.status ? { status: query.status as Prisma.EnumClientStatusFilter["equals"] } : {}),
+      ...(query.status
+        ? { status: query.status as Prisma.EnumClientStatusFilter["equals"] }
+        : {}),
       ...(user.scopeExempt
         ? {}
         : { properties: { some: { id: { in: user.assignedPropertyIds } } } }),
@@ -184,9 +211,13 @@ export class AdminService {
         where,
         skip,
         take,
-        orderBy: parseSort(query.sort, ["createdAt", "displayName", "ref", "status"], {
-          createdAt: "desc",
-        }),
+        orderBy: parseSort(
+          query.sort,
+          ["createdAt", "displayName", "ref", "status"],
+          {
+            createdAt: "desc",
+          },
+        ),
         select: {
           id: true,
           ref: true,

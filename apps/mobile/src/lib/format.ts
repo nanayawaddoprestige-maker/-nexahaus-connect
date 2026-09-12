@@ -1,6 +1,9 @@
 import { Money } from "@nexahaus/types";
 
-export function money(minor: string | null | undefined, currency = "GHS"): string {
+export function money(
+  minor: string | null | undefined,
+  currency = "GHS",
+): string {
   if (minor == null) return "—";
   try {
     return Money.of(minor, currency).format({ locale: "en-GH" });
@@ -18,7 +21,11 @@ export function date(iso: string | null | undefined): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? "—"
-    : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    : d.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 }
 
 export function titleCase(v: string): string {

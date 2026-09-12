@@ -8,7 +8,10 @@ import { RefService } from "../../common/ref.service";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
 import { pageParams, paginate } from "../../common/pagination";
 import { EventsService } from "../events/events.service";
-import { PaymentProvider, type ProviderPaymentEvent } from "./provider/payment-provider";
+import {
+  PaymentProvider,
+  type ProviderPaymentEvent,
+} from "./provider/payment-provider";
 import {
   allocateExplicit,
   allocateOldestFirst,
@@ -32,7 +35,11 @@ export class PaymentsService {
   // Manual entry (finance officer)
   // --------------------------------------------------------------------------
 
-  async recordManual(user: AuthUser, input: RecordPaymentInput, ctx: AuditContext) {
+  async recordManual(
+    user: AuthUser,
+    input: RecordPaymentInput,
+    ctx: AuditContext,
+  ) {
     // Idempotency: a repeated key returns the original payment untouched.
     const existing = await this.prisma.payment.findUnique({
       where: { idempotencyKey: input.idempotencyKey },
@@ -48,7 +55,11 @@ export class PaymentsService {
         propertyId: true,
         unitId: true,
         rentCurrency: true,
-        parties: { where: { isPrimary: true }, select: { tenantId: true }, take: 1 },
+        parties: {
+          where: { isPrimary: true },
+          select: { tenantId: true },
+          take: 1,
+        },
       },
     });
     if (!lease) throw AppError.notFound("lease");
@@ -60,7 +71,8 @@ export class PaymentsService {
     }
 
     const amountMinor = BigInt(input.amount.minor);
-    if (amountMinor <= 0n) throw AppError.validation("Amount must be positive.");
+    if (amountMinor <= 0n)
+      throw AppError.validation("Amount must be positive.");
     if (input.amount.currency !== lease.rentCurrency) {
       throw AppError.validation(
         `Payment currency (${input.amount.currency}) does not match the lease (${lease.rentCurrency}).`,
@@ -110,7 +122,8 @@ export class PaymentsService {
     if (!lease) throw AppError.notFound("lease");
 
     const tenantOnLease =
-      user.tenantId != null && lease.parties.some((p) => p.tenantId === user.tenantId);
+      user.tenantId != null &&
+      lease.parties.some((p) => p.tenantId === user.tenantId);
     const staffOrOwner =
       user.scopeExempt ||
       user.clientIds.includes(lease.clientId) ||
@@ -119,7 +132,8 @@ export class PaymentsService {
     if (!tenantOnLease && !staffOrOwner) throw AppError.forbidden();
 
     const amountMinor = BigInt(amount.minor);
-    if (amountMinor <= 0n) throw AppError.validation("Amount must be positive.");
+    if (amountMinor <= 0n)
+      throw AppError.validation("Amount must be positive.");
     if (amount.currency !== lease.rentCurrency) {
       throw AppError.validation(
         `Payment currency (${amount.currency}) does not match the lease (${lease.rentCurrency}).`,
@@ -157,15 +171,17 @@ export class PaymentsService {
     if (!event) throw AppError.validation("Unparseable webhook payload.");
 
     // Idempotency: unique (provider, providerEventId). A replay is a no-op 200.
-    const priorEvent = await this.prisma.paymentProviderWebhookEvent.findUnique({
-      where: {
-        provider_providerEventId: {
-          provider: this.provider.name,
-          providerEventId: event.providerEventId,
+    const priorEvent = await this.prisma.paymentProviderWebhookEvent.findUnique(
+      {
+        where: {
+          provider_providerEventId: {
+            provider: this.provider.name,
+            providerEventId: event.providerEventId,
+          },
         },
+        select: { id: true, resultingPaymentId: true },
       },
-      select: { id: true, resultingPaymentId: true },
-    });
+    );
     if (priorEvent) {
       return { status: "replayed", paymentId: priorEvent.resultingPaymentId };
     }
@@ -176,7 +192,9 @@ export class PaymentsService {
           provider: this.provider.name,
           providerEventId: event.providerEventId,
           signatureValid: true,
-          payload: JSON.parse(rawBody.toString("utf8")) as Prisma.InputJsonValue,
+          payload: JSON.parse(
+            rawBody.toString("utf8"),
+          ) as Prisma.InputJsonValue,
           processedAt: new Date(),
         },
       });
@@ -191,7 +209,9 @@ export class PaymentsService {
           provider: this.provider.name,
           providerEventId: event.providerEventId,
           signatureValid: true,
-          payload: JSON.parse(rawBody.toString("utf8")) as Prisma.InputJsonValue,
+          payload: JSON.parse(
+            rawBody.toString("utf8"),
+          ) as Prisma.InputJsonValue,
           processedAt: new Date(),
         },
       });
@@ -265,7 +285,11 @@ export class PaymentsService {
           charges.map((c) => [c.id, c]),
         );
         try {
-          allocation = allocateExplicit(args.amountMinor, args.explicitAllocations, byId);
+          allocation = allocateExplicit(
+            args.amountMinor,
+            args.explicitAllocations,
+            byId,
+          );
         } catch (err) {
           throw AppError.validation((err as Error).message);
         }
@@ -363,7 +387,11 @@ export class PaymentsService {
       );
       await this.events.emit(
         DomainEventType.RENT_RECEIVED,
-        { paymentId: payment.id, clientId: lease.clientId, propertyId: lease.propertyId },
+        {
+          paymentId: payment.id,
+          clientId: lease.clientId,
+          propertyId: lease.propertyId,
+        },
         tx,
       );
 
@@ -408,7 +436,9 @@ export class PaymentsService {
       ? {}
       : {
           OR: [
-            user.clientIds.length ? { clientId: { in: user.clientIds } } : { id: "" },
+            user.clientIds.length
+              ? { clientId: { in: user.clientIds } }
+              : { id: "" },
             user.assignedPropertyIds.length
               ? { propertyId: { in: user.assignedPropertyIds } }
               : { id: "" },
@@ -468,13 +498,21 @@ export class PaymentsService {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
       include: {
-        property: { select: { id: true, clientId: true, name: true, ref: true } },
+        property: {
+          select: { id: true, clientId: true, name: true, ref: true },
+        },
         tenant: { select: { id: true, fullName: true } },
         lease: { select: { id: true, ref: true } },
         allocations: {
           include: {
             rentCharge: {
-              select: { id: true, periodStart: true, amountMinor: true, currency: true, status: true },
+              select: {
+                id: true,
+                periodStart: true,
+                amountMinor: true,
+                currency: true,
+                status: true,
+              },
             },
           },
         },
@@ -489,11 +527,17 @@ export class PaymentsService {
     ) {
       throw AppError.notFound("payment");
     }
-    const allocated = payment.allocations.reduce((s, a) => s + a.amountMinor, 0n);
+    const allocated = payment.allocations.reduce(
+      (s, a) => s + a.amountMinor,
+      0n,
+    );
     return {
       id: payment.id,
       ref: payment.ref,
-      amount: { minor: payment.amountMinor.toString(), currency: payment.currency },
+      amount: {
+        minor: payment.amountMinor.toString(),
+        currency: payment.currency,
+      },
       allocatedMinor: allocated.toString(),
       unallocatedMinor: (payment.amountMinor - allocated).toString(),
       method: payment.method,
@@ -502,7 +546,11 @@ export class PaymentsService {
       status: payment.status,
       reconciliationStatus: payment.reconciliationStatus,
       receivedAt: payment.receivedAt.toISOString(),
-      property: { id: payment.property.id, name: payment.property.name, ref: payment.property.ref },
+      property: {
+        id: payment.property.id,
+        name: payment.property.name,
+        ref: payment.property.ref,
+      },
       tenant: payment.tenant,
       lease: payment.lease,
       allocations: payment.allocations.map((a) => ({
@@ -518,7 +566,13 @@ export class PaymentsService {
   async reconcile(user: AuthUser, ids: string[], ctx: AuditContext) {
     const payments = await this.prisma.payment.findMany({
       where: { id: { in: ids } },
-      select: { id: true, propertyId: true, clientId: true, transactionId: true, reconciliationStatus: true },
+      select: {
+        id: true,
+        propertyId: true,
+        clientId: true,
+        transactionId: true,
+        reconciliationStatus: true,
+      },
     });
     for (const p of payments) {
       if (
@@ -529,14 +583,22 @@ export class PaymentsService {
         throw AppError.forbidden();
       }
     }
-    const toUpdate = payments.filter((p) => p.reconciliationStatus !== "RECONCILED");
+    const toUpdate = payments.filter(
+      (p) => p.reconciliationStatus !== "RECONCILED",
+    );
     await this.prisma.$transaction(async (tx) => {
       await tx.payment.updateMany({
         where: { id: { in: toUpdate.map((p) => p.id) } },
         data: { reconciliationStatus: "RECONCILED" },
       });
       await tx.transaction.updateMany({
-        where: { id: { in: toUpdate.map((p) => p.transactionId).filter(Boolean) as string[] } },
+        where: {
+          id: {
+            in: toUpdate
+              .map((p) => p.transactionId)
+              .filter(Boolean) as string[],
+          },
+        },
         data: { reconciliationStatus: "RECONCILED" },
       });
       await this.audit.record(
@@ -550,7 +612,10 @@ export class PaymentsService {
         tx,
       );
     });
-    return { reconciled: toUpdate.length, alreadyReconciled: payments.length - toUpdate.length };
+    return {
+      reconciled: toUpdate.length,
+      alreadyReconciled: payments.length - toUpdate.length,
+    };
   }
 
   async refund(user: AuthUser, id: string, reason: string, ctx: AuditContext) {
@@ -627,7 +692,11 @@ export class PaymentsService {
           resourceType: "payment",
           resourceId: id,
           before: { status: payment.status },
-          after: { status: "REFUNDED", reversalTransactionId: reversal.id, reason },
+          after: {
+            status: "REFUNDED",
+            reversalTransactionId: reversal.id,
+            reason,
+          },
         },
         tx,
       );
@@ -641,18 +710,25 @@ export class PaymentsService {
   private async resolveLease(event: ProviderPaymentEvent) {
     const refToken =
       event.leaseRef ??
-      (event.narration?.match(/LS-\d{6}/i)?.[0] ??
-        event.providerRef.match(/LS-\d{6}/i)?.[0]);
+      event.narration?.match(/LS-\d{6}/i)?.[0] ??
+      event.providerRef.match(/LS-\d{6}/i)?.[0];
     if (!refToken) return null;
     return this.prisma.lease.findFirst({
-      where: { ref: refToken.toUpperCase(), status: { in: ["ACTIVE", "EXPIRING"] } },
+      where: {
+        ref: refToken.toUpperCase(),
+        status: { in: ["ACTIVE", "EXPIRING"] },
+      },
       select: {
         id: true,
         clientId: true,
         propertyId: true,
         unitId: true,
         rentCurrency: true,
-        parties: { where: { isPrimary: true }, select: { tenantId: true }, take: 1 },
+        parties: {
+          where: { isPrimary: true },
+          select: { tenantId: true },
+          take: 1,
+        },
       },
     });
   }

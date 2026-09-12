@@ -13,7 +13,10 @@ export function HomeFaq() {
           <SectionHeader eyebrow="FAQ" title="Questions owners ask." />
           <p className="mt-4 text-sm text-ink-muted">
             Can&rsquo;t see your question?{" "}
-            <Link href={routes.contact} className="font-medium text-navy-700 underline underline-offset-2">
+            <Link
+              href={routes.contact}
+              className="font-medium text-navy-700 underline underline-offset-2"
+            >
               Ask us directly
             </Link>
             .

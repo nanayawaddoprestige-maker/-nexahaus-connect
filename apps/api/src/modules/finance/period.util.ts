@@ -10,7 +10,10 @@ export interface DateRange {
  * `this_month` is the calendar month containing `now`; the others are the last
  * N whole months up to the end of the current month.
  */
-export function periodRange(period: FinancePeriod, now: Date = new Date()): DateRange {
+export function periodRange(
+  period: FinancePeriod,
+  now: Date = new Date(),
+): DateRange {
   const y = now.getUTCFullYear();
   const m = now.getUTCMonth();
   const startOfThisMonth = new Date(Date.UTC(y, m, 1));
@@ -31,7 +34,9 @@ export function periodRange(period: FinancePeriod, now: Date = new Date()): Date
 }
 
 /** Enumerate the whole months in a range as `{ label: "2027-09", start, end }`. */
-export function monthsIn(range: DateRange): { label: string; start: Date; end: Date }[] {
+export function monthsIn(
+  range: DateRange,
+): { label: string; start: Date; end: Date }[] {
   const out: { label: string; start: Date; end: Date }[] = [];
   let cursor = new Date(
     Date.UTC(range.start.getUTCFullYear(), range.start.getUTCMonth(), 1),

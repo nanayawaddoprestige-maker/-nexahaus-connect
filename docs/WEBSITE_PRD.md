@@ -74,25 +74,25 @@ NexaHaus holds the required licensing and qualified personnel". No advice claims
 
 ## 6. Page inventory
 
-| Route | Purpose | Phase |
-|---|---|---|
-| `/` | Homepage — full narrative, ~15 sections | 1 (core) → 2 (complete) |
-| `/property-management` | Service detail + "what we manage" | 2 |
-| `/asset-management` | Service detail + illustrative performance dashboard | 2 / 4 |
-| `/diaspora` | Diaspora acquisition, "what you can see" | 2 |
-| `/property-rescue` | Interactive 6-step diagnostic → preliminary score → lead | 3 |
-| `/property-health-check` | Premium interactive questionnaire → indicative score → lead | 3 |
-| `/nexahaus-connect` | Product preview + illustrative dashboards | 4 |
-| `/about` | Mission, vision, values, why | 2 |
-| `/insights` + `/insights/[slug]` | Editorial platform | 5 |
-| `/contact` | Enquiry form | 2 |
-| `/early-access` | Pre-launch research capture | 3 |
-| `/founding-100` | Founding cohort | 3 |
-| `/property-owner-survey` | Multi-step market-research survey | 3 |
-| `/property-owners-club` | Future community | placeholder now |
-| `/the-ghana-property-owner-report` | Signature research (structure only) | placeholder now |
-| `/privacy`, `/terms`, `/cookies` | Legal | 1–2 |
-| `not-found`, `error` | 404 / 500 | 1 |
+| Route                              | Purpose                                                     | Phase                   |
+| ---------------------------------- | ----------------------------------------------------------- | ----------------------- |
+| `/`                                | Homepage — full narrative, ~15 sections                     | 1 (core) → 2 (complete) |
+| `/property-management`             | Service detail + "what we manage"                           | 2                       |
+| `/asset-management`                | Service detail + illustrative performance dashboard         | 2 / 4                   |
+| `/diaspora`                        | Diaspora acquisition, "what you can see"                    | 2                       |
+| `/property-rescue`                 | Interactive 6-step diagnostic → preliminary score → lead    | 3                       |
+| `/property-health-check`           | Premium interactive questionnaire → indicative score → lead | 3                       |
+| `/nexahaus-connect`                | Product preview + illustrative dashboards                   | 4                       |
+| `/about`                           | Mission, vision, values, why                                | 2                       |
+| `/insights` + `/insights/[slug]`   | Editorial platform                                          | 5                       |
+| `/contact`                         | Enquiry form                                                | 2                       |
+| `/early-access`                    | Pre-launch research capture                                 | 3                       |
+| `/founding-100`                    | Founding cohort                                             | 3                       |
+| `/property-owner-survey`           | Multi-step market-research survey                           | 3                       |
+| `/property-owners-club`            | Future community                                            | placeholder now         |
+| `/the-ghana-property-owner-report` | Signature research (structure only)                         | placeholder now         |
+| `/privacy`, `/terms`, `/cookies`   | Legal                                                       | 1–2                     |
+| `not-found`, `error`               | 404 / 500                                                   | 1                       |
 
 Redirects: `/welcome → /`, `/health-check → /property-health-check`,
 `/property-rescue-service → /property-rescue`, `/resources → /insights`.

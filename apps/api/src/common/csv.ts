@@ -73,7 +73,10 @@ export function parseCsv(input: string): Record<string, string>[] {
 }
 
 /** Serialise rows to a CSV string given an explicit column order. */
-export function toCsv(columns: string[], rows: Record<string, unknown>[]): string {
+export function toCsv(
+  columns: string[],
+  rows: Record<string, unknown>[],
+): string {
   const esc = (v: unknown) => {
     const s = v == null ? "" : String(v);
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;

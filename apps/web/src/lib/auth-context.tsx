@@ -16,7 +16,11 @@ import type { AuthUser, LoginResponse } from "./resources";
 interface AuthState {
   user: AuthUser | null;
   status: "loading" | "authenticated" | "unauthenticated";
-  login: (identifier: string, password: string, mfaCode?: string) => Promise<LoginResponse>;
+  login: (
+    identifier: string,
+    password: string,
+    mfaCode?: string,
+  ) => Promise<LoginResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }

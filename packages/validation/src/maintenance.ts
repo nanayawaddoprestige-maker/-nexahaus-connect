@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { MaintenancePriority, MaintenanceStatus } from "@nexahaus/types";
-import { dateOnly, isoDate, moneyInput, paginationQuery, uuid } from "./common.js";
+import {
+  dateOnly,
+  isoDate,
+  moneyInput,
+  paginationQuery,
+  uuid,
+} from "./common.js";
 
 export const createMaintenanceSchema = z
   .object({
@@ -8,7 +14,9 @@ export const createMaintenanceSchema = z
     unitId: uuid.optional(),
     leaseId: uuid.optional(),
     category: z.string().trim().min(2).max(60),
-    priority: z.nativeEnum(MaintenancePriority).default(MaintenancePriority.MEDIUM),
+    priority: z
+      .nativeEnum(MaintenancePriority)
+      .default(MaintenancePriority.MEDIUM),
     title: z.string().trim().min(3).max(160),
     description: z.string().trim().min(3).max(4000),
     mediaDocumentIds: z.array(uuid).max(20).optional(),
@@ -85,7 +93,9 @@ export const preventivePlanSchema = z
   .strict();
 
 export type CreateMaintenanceInput = z.infer<typeof createMaintenanceSchema>;
-export type TransitionMaintenanceInput = z.infer<typeof transitionMaintenanceSchema>;
+export type TransitionMaintenanceInput = z.infer<
+  typeof transitionMaintenanceSchema
+>;
 export type AssignVendorInput = z.infer<typeof assignVendorSchema>;
 export type CompleteWorkOrderInput = z.infer<typeof completeWorkOrderSchema>;
 export type ListMaintenanceQuery = z.infer<typeof listMaintenanceQuery>;

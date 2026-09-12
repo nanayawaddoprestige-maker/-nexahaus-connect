@@ -47,7 +47,10 @@ export const UserStatus = {
 } as const;
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
 
-export const ClientType = { INDIVIDUAL: "INDIVIDUAL", COMPANY: "COMPANY" } as const;
+export const ClientType = {
+  INDIVIDUAL: "INDIVIDUAL",
+  COMPANY: "COMPANY",
+} as const;
 export type ClientType = (typeof ClientType)[keyof typeof ClientType];
 
 export const ClientSegment = {
@@ -75,7 +78,8 @@ export const ServicePackage = {
   PREMIUM: "PREMIUM",
   ENTERPRISE: "ENTERPRISE",
 } as const;
-export type ServicePackage = (typeof ServicePackage)[keyof typeof ServicePackage];
+export type ServicePackage =
+  (typeof ServicePackage)[keyof typeof ServicePackage];
 
 export const PropertyType = {
   OFFICE: "OFFICE",
@@ -100,7 +104,8 @@ export const PropertyStatus = {
   SOLD: "SOLD",
   ARCHIVED: "ARCHIVED",
 } as const;
-export type PropertyStatus = (typeof PropertyStatus)[keyof typeof PropertyStatus];
+export type PropertyStatus =
+  (typeof PropertyStatus)[keyof typeof PropertyStatus];
 
 export const UnitStatus = {
   VACANT: "VACANT",
@@ -154,7 +159,8 @@ export const LeaseFrequency = {
   ANNUAL: "ANNUAL",
   CUSTOM: "CUSTOM",
 } as const;
-export type LeaseFrequency = (typeof LeaseFrequency)[keyof typeof LeaseFrequency];
+export type LeaseFrequency =
+  (typeof LeaseFrequency)[keyof typeof LeaseFrequency];
 
 export const LeaseStatus = {
   DRAFT: "DRAFT",
@@ -306,7 +312,10 @@ export type MaintenanceStatus =
   (typeof MaintenanceStatus)[keyof typeof MaintenanceStatus];
 
 /** Allowed maintenance status transitions (spec §21, §82). */
-export const MAINTENANCE_TRANSITIONS: Record<MaintenanceStatus, MaintenanceStatus[]> = {
+export const MAINTENANCE_TRANSITIONS: Record<
+  MaintenanceStatus,
+  MaintenanceStatus[]
+> = {
   REPORTED: ["ACKNOWLEDGED", "CANCELLED"],
   ACKNOWLEDGED: ["ASSIGNED", "CANCELLED"],
   ASSIGNED: ["SCHEDULED", "IN_PROGRESS", "CANCELLED"],
@@ -349,7 +358,8 @@ export const InspectionType = {
   POST_MAINTENANCE: "POST_MAINTENANCE",
   ANNUAL: "ANNUAL",
 } as const;
-export type InspectionType = (typeof InspectionType)[keyof typeof InspectionType];
+export type InspectionType =
+  (typeof InspectionType)[keyof typeof InspectionType];
 
 export const InspectionStatus = {
   ASSIGNED: "ASSIGNED",
@@ -442,7 +452,8 @@ export const ApprovalStatus = {
   CANCELLED: "CANCELLED",
   EXPIRED: "EXPIRED",
 } as const;
-export type ApprovalStatus = (typeof ApprovalStatus)[keyof typeof ApprovalStatus];
+export type ApprovalStatus =
+  (typeof ApprovalStatus)[keyof typeof ApprovalStatus];
 
 export const NotificationChannel = {
   IN_APP: "IN_APP",

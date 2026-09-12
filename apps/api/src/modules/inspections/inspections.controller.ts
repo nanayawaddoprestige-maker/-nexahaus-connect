@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import type { Request } from "express";
 import {
@@ -45,7 +37,8 @@ export class InspectionsController {
   @RequirePermission("inspection:read")
   list(
     @CurrentUser() user: AuthUser,
-    @Query(new ZodValidationPipe(listInspectionQuery)) query: ListInspectionQuery,
+    @Query(new ZodValidationPipe(listInspectionQuery))
+    query: ListInspectionQuery,
   ) {
     return this.inspections.list(user, query);
   }
@@ -61,7 +54,8 @@ export class InspectionsController {
   @RequirePermission("inspection:write")
   create(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(createInspectionSchema)) body: CreateInspectionInput,
+    @Body(new ZodValidationPipe(createInspectionSchema))
+    body: CreateInspectionInput,
     @Req() req: Request,
   ) {
     return this.inspections.create(user, body, auditCtxFromRequest(req, user));
@@ -73,10 +67,16 @@ export class InspectionsController {
   submit(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(submitInspectionSchema)) body: SubmitInspectionInput,
+    @Body(new ZodValidationPipe(submitInspectionSchema))
+    body: SubmitInspectionInput,
     @Req() req: Request,
   ) {
-    return this.inspections.submit(user, id, body, auditCtxFromRequest(req, user));
+    return this.inspections.submit(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/review")
@@ -85,9 +85,15 @@ export class InspectionsController {
   review(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(reviewInspectionSchema)) body: ReviewInspectionInput,
+    @Body(new ZodValidationPipe(reviewInspectionSchema))
+    body: ReviewInspectionInput,
     @Req() req: Request,
   ) {
-    return this.inspections.review(user, id, body, auditCtxFromRequest(req, user));
+    return this.inspections.review(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 }

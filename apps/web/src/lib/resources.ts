@@ -85,7 +85,12 @@ export interface PropertyDetail {
   createdAt: string;
   updatedAt: string;
   client: { id: string; ref: string; displayName: string };
-  owners: { clientId: string; name: string; sharePercent: number; isPrimary: boolean }[];
+  owners: {
+    clientId: string;
+    name: string;
+    sharePercent: number;
+    isPrimary: boolean;
+  }[];
   agreement: {
     feeType: string;
     feePercent: number | null;
@@ -96,11 +101,18 @@ export interface PropertyDetail {
     endDate: string | null;
     status: string;
   } | null;
-  team: { role: string; since: string; user: { id: string; fullName: string } }[];
+  team: {
+    role: string;
+    since: string;
+    user: { id: string; fullName: string };
+  }[];
   counts: { units: number; openMaintenance: number; inspections: number };
   occupancy: { total: number; occupied: number; rate: number };
   finance: PropertyFinance;
-  diaspora: { lastInspectedAt: string | null; lastRentReceivedAt: string | null };
+  diaspora: {
+    lastInspectedAt: string | null;
+    lastRentReceivedAt: string | null;
+  };
   latestInspection: {
     id: string;
     ref: string;
@@ -108,7 +120,11 @@ export interface PropertyDetail {
     completedAt: string | null;
     overallCondition: string | null;
   } | null;
-  healthScore: { score: number; scoredAt: string; methodologyVersion: number } | null;
+  healthScore: {
+    score: number;
+    scoredAt: string;
+    methodologyVersion: number;
+  } | null;
 }
 
 export interface UnitRow {

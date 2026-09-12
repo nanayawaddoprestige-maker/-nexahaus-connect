@@ -4,14 +4,23 @@ import { routes } from "@/lib/routes";
 import { Container, Eyebrow } from "@/components/marketing/primitives";
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 import { ContactForm } from "@/components/forms/contact-form";
-import { CONTACT, WHATSAPP_LINK, PRE_LAUNCH_MODE, LAUNCH } from "@/lib/site-config";
+import {
+  CONTACT,
+  WHATSAPP_LINK,
+  PRE_LAUNCH_MODE,
+  LAUNCH,
+} from "@/lib/site-config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact NexaHaus",
   description:
     "Talk to NexaHaus about your property in Ghana. Tell us the property, where it is and what you want solved — a member of the team will get back to you.",
   path: routes.contact,
-  keywords: ["property managers Ghana", "property management company Accra", "contact property manager Ghana"],
+  keywords: [
+    "property managers Ghana",
+    "property management company Accra",
+    "contact property manager Ghana",
+  ],
 });
 
 export default function ContactPage() {
@@ -28,8 +37,8 @@ export default function ContactPage() {
             Let&rsquo;s Talk About Your Property.
           </h1>
           <p className="mt-4 text-ink-muted">
-            Tell us about the property and the challenges you want solved. Your details
-            come straight to the NexaHaus team.
+            Tell us about the property and the challenges you want solved. Your
+            details come straight to the NexaHaus team.
           </p>
 
           <dl className="mt-8 space-y-4 text-sm">
@@ -51,7 +60,10 @@ export default function ContactPage() {
               <div>
                 <dt className="font-medium text-navy-900">Email</dt>
                 <dd className="mt-0.5">
-                  <a className="text-navy-700 underline underline-offset-2" href={`mailto:${CONTACT.email}`}>
+                  <a
+                    className="text-navy-700 underline underline-offset-2"
+                    href={`mailto:${CONTACT.email}`}
+                  >
                     {CONTACT.email}
                   </a>
                 </dd>
@@ -61,7 +73,10 @@ export default function ContactPage() {
               <div>
                 <dt className="font-medium text-navy-900">Phone</dt>
                 <dd className="mt-0.5">
-                  <a className="text-navy-700 underline underline-offset-2" href={`tel:${CONTACT.phone.replace(/\s+/g, "")}`}>
+                  <a
+                    className="text-navy-700 underline underline-offset-2"
+                    href={`tel:${CONTACT.phone.replace(/\s+/g, "")}`}
+                  >
                     {CONTACT.phone}
                   </a>
                 </dd>
@@ -71,7 +86,12 @@ export default function ContactPage() {
               <div>
                 <dt className="font-medium text-navy-900">WhatsApp</dt>
                 <dd className="mt-0.5">
-                  <a className="text-navy-700 underline underline-offset-2" href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="text-navy-700 underline underline-offset-2"
+                    href={WHATSAPP_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Chat with NexaHaus
                   </a>
                 </dd>

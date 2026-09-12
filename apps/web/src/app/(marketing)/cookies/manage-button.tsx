@@ -12,8 +12,8 @@ export function ManageCookiesButton() {
   if (!trackingConfigured) {
     return (
       <p className="text-sm text-ink-subtle">
-        This deployment loads no analytics or marketing cookies, so there is nothing to
-        manage. Only necessary cookies are used.
+        This deployment loads no analytics or marketing cookies, so there is
+        nothing to manage. Only necessary cookies are used.
       </p>
     );
   }

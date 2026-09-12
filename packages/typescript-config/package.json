@@ -2,5 +2,10 @@
   "name": "@nexahaus/typescript-config",
   "version": "0.0.0",
   "private": true,
-  "files": ["base.json", "nestjs.json", "nextjs.json", "react-library.json"]
+  "files": [
+    "base.json",
+    "nestjs.json",
+    "nextjs.json",
+    "react-library.json"
+  ]
 }

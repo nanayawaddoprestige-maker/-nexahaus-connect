@@ -12,7 +12,12 @@ import { isStaff } from "@/lib/nav";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScoreRing, Bar } from "@/components/ui/score-ring";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 export default function PropertyHealthPage() {
   const { user } = useAuth();
@@ -21,7 +26,8 @@ export default function PropertyHealthPage() {
 
   const properties = useQuery({
     queryKey: ["properties", "for-health"],
-    queryFn: () => api.list<PropertyListItem>("/properties", { query: { pageSize: 50 } }),
+    queryFn: () =>
+      api.list<PropertyListItem>("/properties", { query: { pageSize: 50 } }),
   });
 
   return (
@@ -40,7 +46,10 @@ export default function PropertyHealthPage() {
       ) : properties.isError ? (
         <ErrorState onRetry={() => void properties.refetch()} />
       ) : (properties.data?.items.length ?? 0) === 0 ? (
-        <EmptyState title="No properties" description="Health scores appear here once properties are onboarded." />
+        <EmptyState
+          title="No properties"
+          description="Health scores appear here once properties are onboarded."
+        />
       ) : (
         <div className="space-y-3">
           {properties.data!.items.map((p) => (
@@ -80,20 +89,28 @@ function HealthRow({
 
   const recompute = useMutation({
     mutationFn: () => api.post(`/property-health/${propertyId}/recompute`),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["health", propertyId] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["health", propertyId] }),
   });
 
   const h = health.data;
 
   return (
     <Card className="p-0">
-      <button onClick={onToggle} className="flex w-full items-center gap-4 p-4 text-left">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center gap-4 p-4 text-left"
+      >
         <ScoreRing score={h?.score ?? null} size={56} />
         <div className="flex-1">
           <p className="font-medium text-navy-900">{name}</p>
           <p className="text-xs text-ink-subtle">
-            {h?.scoredAt ? `scored ${relativeDays(h.scoredAt)}` : "not yet scored"}
-            {h?.methodologyVersion ? ` · methodology v${h.methodologyVersion}` : ""}
+            {h?.scoredAt
+              ? `scored ${relativeDays(h.scoredAt)}`
+              : "not yet scored"}
+            {h?.methodologyVersion
+              ? ` · methodology v${h.methodologyVersion}`
+              : ""}
           </p>
         </div>
         <span className="text-ink-subtle">{open ? "▲" : "▼"}</span>
@@ -105,9 +122,15 @@ function HealthRow({
             <Skeleton className="h-40 w-full" />
           ) : !h || h.components.length === 0 ? (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-ink-subtle">This property has not been scored yet.</p>
+              <p className="text-sm text-ink-subtle">
+                This property has not been scored yet.
+              </p>
               {staff ? (
-                <Button size="sm" loading={recompute.isPending} onClick={() => recompute.mutate()}>
+                <Button
+                  size="sm"
+                  loading={recompute.isPending}
+                  onClick={() => recompute.mutate()}
+                >
                   Score now
                 </Button>
               ) : null}
@@ -118,8 +141,12 @@ function HealthRow({
                 {h.components.map((c) => (
                   <div key={c.key}>
                     <div className="mb-1 flex items-center justify-between text-sm">
-                      <span className="text-navy-900">{HEALTH_COMPONENT_LABELS[c.key] ?? titleCase(c.key)}</span>
-                      <span className="tabular-nums text-ink-muted">{Math.round(c.value * 100)}</span>
+                      <span className="text-navy-900">
+                        {HEALTH_COMPONENT_LABELS[c.key] ?? titleCase(c.key)}
+                      </span>
+                      <span className="tabular-nums text-ink-muted">
+                        {Math.round(c.value * 100)}
+                      </span>
                     </div>
                     <Bar value={c.value} />
                     <p className="mt-1 text-[11px] text-ink-subtle">

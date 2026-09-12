@@ -14,7 +14,8 @@ export default function TenantNotificationsPage() {
   const qc = useQueryClient();
   const feed = useQuery({
     queryKey: ["notifications", "page"],
-    queryFn: () => api.list<NotificationItem>("/notifications", { query: { limit: 50 } }),
+    queryFn: () =>
+      api.list<NotificationItem>("/notifications", { query: { limit: 50 } }),
   });
   const markAll = useMutation({
     mutationFn: () => api.post("/notifications/read-all"),
@@ -22,7 +23,8 @@ export default function TenantNotificationsPage() {
   });
 
   const items = feed.data?.items ?? [];
-  const unread = (feed.data?.meta as { unread?: number } | undefined)?.unread ?? 0;
+  const unread =
+    (feed.data?.meta as { unread?: number } | undefined)?.unread ?? 0;
 
   return (
     <div>
@@ -31,7 +33,11 @@ export default function TenantNotificationsPage() {
         subtitle={unread > 0 ? `${unread} unread` : "You're all caught up."}
         action={
           unread > 0 ? (
-            <Button size="sm" variant="secondary" onClick={() => markAll.mutate()}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => markAll.mutate()}
+            >
               Mark all read
             </Button>
           ) : undefined
@@ -40,15 +46,25 @@ export default function TenantNotificationsPage() {
       {feed.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <EmptyState title="No notifications yet" description="Updates about your tenancy will appear here." />
+        <EmptyState
+          title="No notifications yet"
+          description="Updates about your tenancy will appear here."
+        />
       ) : (
         <Card className="p-0">
           {items.map((n) => (
-            <div key={n.id} className={cn("border-b border-line px-4 py-3 last:border-0", !n.read && "bg-navy-50/40")}>
+            <div
+              key={n.id}
+              className={cn(
+                "border-b border-line px-4 py-3 last:border-0",
+                !n.read && "bg-navy-50/40",
+              )}
+            >
               <p className="text-sm font-medium text-navy-900">{n.title}</p>
               <p className="text-sm text-ink-muted">{n.body}</p>
               <p className="mt-0.5 text-xs text-ink-subtle">
-                {NOTIFICATION_LABELS[n.type] ?? titleCase(n.type)} · {relativeDays(n.createdAt)}
+                {NOTIFICATION_LABELS[n.type] ?? titleCase(n.type)} ·{" "}
+                {relativeDays(n.createdAt)}
               </p>
             </div>
           ))}

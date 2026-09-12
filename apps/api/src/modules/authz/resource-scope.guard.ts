@@ -36,9 +36,11 @@ export class ResourceScopeGuard implements CanActivate {
     );
     if (!meta) return true;
 
-    const request = context.switchToHttp().getRequest<
-      Request & { user?: AuthUser; params: Record<string, string> }
-    >();
+    const request = context
+      .switchToHttp()
+      .getRequest<
+        Request & { user?: AuthUser; params: Record<string, string> }
+      >();
     const user = request.user;
     if (!user) throw AppError.unauthenticated();
     if (user.scopeExempt) return true;

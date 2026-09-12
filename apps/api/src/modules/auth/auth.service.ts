@@ -57,10 +57,7 @@ export class AuthService {
 
     const existing = await this.prisma.user.findFirst({
       where: {
-        OR: [
-          ...(email ? [{ email }] : []),
-          ...(phone ? [{ phone }] : []),
-        ],
+        OR: [...(email ? [{ email }] : []), ...(phone ? [{ phone }] : [])],
       },
       select: { id: true },
     });
@@ -109,10 +106,13 @@ export class AuthService {
     meta: RequestMeta,
   ): Promise<{ verified: true }> {
     const { userId } = await this.otp.verify(challengeId, code, purpose);
-    if (!userId) throw AppError.validation("This verification code is not valid.");
+    if (!userId)
+      throw AppError.validation("This verification code is not valid.");
 
     const field =
-      purpose === OtpPurpose.VERIFY_EMAIL ? "emailVerifiedAt" : "phoneVerifiedAt";
+      purpose === OtpPurpose.VERIFY_EMAIL
+        ? "emailVerifiedAt"
+        : "phoneVerifiedAt";
 
     await this.prisma.user.update({
       where: { id: userId },
@@ -153,7 +153,9 @@ export class AuthService {
     }
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
-      throw AppError.forbidden("Account is temporarily locked. Try again later.");
+      throw AppError.forbidden(
+        "Account is temporarily locked. Try again later.",
+      );
     }
 
     const ok = await this.passwords.verify(user.passwordHash, input.password);
@@ -179,7 +181,10 @@ export class AuthService {
         };
       }
       const valid = user.mfaSecretEnc
-        ? authenticator.check(input.mfaCode, this.decryptSecret(user.mfaSecretEnc))
+        ? authenticator.check(
+            input.mfaCode,
+            this.decryptSecret(user.mfaSecretEnc),
+          )
         : false;
       if (!valid) throw genericFail;
     }
@@ -270,7 +275,9 @@ export class AuthService {
   // MFA (TOTP)
   // --------------------------------------------------------------------------
 
-  async setupMfa(userId: string): Promise<{ secret: string; otpauthUrl: string }> {
+  async setupMfa(
+    userId: string,
+  ): Promise<{ secret: string; otpauthUrl: string }> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: { email: true, phone: true },
@@ -318,7 +325,9 @@ export class AuthService {
   // Password reset
   // --------------------------------------------------------------------------
 
-  async forgotPassword(input: ForgotPasswordInput): Promise<{ requested: true }> {
+  async forgotPassword(
+    input: ForgotPasswordInput,
+  ): Promise<{ requested: true }> {
     const user = await this.findByIdentifier(input.identifier);
     // Always return success — never disclose whether the account exists.
     if (user) {

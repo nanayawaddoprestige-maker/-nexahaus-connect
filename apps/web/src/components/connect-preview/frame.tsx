@@ -37,15 +37,18 @@ export function ConnectFrame({
       </div>
       <div className={cn("grid", sidebar ? "sm:grid-cols-[168px_1fr]" : "")}>
         {sidebar ? (
-          <nav aria-hidden className="hidden border-r border-line bg-surface-sunken p-3 sm:block">
+          <nav
+            aria-hidden
+            className="hidden border-r border-line bg-surface-sunken p-3 sm:block"
+          >
             {sidebar}
           </nav>
         ) : null}
         <div className="min-w-0 p-5">{children}</div>
       </div>
       <figcaption className="sr-only">
-        Illustrative example of a NexaHaus Connect screen. All names, figures and
-        activity are fictional and do not represent a real account.
+        Illustrative example of a NexaHaus Connect screen. All names, figures
+        and activity are fictional and do not represent a real account.
       </figcaption>
     </figure>
   );
@@ -71,7 +74,9 @@ export function ModuleRail({ active }: { active: string }) {
           key={item}
           className={cn(
             "rounded-md px-2 py-1.5",
-            item === active ? "bg-navy-900 font-medium text-white" : "text-ink-muted",
+            item === active
+              ? "bg-navy-900 font-medium text-white"
+              : "text-ink-muted",
           )}
         >
           {item}
@@ -122,7 +127,12 @@ export function Tag({
   tone?: keyof typeof TONES;
 }) {
   return (
-    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium", TONES[tone])}>
+    <span
+      className={cn(
+        "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
+        TONES[tone],
+      )}
+    >
       {children}
     </span>
   );

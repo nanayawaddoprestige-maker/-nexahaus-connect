@@ -22,14 +22,38 @@ import {
 const prisma = new PrismaClient();
 
 const ROLE_META: Record<RoleKey, { name: string; description: string }> = {
-  SUPER_ADMIN: { name: "Super Administrator", description: "Full platform access and configuration" },
-  MANAGING_DIRECTOR: { name: "Managing Director", description: "Company-wide operational and financial visibility" },
-  PROPERTY_MANAGER: { name: "Property Manager", description: "Manages assigned clients and properties" },
-  FINANCE_OFFICER: { name: "Finance Officer", description: "Rent, payments, expenses, statements, reconciliation" },
-  MAINTENANCE_OFFICER: { name: "Maintenance Officer", description: "Maintenance requests, work orders, vendors" },
-  INSPECTOR: { name: "Inspector", description: "Assigned property inspections and reports" },
-  LEASING_OFFICER: { name: "Leasing Officer", description: "Leasing workflow where licensed" },
-  SUPPORT_STAFF: { name: "Support Staff", description: "Limited client and property communication" },
+  SUPER_ADMIN: {
+    name: "Super Administrator",
+    description: "Full platform access and configuration",
+  },
+  MANAGING_DIRECTOR: {
+    name: "Managing Director",
+    description: "Company-wide operational and financial visibility",
+  },
+  PROPERTY_MANAGER: {
+    name: "Property Manager",
+    description: "Manages assigned clients and properties",
+  },
+  FINANCE_OFFICER: {
+    name: "Finance Officer",
+    description: "Rent, payments, expenses, statements, reconciliation",
+  },
+  MAINTENANCE_OFFICER: {
+    name: "Maintenance Officer",
+    description: "Maintenance requests, work orders, vendors",
+  },
+  INSPECTOR: {
+    name: "Inspector",
+    description: "Assigned property inspections and reports",
+  },
+  LEASING_OFFICER: {
+    name: "Leasing Officer",
+    description: "Leasing workflow where licensed",
+  },
+  SUPPORT_STAFF: {
+    name: "Support Staff",
+    description: "Limited client and property communication",
+  },
   VENDOR: { name: "Vendor", description: "Assigned work orders only" },
   OWNER: { name: "Property Owner", description: "Own portfolio only" },
   TENANT: { name: "Tenant", description: "Own tenancy information only" },
@@ -49,7 +73,12 @@ async function seedRbac(): Promise<void> {
     const meta = ROLE_META[roleKey];
     const role = await prisma.role.upsert({
       where: { key: roleKey },
-      create: { key: roleKey, name: meta.name, description: meta.description, isSystem: true },
+      create: {
+        key: roleKey,
+        name: meta.name,
+        description: meta.description,
+        isSystem: true,
+      },
       update: { name: meta.name, description: meta.description },
     });
 
@@ -80,14 +109,38 @@ async function seedSettings(): Promise<void> {
       accent: "#C9A227",
       surface: "#F7F8FA",
     },
-    "locale.defaults": { currency: "GHS", locale: "en-GH", timezone: "Africa/Accra" },
+    "locale.defaults": {
+      currency: "GHS",
+      locale: "en-GH",
+      timezone: "Africa/Accra",
+    },
     "maintenance.categories": [
-      "PLUMBING", "ELECTRICAL", "PAINTING", "CLEANING", "SECURITY", "LANDSCAPING",
-      "AIR_CONDITIONING", "PEST_CONTROL", "REPAIRS", "APPLIANCE", "STRUCTURAL", "OTHER",
+      "PLUMBING",
+      "ELECTRICAL",
+      "PAINTING",
+      "CLEANING",
+      "SECURITY",
+      "LANDSCAPING",
+      "AIR_CONDITIONING",
+      "PEST_CONTROL",
+      "REPAIRS",
+      "APPLIANCE",
+      "STRUCTURAL",
+      "OTHER",
     ],
     "expense.categories": [
-      "PLUMBING", "ELECTRICAL", "PAINTING", "CLEANING", "SECURITY", "LANDSCAPING",
-      "AIR_CONDITIONING", "PEST_CONTROL", "REPAIRS", "INSURANCE", "UTILITIES", "OTHER",
+      "PLUMBING",
+      "ELECTRICAL",
+      "PAINTING",
+      "CLEANING",
+      "SECURITY",
+      "LANDSCAPING",
+      "AIR_CONDITIONING",
+      "PEST_CONTROL",
+      "REPAIRS",
+      "INSURANCE",
+      "UTILITIES",
+      "OTHER",
     ],
     "approval.thresholds": {
       maintenanceCostMinor: "150000",
@@ -97,8 +150,7 @@ async function seedSettings(): Promise<void> {
     "lease.reminderOffsetsDays": [90, 60, 30, 7],
     "document.expiryReminderOffsetsDays": [60, 30, 7],
     "tenant.paymentInstructions": {
-      text:
-        "Pay your rent via Mobile Money or bank transfer using the details your NexaHaus property manager has provided, quoting your lease reference (e.g. LS-000001). NexaHaus confirms every payment once received and updates your balance here.",
+      text: "Pay your rent via Mobile Money or bank transfer using the details your NexaHaus property manager has provided, quoting your lease reference (e.g. LS-000001). NexaHaus confirms every payment once received and updates your balance here.",
     },
     "healthScore.activeConfigVersion": 1,
     "regulatory.features": {
@@ -141,7 +193,14 @@ async function seedSettings(): Promise<void> {
       version: 1,
       active: true,
       factors: {
-        propertyCount: { weight: 20, bands: [[1, 5], [2, 12], [4, 20]] },
+        propertyCount: {
+          weight: 20,
+          bands: [
+            [1, 5],
+            [2, 12],
+            [4, 20],
+          ],
+        },
         diaspora: { weight: 15 },
         managementNeed: { weight: 15 },
         assessmentCompleted: { weight: 20 },
@@ -156,24 +215,79 @@ async function seedSettings(): Promise<void> {
 
 async function seedSurvey(): Promise<void> {
   console.error("· property owner survey");
-  const existing = await prisma.survey.findUnique({ where: { key: "property-owner" } });
+  const existing = await prisma.survey.findUnique({
+    where: { key: "property-owner" },
+  });
   if (existing) return;
-  const questions: { type: string; prompt: string; options?: unknown; required?: boolean }[] = [
-    { type: "NUMBER", prompt: "How many properties do you own?", required: true },
+  const questions: {
+    type: string;
+    prompt: string;
+    options?: unknown;
+    required?: boolean;
+  }[] = [
+    {
+      type: "NUMBER",
+      prompt: "How many properties do you own?",
+      required: true,
+    },
     { type: "TEXT", prompt: "Where are they located?", required: true },
-    { type: "SINGLE", prompt: "What type of property?", options: ["Apartment", "House", "Commercial", "Land", "Mixed"], required: true },
+    {
+      type: "SINGLE",
+      prompt: "What type of property?",
+      options: ["Apartment", "House", "Commercial", "Land", "Mixed"],
+      required: true,
+    },
     { type: "BOOLEAN", prompt: "Are they currently occupied?" },
-    { type: "SINGLE", prompt: "Who currently manages them?", options: ["I do", "A caretaker", "A company", "No one"] },
-    { type: "TEXT", prompt: "What is your biggest property management problem?", required: true },
-    { type: "SINGLE", prompt: "Do tenants pay on time?", options: ["Always", "Usually", "Sometimes", "Rarely"] },
-    { type: "SINGLE", prompt: "How often do you inspect?", options: ["Monthly", "Quarterly", "Yearly", "Never"] },
+    {
+      type: "SINGLE",
+      prompt: "Who currently manages them?",
+      options: ["I do", "A caretaker", "A company", "No one"],
+    },
+    {
+      type: "TEXT",
+      prompt: "What is your biggest property management problem?",
+      required: true,
+    },
+    {
+      type: "SINGLE",
+      prompt: "Do tenants pay on time?",
+      options: ["Always", "Usually", "Sometimes", "Rarely"],
+    },
+    {
+      type: "SINGLE",
+      prompt: "How often do you inspect?",
+      options: ["Monthly", "Quarterly", "Yearly", "Never"],
+    },
     { type: "BOOLEAN", prompt: "Do you receive regular financial reports?" },
     { type: "BOOLEAN", prompt: "Do you live in Ghana?", required: true },
-    { type: "TEXT", prompt: "If outside Ghana, what is your biggest challenge?" },
-    { type: "BOOLEAN", prompt: "Would you use professional property management?" },
-    { type: "MULTI", prompt: "Which services interest you?", options: ["Property management", "Asset management", "Facilities", "Leasing", "Property rescue", "Advisory"] },
-    { type: "TEXT", prompt: "What would you expect from a professional property manager?" },
-    { type: "TEXT", prompt: "What would make you trust a property management company?" },
+    {
+      type: "TEXT",
+      prompt: "If outside Ghana, what is your biggest challenge?",
+    },
+    {
+      type: "BOOLEAN",
+      prompt: "Would you use professional property management?",
+    },
+    {
+      type: "MULTI",
+      prompt: "Which services interest you?",
+      options: [
+        "Property management",
+        "Asset management",
+        "Facilities",
+        "Leasing",
+        "Property rescue",
+        "Advisory",
+      ],
+    },
+    {
+      type: "TEXT",
+      prompt: "What would you expect from a professional property manager?",
+    },
+    {
+      type: "TEXT",
+      prompt: "What would make you trust a property management company?",
+    },
   ];
   await prisma.survey.create({
     data: {
@@ -201,11 +315,31 @@ async function seedInspectionTemplate(): Promise<void> {
   });
   if (existing) return;
   const areas: Record<string, string[]> = {
-    LIVING_ROOM: ["Walls & ceiling", "Flooring", "Windows & blinds", "Lighting & sockets"],
-    KITCHEN: ["Cabinets & counters", "Sink & taps", "Appliances", "Ventilation"],
+    LIVING_ROOM: [
+      "Walls & ceiling",
+      "Flooring",
+      "Windows & blinds",
+      "Lighting & sockets",
+    ],
+    KITCHEN: [
+      "Cabinets & counters",
+      "Sink & taps",
+      "Appliances",
+      "Ventilation",
+    ],
     MASTER_BEDROOM: ["Walls & ceiling", "Flooring", "Wardrobe", "AC unit"],
-    BATHROOMS: ["Fixtures & fittings", "Water pressure", "Drainage", "Tiling & sealant"],
-    EXTERIOR: ["Walls & paint", "Gutters & drainage", "Gate & fencing", "Landscaping"],
+    BATHROOMS: [
+      "Fixtures & fittings",
+      "Water pressure",
+      "Drainage",
+      "Tiling & sealant",
+    ],
+    EXTERIOR: [
+      "Walls & paint",
+      "Gutters & drainage",
+      "Gate & fencing",
+      "Landscaping",
+    ],
     ROOF: ["Covering condition", "Leaks & staining"],
     ELECTRICAL: ["Distribution board", "Earthing", "Visible wiring"],
     PLUMBING: ["Supply lines", "Water storage", "Pump & pressure"],
@@ -276,7 +410,9 @@ const cedis = (amount: number): bigint => BigInt(Math.round(amount * 100));
 async function seedDemo(): Promise<void> {
   const password = process.env.DEMO_ACCOUNT_PASSWORD;
   if (!password) {
-    console.error("! SEED_DEMO_DATA is on but DEMO_ACCOUNT_PASSWORD is empty — skipping demo data");
+    console.error(
+      "! SEED_DEMO_DATA is on but DEMO_ACCOUNT_PASSWORD is empty — skipping demo data",
+    );
     return;
   }
   console.error("· demo data");
@@ -296,10 +432,15 @@ async function seedDemo(): Promise<void> {
   );
 
   const existingClient = await prisma.client.findFirst({
-    where: { primaryEmail: process.env.DEMO_OWNER_EMAIL ?? "owner.demo@nexahaus.example" },
+    where: {
+      primaryEmail:
+        process.env.DEMO_OWNER_EMAIL ?? "owner.demo@nexahaus.example",
+    },
   });
   if (existingClient) {
-    console.error("  demo client already present — skipping property generation");
+    console.error(
+      "  demo client already present — skipping property generation",
+    );
     return;
   }
 
@@ -310,7 +451,8 @@ async function seedDemo(): Promise<void> {
       displayName: "Kwesi Mensah",
       segment: "DIASPORA",
       status: "ACTIVE",
-      primaryEmail: process.env.DEMO_OWNER_EMAIL ?? "owner.demo@nexahaus.example",
+      primaryEmail:
+        process.env.DEMO_OWNER_EMAIL ?? "owner.demo@nexahaus.example",
       primaryPhone: "+233201234567",
       countryOfResidence: "GB",
       servicePackage: "PREMIUM",
@@ -324,17 +466,72 @@ async function seedDemo(): Promise<void> {
         },
       },
       onboarding: {
-        create: { currentStep: 10, status: "COMPLETE", kycStatus: "VERIFIED", completedAt: new Date() },
+        create: {
+          currentStep: 10,
+          status: "COMPLETE",
+          kycStatus: "VERIFIED",
+          completedAt: new Date(),
+        },
       },
     },
   });
 
   const blueprint = [
-    { name: "Cantonments Apartment", type: "APARTMENT", city: "Accra", region: "Greater Accra", units: 4, rent: 8000, status: "OCCUPIED", occupiedUnits: 4, health: 91 },
-    { name: "East Legon Townhouse", type: "HOUSE", city: "Accra", region: "Greater Accra", units: 1, rent: 12000, status: "OCCUPIED", occupiedUnits: 1, health: 87 },
-    { name: "Airport Residential Flat", type: "APARTMENT", city: "Accra", region: "Greater Accra", units: 2, rent: 6500, status: "OCCUPIED", occupiedUnits: 1, health: 78 },
-    { name: "Osu Retail Unit", type: "RETAIL", city: "Accra", region: "Greater Accra", units: 1, rent: 9500, status: "VACANT", occupiedUnits: 0, health: 64 },
-    { name: "Spintex Warehouse", type: "WAREHOUSE", city: "Accra", region: "Greater Accra", units: 1, rent: 15000, status: "OCCUPIED", occupiedUnits: 1, health: 83 },
+    {
+      name: "Cantonments Apartment",
+      type: "APARTMENT",
+      city: "Accra",
+      region: "Greater Accra",
+      units: 4,
+      rent: 8000,
+      status: "OCCUPIED",
+      occupiedUnits: 4,
+      health: 91,
+    },
+    {
+      name: "East Legon Townhouse",
+      type: "HOUSE",
+      city: "Accra",
+      region: "Greater Accra",
+      units: 1,
+      rent: 12000,
+      status: "OCCUPIED",
+      occupiedUnits: 1,
+      health: 87,
+    },
+    {
+      name: "Airport Residential Flat",
+      type: "APARTMENT",
+      city: "Accra",
+      region: "Greater Accra",
+      units: 2,
+      rent: 6500,
+      status: "OCCUPIED",
+      occupiedUnits: 1,
+      health: 78,
+    },
+    {
+      name: "Osu Retail Unit",
+      type: "RETAIL",
+      city: "Accra",
+      region: "Greater Accra",
+      units: 1,
+      rent: 9500,
+      status: "VACANT",
+      occupiedUnits: 0,
+      health: 64,
+    },
+    {
+      name: "Spintex Warehouse",
+      type: "WAREHOUSE",
+      city: "Accra",
+      region: "Greater Accra",
+      units: 1,
+      rent: 15000,
+      status: "OCCUPIED",
+      occupiedUnits: 1,
+      health: 83,
+    },
   ] as const;
 
   let firstTenantUserId: string | null = null;
@@ -380,11 +577,14 @@ async function seedDemo(): Promise<void> {
         estimatedValueMinor: cedis(bp.rent * 220),
         estimatedValueCurrency: GHS,
         onboardingComplete: true,
-        owners: { create: { clientId: client.id, sharePercent: 100, isPrimary: true } },
+        owners: {
+          create: { clientId: client.id, sharePercent: 100, isPrimary: true },
+        },
         agreements: {
           create: {
             feeType: "PERCENT_OF_COLLECTED",
-            feePercent: bp.type === "RETAIL" || bp.type === "WAREHOUSE" ? 8 : 10,
+            feePercent:
+              bp.type === "RETAIL" || bp.type === "WAREHOUSE" ? 8 : 10,
             feeCurrency: GHS,
             startDate: new Date("2027-01-01"),
             inspectionFrequency: "QUARTERLY",
@@ -410,7 +610,8 @@ async function seedDemo(): Promise<void> {
           propertyId: property.id,
           ref: await nextRef("unit", "NHU"),
           label: bp.units === 1 ? "Whole property" : `Unit ${100 + u}`,
-          bedrooms: bp.type === "APARTMENT" ? 2 : bp.type === "HOUSE" ? 4 : null,
+          bedrooms:
+            bp.type === "APARTMENT" ? 2 : bp.type === "HOUSE" ? 4 : null,
           bathrooms: bp.type === "APARTMENT" ? 2 : bp.type === "HOUSE" ? 3 : 1,
           marketRentMinor: cedis(bp.rent),
           marketRentCurrency: GHS,
@@ -474,7 +675,11 @@ async function seedDemo(): Promise<void> {
         const amount = cedis(bp.rent);
         const isLatest = mIdx === 5;
         const isSecondLatest = mIdx === 4;
-        const paid = isLatest ? 0n : isSecondLatest ? cedis(bp.rent * 0.6) : amount;
+        const paid = isLatest
+          ? 0n
+          : isSecondLatest
+            ? cedis(bp.rent * 0.6)
+            : amount;
         const charge = await prisma.rentCharge.create({
           data: {
             leaseId: lease.id,
@@ -488,7 +693,11 @@ async function seedDemo(): Promise<void> {
             currency: GHS,
             paidMinor: paid,
             status:
-              paid === 0n ? "OVERDUE" : paid < amount ? "PARTIALLY_PAID" : "PAID",
+              paid === 0n
+                ? "OVERDUE"
+                : paid < amount
+                  ? "PARTIALLY_PAID"
+                  : "PAID",
           },
         });
         if (paid > 0n) {
@@ -510,7 +719,11 @@ async function seedDemo(): Promise<void> {
             },
           });
           await prisma.paymentAllocation.create({
-            data: { paymentId: payment.id, rentChargeId: charge.id, amountMinor: paid },
+            data: {
+              paymentId: payment.id,
+              rentChargeId: charge.id,
+              amountMinor: paid,
+            },
           });
         }
       }
@@ -581,21 +794,45 @@ async function seedDemo(): Promise<void> {
         startedAt: new Date("2027-09-03T09:10:00Z"),
         completedAt: new Date("2027-09-03T10:05:00Z"),
         reviewedAt: new Date("2027-09-04T08:00:00Z"),
-        overallCondition: bp.health >= 85 ? "GOOD" : bp.health >= 70 ? "FAIR" : "POOR",
+        overallCondition:
+          bp.health >= 85 ? "GOOD" : bp.health >= 70 ? "FAIR" : "POOR",
         items: {
           create: [
-            { area: "KITCHEN", label: "Sink & taps", rating: "GOOD", sortOrder: 0 },
-            { area: "BATHROOMS", label: "Water pressure", rating: bp.health < 70 ? "ATTENTION_REQUIRED" : "GOOD", sortOrder: 1 },
-            { area: "EXTERIOR", label: "Walls & paint", rating: bp.health < 80 ? "ATTENTION_REQUIRED" : "GOOD", sortOrder: 2 },
+            {
+              area: "KITCHEN",
+              label: "Sink & taps",
+              rating: "GOOD",
+              sortOrder: 0,
+            },
+            {
+              area: "BATHROOMS",
+              label: "Water pressure",
+              rating: bp.health < 70 ? "ATTENTION_REQUIRED" : "GOOD",
+              sortOrder: 1,
+            },
+            {
+              area: "EXTERIOR",
+              label: "Walls & paint",
+              rating: bp.health < 80 ? "ATTENTION_REQUIRED" : "GOOD",
+              sortOrder: 2,
+            },
           ],
         },
       },
     });
 
     const components = [
-      { key: HealthComponentKey.OCCUPANCY, raw: bp.occupiedUnits / bp.units, weight: 0.2 },
+      {
+        key: HealthComponentKey.OCCUPANCY,
+        raw: bp.occupiedUnits / bp.units,
+        weight: 0.2,
+      },
       { key: HealthComponentKey.RENT_COLLECTION, raw: 0.9, weight: 0.2 },
-      { key: HealthComponentKey.MAINTENANCE, raw: bp.health < 70 ? 0.6 : 0.9, weight: 0.15 },
+      {
+        key: HealthComponentKey.MAINTENANCE,
+        raw: bp.health < 70 ? 0.6 : 0.9,
+        weight: 0.15,
+      },
       { key: HealthComponentKey.CONDITION, raw: bp.health / 100, weight: 0.15 },
       { key: HealthComponentKey.TENANT_SATISFACTION, raw: 0.85, weight: 0.1 },
       { key: HealthComponentKey.DOCUMENTATION, raw: 0.95, weight: 0.1 },
@@ -615,7 +852,11 @@ async function seedDemo(): Promise<void> {
         })),
         recommendations:
           bp.health < 75
-            ? ["Review rental pricing against market", "Clear the maintenance backlog", "Refresh exterior paint"]
+            ? [
+                "Review rental pricing against market",
+                "Clear the maintenance backlog",
+                "Refresh exterior paint",
+              ]
             : [],
         componentRows: {
           create: components.map((c) => ({
@@ -629,7 +870,9 @@ async function seedDemo(): Promise<void> {
     });
   }
 
-  console.error(`  created ${blueprint.length} demo properties for client ${client.ref}`);
+  console.error(
+    `  created ${blueprint.length} demo properties for client ${client.ref}`,
+  );
 }
 
 async function main(): Promise<void> {
@@ -639,10 +882,15 @@ async function main(): Promise<void> {
   await seedInspectionTemplate();
   await seedSurvey();
 
-  if (process.env.SEED_DEMO_DATA === "true" && process.env.NODE_ENV !== "production") {
+  if (
+    process.env.SEED_DEMO_DATA === "true" &&
+    process.env.NODE_ENV !== "production"
+  ) {
     await seedDemo();
   } else {
-    console.error("· demo data skipped (SEED_DEMO_DATA not 'true' or production)");
+    console.error(
+      "· demo data skipped (SEED_DEMO_DATA not 'true' or production)",
+    );
   }
   console.error("Seed complete.");
 }

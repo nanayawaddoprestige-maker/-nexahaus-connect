@@ -8,7 +8,12 @@ import { formatDate, formatMoney, titleCase } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 export default function ApprovalsPage() {
   const qc = useQueryClient();
@@ -18,7 +23,10 @@ export default function ApprovalsPage() {
     queryKey: ["approvals", tab],
     queryFn: () =>
       api.list<ApprovalRow>("/approvals", {
-        query: { status: tab === "PENDING" ? "PENDING" : undefined, pageSize: 50 },
+        query: {
+          status: tab === "PENDING" ? "PENDING" : undefined,
+          pageSize: 50,
+        },
       }),
   });
 
@@ -42,7 +50,9 @@ export default function ApprovalsPage() {
                 onClick={() => setTab(t)}
                 className={
                   "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
-                  (tab === t ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+                  (tab === t
+                    ? "bg-navy-900 text-white"
+                    : "text-ink-muted hover:text-navy-900")
                 }
               >
                 {t === "PENDING" ? "Pending" : "All"}
@@ -62,13 +72,23 @@ export default function ApprovalsPage() {
         <ErrorState onRetry={() => void refetch()} />
       ) : rows.length === 0 ? (
         <EmptyState
-          title={tab === "PENDING" ? "Nothing needs your decision" : "No approvals yet"}
+          title={
+            tab === "PENDING"
+              ? "Nothing needs your decision"
+              : "No approvals yet"
+          }
           description="When a cost exceeds your approval threshold, the request appears here with the details you need to decide."
         />
       ) : (
         <div className="space-y-4">
           {rows.map((a) => (
-            <ApprovalCard key={a.id} approval={a} onDecided={() => void qc.invalidateQueries({ queryKey: ["approvals"] })} />
+            <ApprovalCard
+              key={a.id}
+              approval={a}
+              onDecided={() =>
+                void qc.invalidateQueries({ queryKey: ["approvals"] })
+              }
+            />
           ))}
         </div>
       )}
@@ -88,19 +108,26 @@ function ApprovalCard({
 
   const decide = useMutation({
     mutationFn: (decision: "APPROVED" | "DECLINED" | "INFO_REQUESTED") =>
-      api.post(`/approvals/${approval.id}/decision`, { decision, note: note || undefined }),
+      api.post(`/approvals/${approval.id}/decision`, {
+        decision,
+        note: note || undefined,
+      }),
     onSuccess: onDecided,
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Something went wrong."),
+    onError: (e) =>
+      setError(e instanceof ApiError ? e.message : "Something went wrong."),
   });
 
-  const pending = approval.status === "PENDING" || approval.status === "INFO_REQUESTED";
+  const pending =
+    approval.status === "PENDING" || approval.status === "INFO_REQUESTED";
 
   return (
     <Card>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-ink-subtle">{approval.ref}</span>
+            <span className="font-mono text-xs text-ink-subtle">
+              {approval.ref}
+            </span>
             <StatusBadge status={approval.status} />
           </div>
           <p className="mt-1 font-medium text-navy-900">
@@ -123,16 +150,22 @@ function ApprovalCard({
       <dl className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2 border-t border-line pt-3 text-sm sm:grid-cols-3">
         <div>
           <dt className="nx-label">Requested by</dt>
-          <dd className="mt-0.5 text-navy-900">{approval.requestedBy?.fullName ?? "NexaHaus"}</dd>
+          <dd className="mt-0.5 text-navy-900">
+            {approval.requestedBy?.fullName ?? "NexaHaus"}
+          </dd>
         </div>
         <div>
           <dt className="nx-label">Raised</dt>
-          <dd className="mt-0.5 text-navy-900">{formatDate(approval.createdAt)}</dd>
+          <dd className="mt-0.5 text-navy-900">
+            {formatDate(approval.createdAt)}
+          </dd>
         </div>
         {approval.dueAt ? (
           <div>
             <dt className="nx-label">Needed by</dt>
-            <dd className="mt-0.5 text-navy-900">{formatDate(approval.dueAt)}</dd>
+            <dd className="mt-0.5 text-navy-900">
+              {formatDate(approval.dueAt)}
+            </dd>
           </div>
         ) : null}
       </dl>
@@ -148,10 +181,19 @@ function ApprovalCard({
           />
           {error ? <p className="mt-2 text-sm text-critical">{error}</p> : null}
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" loading={decide.isPending} onClick={() => decide.mutate("APPROVED")}>
+            <Button
+              size="sm"
+              loading={decide.isPending}
+              onClick={() => decide.mutate("APPROVED")}
+            >
               Approve
             </Button>
-            <Button size="sm" variant="danger" loading={decide.isPending} onClick={() => decide.mutate("DECLINED")}>
+            <Button
+              size="sm"
+              variant="danger"
+              loading={decide.isPending}
+              onClick={() => decide.mutate("DECLINED")}
+            >
               Decline
             </Button>
             <Button
@@ -160,7 +202,9 @@ function ApprovalCard({
               loading={decide.isPending}
               onClick={() => {
                 if (!note.trim()) {
-                  setError("Please add a note when requesting more information.");
+                  setError(
+                    "Please add a note when requesting more information.",
+                  );
                   return;
                 }
                 decide.mutate("INFO_REQUESTED");

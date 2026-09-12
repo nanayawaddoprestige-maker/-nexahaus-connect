@@ -30,7 +30,9 @@ export class ScopeResolverService {
           where: { id, deletedAt: null },
           select: { id: true },
         });
-        return row ? { clientId: row.id, propertyId: null, tenantId: null } : null;
+        return row
+          ? { clientId: row.id, propertyId: null, tenantId: null }
+          : null;
       }
       case "property": {
         const row = await this.prisma.property.findFirst({
@@ -44,7 +46,10 @@ export class ScopeResolverService {
       case "unit": {
         const row = await this.prisma.unit.findFirst({
           where: { id, deletedAt: null },
-          select: { propertyId: true, property: { select: { clientId: true } } },
+          select: {
+            propertyId: true,
+            property: { select: { clientId: true } },
+          },
         });
         return row
           ? {
@@ -77,7 +82,9 @@ export class ScopeResolverService {
           select: {
             id: true,
             leaseParties: {
-              select: { lease: { select: { clientId: true, propertyId: true } } },
+              select: {
+                lease: { select: { clientId: true, propertyId: true } },
+              },
               take: 1,
             },
           },

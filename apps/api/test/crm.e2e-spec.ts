@@ -47,43 +47,66 @@ describe("CRM funnel (e2e)", () => {
       documentsInOrder: false,
       lastMaintenanceRecent: false,
     },
-    consent: { marketing: true, wording: "I agree to be contacted about my assessment." },
+    consent: {
+      marketing: true,
+      wording: "I agree to be contacted about my assessment.",
+    },
     ...over,
   });
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     await app.init();
 
-    const role = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.SUPER_ADMIN } });
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { key: RoleKey.SUPER_ADMIN },
+    });
     const email = `crm.staff.${stamp}@nexahaus.test`;
     const user = await prisma.user.create({
       data: {
-        email, fullName: "CRM Staff",
+        email,
+        fullName: "CRM Staff",
         passwordHash: await argon2.hash(PASSWORD, { type: argon2.argon2id }),
-        status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: role.id } },
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: role.id } },
       },
     });
     cleanupUsers.push(user.id);
     const login = await request(app.getHttpServer())
-      .post("/api/v1/auth/login").send({ identifier: email, password: PASSWORD }).expect(200);
+      .post("/api/v1/auth/login")
+      .send({ identifier: email, password: PASSWORD })
+      .expect(200);
     staff = login.body.data.tokens.accessToken;
   });
 
   afterAll(async () => {
     if (convertedClientId) {
-      await prisma.clientOnboarding.deleteMany({ where: { clientId: convertedClientId } });
-      await prisma.consentRecord.deleteMany({ where: { subjectId: convertedClientId } });
+      await prisma.clientOnboarding.deleteMany({
+        where: { clientId: convertedClientId },
+      });
+      await prisma.consentRecord.deleteMany({
+        where: { subjectId: convertedClientId },
+      });
       await prisma.client.deleteMany({ where: { id: convertedClientId } });
     }
-    const leads = await prisma.lead.findMany({ where: { email: { equals: leadEmail, mode: "insensitive" } }, select: { id: true } });
+    const leads = await prisma.lead.findMany({
+      where: { email: { equals: leadEmail, mode: "insensitive" } },
+      select: { id: true },
+    });
     const ids = leads.map((l) => l.id);
-    await prisma.consentRecord.deleteMany({ where: { subjectId: { in: ids } } });
-    await prisma.propertyHealthCheck.deleteMany({ where: { leadId: { in: ids } } });
+    await prisma.consentRecord.deleteMany({
+      where: { subjectId: { in: ids } },
+    });
+    await prisma.propertyHealthCheck.deleteMany({
+      where: { leadId: { in: ids } },
+    });
     await prisma.leadActivity.deleteMany({ where: { leadId: { in: ids } } });
     await prisma.lead.deleteMany({ where: { id: { in: ids } } });
     await prisma.user.deleteMany({ where: { id: { in: cleanupUsers } } });
@@ -110,7 +133,11 @@ describe("CRM funnel (e2e)", () => {
     expect(["A", "B", "C"]).toContain(lead.grade);
 
     const consent = await prisma.consentRecord.findFirst({
-      where: { subjectType: "LEAD", subjectId: lead.id, source: "public.health-check" },
+      where: {
+        subjectType: "LEAD",
+        subjectId: lead.id,
+        source: "public.health-check",
+      },
     });
     expect(consent).toBeTruthy();
   });
@@ -129,7 +156,9 @@ describe("CRM funnel (e2e)", () => {
   });
 
   it("logging a consultation raises the lead score", async () => {
-    const before = (await prisma.lead.findFirstOrThrow({ where: { id: leadId } })).score;
+    const before = (
+      await prisma.lead.findFirstOrThrow({ where: { id: leadId } })
+    ).score;
     const res = await request(app.getHttpServer())
       .post(`/api/v1/leads/${leadId}/activities`)
       .set("authorization", `Bearer ${staff}`)
@@ -146,7 +175,9 @@ describe("CRM funnel (e2e)", () => {
       .expect(201);
     convertedClientId = res.body.data.clientId;
 
-    const client = await prisma.client.findUniqueOrThrow({ where: { id: convertedClientId! } });
+    const client = await prisma.client.findUniqueOrThrow({
+      where: { id: convertedClientId! },
+    });
     expect(client.status).toBe("ONBOARDING");
     expect(client.primaryEmail).toBe(leadEmail);
 

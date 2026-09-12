@@ -5,8 +5,7 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
 
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    "bg-navy-900 text-white hover:bg-navy-800 disabled:bg-navy-300",
+  primary: "bg-navy-900 text-white hover:bg-navy-800 disabled:bg-navy-300",
   secondary:
     "border border-line bg-surface text-navy-900 hover:bg-surface-sunken disabled:text-ink-subtle",
   ghost: "text-navy-700 hover:bg-navy-50 disabled:text-ink-subtle",
@@ -25,7 +24,18 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading, disabled, children, ...props }, ref) => (
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      loading,
+      disabled,
+      children,
+      ...props
+    },
+    ref,
+  ) => (
     <button
       ref={ref}
       disabled={disabled ?? loading}

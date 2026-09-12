@@ -54,7 +54,12 @@ export class UnitsController {
     @Body(new ZodValidationPipe(createUnitSchema)) body: CreateUnitInput,
     @Req() req: Request,
   ) {
-    return this.units.create(user, propertyId, body, auditCtxFromRequest(req, user));
+    return this.units.create(
+      user,
+      propertyId,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post("properties/:propertyId/buildings")
@@ -88,7 +93,8 @@ export class UnitsController {
   update(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(updateUnitSchema)) body: Partial<CreateUnitInput>,
+    @Body(new ZodValidationPipe(updateUnitSchema))
+    body: Partial<CreateUnitInput>,
     @Req() req: Request,
   ) {
     return this.units.update(user, id, body, auditCtxFromRequest(req, user));

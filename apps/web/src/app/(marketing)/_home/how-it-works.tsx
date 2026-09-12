@@ -14,8 +14,12 @@ export function HowItWorks() {
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-sm font-semibold tabular-nums text-white">
                 {i + 1}
               </span>
-              <h3 className="mt-4 text-sm font-semibold text-navy-900">{step.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">{step.body}</p>
+              <h3 className="mt-4 text-sm font-semibold text-navy-900">
+                {step.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+                {step.body}
+              </p>
             </li>
           </Reveal>
         ))}

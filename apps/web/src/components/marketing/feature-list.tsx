@@ -28,7 +28,9 @@ export function FeatureList({
         <Reveal key={f.title} delay={i * 40}>
           <div className="flex h-full flex-col rounded-xl border border-line bg-surface p-6 shadow-card">
             <h3 className="text-sm font-semibold text-navy-900">{f.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink-muted">{f.body}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+              {f.body}
+            </p>
           </div>
         </Reveal>
       ))}
@@ -46,12 +48,25 @@ export function CheckList({
   columns?: 1 | 2 | 3;
   className?: string;
 }) {
-  const cols = { 1: "", 2: "sm:grid-cols-2", 3: "sm:grid-cols-2 lg:grid-cols-3" }[columns];
+  const cols = {
+    1: "",
+    2: "sm:grid-cols-2",
+    3: "sm:grid-cols-2 lg:grid-cols-3",
+  }[columns];
   return (
-    <ul className={cn("grid gap-x-6 gap-y-2 text-sm text-ink-muted", cols, className)}>
+    <ul
+      className={cn(
+        "grid gap-x-6 gap-y-2 text-sm text-ink-muted",
+        cols,
+        className,
+      )}
+    >
       {items.map((item) => (
         <li key={item} className="flex items-start gap-2">
-          <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
+          <span
+            aria-hidden
+            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500"
+          />
           {item}
         </li>
       ))}

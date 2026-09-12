@@ -6,7 +6,9 @@ export function FinalCta() {
   return (
     <Section tone="navy" ariaLabel="Get started">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="nx-display text-display-md text-white">{finalCta.headline}</h2>
+        <h2 className="nx-display text-display-md text-white">
+          {finalCta.headline}
+        </h2>
         <p className="mt-3 text-navy-100">{finalCta.body}</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Cta

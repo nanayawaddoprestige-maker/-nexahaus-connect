@@ -49,7 +49,8 @@ export function Cta({
   label,
 }: CtaProps) {
   const external = /^https?:\/\//.test(href);
-  const resolvedLabel = label ?? (typeof children === "string" ? children : undefined);
+  const resolvedLabel =
+    label ?? (typeof children === "string" ? children : undefined);
 
   const classes = cn(
     "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors",

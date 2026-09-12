@@ -2,12 +2,12 @@
 
 ## What is protected
 
-| Asset | Method | Retention | RPO / RTO |
-|---|---|---|---|
-| PostgreSQL | Daily base backup + continuous WAL archive (PITR). Encrypted at rest + in transit. | 30 days (financial/audit rows also covered by `RetentionPolicy`) | RPO ≤ 5 min · RTO ≤ 1 h |
-| Object storage (documents, PDFs) | Versioned bucket + cross-region replication; lifecycle keeps prior versions 90 days | 90 days of versions | RPO ≈ 0 |
-| Secrets | Managed secrets store, versioned; rotation runbook | n/a | n/a |
-| IaC / config | Git | forever | n/a |
+| Asset                            | Method                                                                              | Retention                                                        | RPO / RTO               |
+| -------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------- |
+| PostgreSQL                       | Daily base backup + continuous WAL archive (PITR). Encrypted at rest + in transit.  | 30 days (financial/audit rows also covered by `RetentionPolicy`) | RPO ≤ 5 min · RTO ≤ 1 h |
+| Object storage (documents, PDFs) | Versioned bucket + cross-region replication; lifecycle keeps prior versions 90 days | 90 days of versions                                              | RPO ≈ 0                 |
+| Secrets                          | Managed secrets store, versioned; rotation runbook                                  | n/a                                                              | n/a                     |
+| IaC / config                     | Git                                                                                 | forever                                                          | n/a                     |
 
 Redis holds only cache + queue state and is **not** backed up; it rebuilds from Postgres.
 

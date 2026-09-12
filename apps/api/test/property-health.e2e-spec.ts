@@ -29,82 +29,155 @@ describe("Property Health & Rescue (e2e)", () => {
   const cleanupUsers: string[] = [];
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     await app.init();
 
-    const role = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.SUPER_ADMIN } });
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { key: RoleKey.SUPER_ADMIN },
+    });
     const email = `health.admin.${stamp}@nexahaus.test`;
     const user = await prisma.user.create({
       data: {
-        email, fullName: "Health Admin",
+        email,
+        fullName: "Health Admin",
         passwordHash: await argon2.hash(PASSWORD, { type: argon2.argon2id }),
-        status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: role.id } },
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: role.id } },
       },
     });
     cleanupUsers.push(user.id);
 
     const client = await prisma.client.create({
-      data: { ref: `CL-H-${stamp}`, type: "INDIVIDUAL", displayName: "Health Client", status: "ACTIVE" },
+      data: {
+        ref: `CL-H-${stamp}`,
+        type: "INDIVIDUAL",
+        displayName: "Health Client",
+        status: "ACTIVE",
+      },
     });
     clientId = client.id;
 
     const property = await prisma.property.create({
       data: {
-        ref: `NH-H-${stamp}`, clientId, name: "Health House", type: "HOUSE", status: "OCCUPIED",
-        addressLine: "7 Test Road", city: "Accra", region: "Greater Accra", unitCount: 2,
-        estimatedValueMinor: 200_000_000n, estimatedValueCurrency: "GHS",
+        ref: `NH-H-${stamp}`,
+        clientId,
+        name: "Health House",
+        type: "HOUSE",
+        status: "OCCUPIED",
+        addressLine: "7 Test Road",
+        city: "Accra",
+        region: "Greater Accra",
+        unitCount: 2,
+        estimatedValueMinor: 200_000_000n,
+        estimatedValueCurrency: "GHS",
         owners: { create: { clientId, sharePercent: 100, isPrimary: true } },
       },
     });
     propertyId = property.id;
-    await prisma.unit.create({ data: { propertyId, ref: `NHU-H1-${stamp}`, label: "A", status: "OCCUPIED", marketRentMinor: 500_000n, marketRentCurrency: "GHS" } });
-    await prisma.unit.create({ data: { propertyId, ref: `NHU-H2-${stamp}`, label: "B", status: "VACANT", marketRentMinor: 500_000n, marketRentCurrency: "GHS" } });
+    await prisma.unit.create({
+      data: {
+        propertyId,
+        ref: `NHU-H1-${stamp}`,
+        label: "A",
+        status: "OCCUPIED",
+        marketRentMinor: 500_000n,
+        marketRentCurrency: "GHS",
+      },
+    });
+    await prisma.unit.create({
+      data: {
+        propertyId,
+        ref: `NHU-H2-${stamp}`,
+        label: "B",
+        status: "VACANT",
+        marketRentMinor: 500_000n,
+        marketRentCurrency: "GHS",
+      },
+    });
 
     // 6 months of rent: mostly paid, one overdue.
     for (let m = 0; m < 6; m += 1) {
       const start = new Date(Date.UTC(2027, m, 1));
       await prisma.rentCharge.create({
         data: {
-          leaseId: (await prisma.lease.upsert({
-            where: { ref: `LS-H-${stamp}` },
-            create: {
-              ref: `LS-H-${stamp}`, propertyId, unitId: (await prisma.unit.findFirstOrThrow({ where: { propertyId, label: "A" } })).id,
-              clientId, startDate: new Date("2027-01-01"), endDate: new Date("2027-12-31"),
-              rentMinor: 500_000n, rentCurrency: "GHS", frequency: "MONTHLY", status: "ACTIVE",
-            },
-            update: {},
-          })).id,
-          propertyId, unitId: (await prisma.unit.findFirstOrThrow({ where: { propertyId, label: "A" } })).id,
-          clientId, periodStart: start, periodEnd: new Date(Date.UTC(2027, m + 1, 1)), dueDate: start,
-          amountMinor: 500_000n, currency: "GHS",
-          paidMinor: m === 5 ? 0n : 500_000n, status: m === 5 ? "OVERDUE" : "PAID",
+          leaseId: (
+            await prisma.lease.upsert({
+              where: { ref: `LS-H-${stamp}` },
+              create: {
+                ref: `LS-H-${stamp}`,
+                propertyId,
+                unitId: (
+                  await prisma.unit.findFirstOrThrow({
+                    where: { propertyId, label: "A" },
+                  })
+                ).id,
+                clientId,
+                startDate: new Date("2027-01-01"),
+                endDate: new Date("2027-12-31"),
+                rentMinor: 500_000n,
+                rentCurrency: "GHS",
+                frequency: "MONTHLY",
+                status: "ACTIVE",
+              },
+              update: {},
+            })
+          ).id,
+          propertyId,
+          unitId: (
+            await prisma.unit.findFirstOrThrow({
+              where: { propertyId, label: "A" },
+            })
+          ).id,
+          clientId,
+          periodStart: start,
+          periodEnd: new Date(Date.UTC(2027, m + 1, 1)),
+          dueDate: start,
+          amountMinor: 500_000n,
+          currency: "GHS",
+          paidMinor: m === 5 ? 0n : 500_000n,
+          status: m === 5 ? "OVERDUE" : "PAID",
         },
       });
     }
 
     const login = await request(app.getHttpServer())
-      .post("/api/v1/auth/login").send({ identifier: email, password: PASSWORD }).expect(200);
+      .post("/api/v1/auth/login")
+      .send({ identifier: email, password: PASSWORD })
+      .expect(200);
     access = login.body.data.tokens.accessToken;
   });
 
   afterAll(async () => {
-    await prisma.propertyHealthComponent.deleteMany({ where: { score: { propertyId } } });
+    await prisma.propertyHealthComponent.deleteMany({
+      where: { score: { propertyId } },
+    });
     await prisma.propertyHealthScore.deleteMany({ where: { propertyId } });
-    await prisma.propertyRescueRecommendation.deleteMany({ where: { assessment: { propertyId } } });
+    await prisma.propertyRescueRecommendation.deleteMany({
+      where: { assessment: { propertyId } },
+    });
     await prisma.propertyRescueAssessment.deleteMany({ where: { propertyId } });
     await prisma.document.deleteMany({ where: { scopeId: propertyId } });
-    await prisma.domainEvent.deleteMany({ where: { type: { in: ["HEALTH_SCORE_UPDATED", "PROPERTY_RESCUE_READY"] } } });
+    await prisma.domainEvent.deleteMany({
+      where: {
+        type: { in: ["HEALTH_SCORE_UPDATED", "PROPERTY_RESCUE_READY"] },
+      },
+    });
     await prisma.rentCharge.deleteMany({ where: { propertyId } });
     await prisma.lease.deleteMany({ where: { propertyId } });
     await prisma.unit.deleteMany({ where: { propertyId } });
     await prisma.property.deleteMany({ where: { id: propertyId } });
     await prisma.client.deleteMany({ where: { id: clientId } });
     await prisma.user.deleteMany({ where: { id: { in: cleanupUsers } } });
-    await prisma.healthScoreConfig.deleteMany({ where: { version: { gt: 1 } } });
+    await prisma.healthScoreConfig.deleteMany({
+      where: { version: { gt: 1 } },
+    });
     await prisma.$disconnect();
     await app.close();
   });
@@ -127,13 +200,18 @@ describe("Property Health & Rescue (e2e)", () => {
       expect(["actual", "estimate", "assumption"]).toContain(c.confidence);
     }
     // occupancy is 1/2 → its component value should reflect that
-    const occ = res.body.data.components.find((c: { key: string }) => c.key === "OCCUPANCY");
+    const occ = res.body.data.components.find(
+      (c: { key: string }) => c.key === "OCCUPANCY",
+    );
     expect(occ.value).toBeCloseTo(0.5, 5);
   });
 
   it("emitted a HEALTH_SCORE_UPDATED event", async () => {
     const event = await prisma.domainEvent.findFirst({
-      where: { type: "HEALTH_SCORE_UPDATED", payload: { path: ["propertyId"], equals: propertyId } },
+      where: {
+        type: "HEALTH_SCORE_UPDATED",
+        payload: { path: ["propertyId"], equals: propertyId },
+      },
     });
     expect(event).toBeTruthy();
   });
@@ -144,8 +222,14 @@ describe("Property Health & Rescue (e2e)", () => {
       .set("authorization", `Bearer ${access}`)
       .send({
         weights: {
-          OCCUPANCY: 0.6, RENT_COLLECTION: 0.1, MAINTENANCE: 0.05, CONDITION: 0.05,
-          TENANT_SATISFACTION: 0.05, DOCUMENTATION: 0.05, SECURITY: 0.03, FINANCIAL: 0.02,
+          OCCUPANCY: 0.6,
+          RENT_COLLECTION: 0.1,
+          MAINTENANCE: 0.05,
+          CONDITION: 0.05,
+          TENANT_SATISFACTION: 0.05,
+          DOCUMENTATION: 0.05,
+          SECURITY: 0.03,
+          FINANCIAL: 0.02,
         },
       })
       .expect(200);
@@ -174,7 +258,9 @@ describe("Property Health & Rescue (e2e)", () => {
     const a = res.body.data;
     expect(a.overallScore).toBeGreaterThanOrEqual(0);
     expect(Array.isArray(a.findings)).toBe(true);
-    expect(a.findings.some((f: { key: string }) => f.key === "VACANCY")).toBe(true);
+    expect(a.findings.some((f: { key: string }) => f.key === "VACANCY")).toBe(
+      true,
+    );
     // 1 of 2 units vacant + one overdue month → at least one recommendation
     expect(a.recommendations.length).toBeGreaterThan(0);
     expect(a.pdfDocumentId).toBeTruthy();

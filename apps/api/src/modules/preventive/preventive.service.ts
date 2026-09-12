@@ -82,7 +82,11 @@ export class PreventiveService {
       action: "preventive.create",
       resourceType: "property",
       resourceId: input.propertyId,
-      after: { planId: plan.id, serviceType: plan.serviceType, frequency: plan.frequency },
+      after: {
+        planId: plan.id,
+        serviceType: plan.serviceType,
+        frequency: plan.frequency,
+      },
     });
     return plan;
   }
@@ -126,7 +130,11 @@ export class PreventiveService {
       action: input.markRun ? "preventive.mark_run" : "preventive.update",
       resourceType: "property",
       resourceId: plan.propertyId,
-      after: { planId: id, nextDueAt: updated.nextDueAt.toISOString(), active: updated.active },
+      after: {
+        planId: id,
+        nextDueAt: updated.nextDueAt.toISOString(),
+        active: updated.active,
+      },
     });
     return updated;
   }

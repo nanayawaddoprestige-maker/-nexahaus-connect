@@ -16,7 +16,10 @@ export default function Splash() {
     <View style={styles.root}>
       <Text style={styles.brand}>NexaHaus Connect</Text>
       <Text style={styles.tag}>Managing Properties. Maximizing Assets.</Text>
-      <ActivityIndicator color={theme.color.gold400} style={{ marginTop: 24 }} />
+      <ActivityIndicator
+        color={theme.color.gold400}
+        style={{ marginTop: 24 }}
+      />
     </View>
   );
 }
@@ -30,5 +33,9 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   brand: { color: "#fff", fontSize: theme.font.size.xl, fontWeight: "700" },
-  tag: { color: theme.color.navy100, fontSize: theme.font.size.sm, marginTop: 8 },
+  tag: {
+    color: theme.color.navy100,
+    fontSize: theme.font.size.sm,
+    marginTop: 8,
+  },
 });

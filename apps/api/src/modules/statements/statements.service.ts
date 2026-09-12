@@ -93,7 +93,8 @@ export class StatementsService {
         },
       },
     });
-    if (properties.length === 0) throw AppError.validation("No properties for this statement.");
+    if (properties.length === 0)
+      throw AppError.validation("No properties for this statement.");
     const propertyIds = properties.map((p) => p.id);
     const months = wholeMonths(periodStart, periodEnd);
 
@@ -129,7 +130,9 @@ export class StatementsService {
       const fee = computeManagementFee(
         {
           feeType: agreement.feeType,
-          feePercent: agreement.feePercent ? Number(agreement.feePercent) : null,
+          feePercent: agreement.feePercent
+            ? Number(agreement.feePercent)
+            : null,
           feeFixedMinor: agreement.feeFixedMinor,
           feeCurrency: agreement.feeCurrency,
         },
@@ -206,7 +209,8 @@ export class StatementsService {
       else if (t.type === "MANAGEMENT_FEE") mgmtFees += abs;
       else if (t.type === "OWNER_DISTRIBUTION") distributions += abs;
       else if (t.type === "EXPENSE") {
-        if (t.category && MAINTENANCE_CATEGORIES.has(t.category)) maintenance += abs;
+        if (t.category && MAINTENANCE_CATEGORIES.has(t.category))
+          maintenance += abs;
         else other += abs;
       } else if (t.amountMinor < 0n) other += abs;
     }
@@ -274,7 +278,11 @@ export class StatementsService {
       return created;
     });
 
-    await this.renderPdf(statement.id, client.displayName, properties.map((p) => p.name));
+    await this.renderPdf(
+      statement.id,
+      client.displayName,
+      properties.map((p) => p.name),
+    );
 
     return this.getById(user, statement.id);
   }
@@ -293,7 +301,7 @@ export class StatementsService {
       ownerName,
       periodLabel: `${fmtDate(statement.periodStart)} – ${fmtDate(statement.periodEnd)}`,
       propertyLabel: statement.propertyId
-        ? propertyNames[0] ?? "Property"
+        ? (propertyNames[0] ?? "Property")
         : `Portfolio (${propertyNames.length} properties)`,
       currency: statement.currency,
       openingBalanceMinor: statement.openingBalanceMinor.toString(),
@@ -445,9 +453,14 @@ export class StatementsService {
     const s = await this.prisma.statement.findUnique({ where: { id } });
     if (!s) throw AppError.notFound("statement");
     if (s.status !== "DRAFT") {
-      throw AppError.illegalTransition(`A ${s.status} statement cannot be issued.`);
+      throw AppError.illegalTransition(
+        `A ${s.status} statement cannot be issued.`,
+      );
     }
-    await this.prisma.statement.update({ where: { id }, data: { status: "ISSUED" } });
+    await this.prisma.statement.update({
+      where: { id },
+      data: { status: "ISSUED" },
+    });
     await this.audit.record({
       ...ctx,
       action: "statement.issue",
@@ -459,7 +472,11 @@ export class StatementsService {
   }
 }
 
-function describe(type: string, category: string | null, reference: string | null): string {
+function describe(
+  type: string,
+  category: string | null,
+  reference: string | null,
+): string {
   switch (type) {
     case "RENT_PAYMENT":
       return "Rent received";
@@ -494,5 +511,9 @@ function wholeMonths(start: Date, end: Date): number {
   );
 }
 function fmtDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }

@@ -28,14 +28,18 @@ describe("Statement reproducibility (e2e)", () => {
   const cleanupUsers: string[] = [];
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     await app.init();
 
-    const role = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.SUPER_ADMIN } });
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { key: RoleKey.SUPER_ADMIN },
+    });
     const email = `stmt.admin.${stamp}@nexahaus.test`;
     const user = await prisma.user.create({
       data: {
@@ -50,7 +54,12 @@ describe("Statement reproducibility (e2e)", () => {
     cleanupUsers.push(user.id);
 
     const client = await prisma.client.create({
-      data: { ref: `CL-STMT-${stamp}`, type: "INDIVIDUAL", displayName: "Stmt Client", status: "ACTIVE" },
+      data: {
+        ref: `CL-STMT-${stamp}`,
+        type: "INDIVIDUAL",
+        displayName: "Stmt Client",
+        status: "ACTIVE",
+      },
     });
     clientId = client.id;
     const property = await prisma.property.create({
@@ -117,7 +126,12 @@ describe("Statement reproducibility (e2e)", () => {
               propertyId,
               unitId: (
                 await prisma.unit.create({
-                  data: { propertyId, ref: `NHU-STMT-${stamp}`, label: "Whole", status: "OCCUPIED" },
+                  data: {
+                    propertyId,
+                    ref: `NHU-STMT-${stamp}`,
+                    label: "Whole",
+                    status: "OCCUPIED",
+                  },
                 })
               ).id,
               clientId,
@@ -131,7 +145,8 @@ describe("Statement reproducibility (e2e)", () => {
           })
         ).id,
         propertyId,
-        unitId: (await prisma.unit.findFirstOrThrow({ where: { propertyId } })).id,
+        unitId: (await prisma.unit.findFirstOrThrow({ where: { propertyId } }))
+          .id,
         clientId,
         periodStart: new Date("2027-03-01"),
         periodEnd: new Date("2027-04-01"),
@@ -151,7 +166,9 @@ describe("Statement reproducibility (e2e)", () => {
   });
 
   afterAll(async () => {
-    await prisma.statementLine.deleteMany({ where: { statement: { clientId } } });
+    await prisma.statementLine.deleteMany({
+      where: { statement: { clientId } },
+    });
     await prisma.statement.deleteMany({ where: { clientId } });
     await prisma.document.deleteMany({ where: { scopeType: "STATEMENT" } });
     await prisma.transaction.deleteMany({ where: { clientId } });

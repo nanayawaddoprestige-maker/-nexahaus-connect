@@ -73,10 +73,22 @@ const config: Config = {
       },
       fontSize: {
         // Editorial display scale — fluid, clamped for small screens.
-        "display-2xl": ["clamp(2.75rem, 1.9rem + 4.2vw, 4.5rem)", { lineHeight: "1.04", letterSpacing: "-0.02em" }],
-        "display-xl": ["clamp(2.25rem, 1.7rem + 2.7vw, 3.5rem)", { lineHeight: "1.07", letterSpacing: "-0.02em" }],
-        "display-lg": ["clamp(1.875rem, 1.5rem + 1.9vw, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.015em" }],
-        "display-md": ["clamp(1.5rem, 1.3rem + 1vw, 2rem)", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
+        "display-2xl": [
+          "clamp(2.75rem, 1.9rem + 4.2vw, 4.5rem)",
+          { lineHeight: "1.04", letterSpacing: "-0.02em" },
+        ],
+        "display-xl": [
+          "clamp(2.25rem, 1.7rem + 2.7vw, 3.5rem)",
+          { lineHeight: "1.07", letterSpacing: "-0.02em" },
+        ],
+        "display-lg": [
+          "clamp(1.875rem, 1.5rem + 1.9vw, 2.75rem)",
+          { lineHeight: "1.1", letterSpacing: "-0.015em" },
+        ],
+        "display-md": [
+          "clamp(1.5rem, 1.3rem + 1vw, 2rem)",
+          { lineHeight: "1.15", letterSpacing: "-0.01em" },
+        ],
       },
       maxWidth: {
         content: "1200px",

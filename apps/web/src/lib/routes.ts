@@ -35,20 +35,54 @@ export interface NavItem {
 
 /** Primary header navigation (brief §5). */
 export const primaryNav: NavItem[] = [
-  { label: "Property Management", href: routes.propertyManagement, description: "Day-to-day management that protects your property." },
-  { label: "Asset Management", href: routes.assetManagement, description: "Understand and improve how your property performs." },
-  { label: "Diaspora", href: routes.diaspora, description: "Own property in Ghana from anywhere." },
-  { label: "Property Rescue", href: routes.propertyRescue, description: "Find out what is holding a property back." },
-  { label: "About", href: routes.about, description: "Why we are building NexaHaus." },
-  { label: "Insights", href: routes.insights, description: "Property management knowledge for owners." },
-  { label: "Contact", href: routes.contact, description: "Talk to us about your property." },
+  {
+    label: "Property Management",
+    href: routes.propertyManagement,
+    description: "Day-to-day management that protects your property.",
+  },
+  {
+    label: "Asset Management",
+    href: routes.assetManagement,
+    description: "Understand and improve how your property performs.",
+  },
+  {
+    label: "Diaspora",
+    href: routes.diaspora,
+    description: "Own property in Ghana from anywhere.",
+  },
+  {
+    label: "Property Rescue",
+    href: routes.propertyRescue,
+    description: "Find out what is holding a property back.",
+  },
+  {
+    label: "About",
+    href: routes.about,
+    description: "Why we are building NexaHaus.",
+  },
+  {
+    label: "Insights",
+    href: routes.insights,
+    description: "Property management knowledge for owners.",
+  },
+  {
+    label: "Contact",
+    href: routes.contact,
+    description: "Talk to us about your property.",
+  },
 ];
 
 /** Primary and secondary calls to action (brief §39). */
 export const cta = {
-  primary: { label: "Request Property Assessment", href: routes.propertyHealthCheck },
+  primary: {
+    label: "Request Property Assessment",
+    href: routes.propertyHealthCheck,
+  },
   secondary: { label: "Join Early Access", href: routes.earlyAccess },
-  tertiary: { label: "Check Your Property Health", href: routes.propertyHealthCheck },
+  tertiary: {
+    label: "Check Your Property Health",
+    href: routes.propertyHealthCheck,
+  },
 } as const;
 
 export const footerNav: { heading: string; items: NavItem[] }[] = [

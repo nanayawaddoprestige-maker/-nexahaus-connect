@@ -38,8 +38,14 @@ export class AppError extends HttpException {
     );
   }
 
-  static tokenExpired(message = "Your session has expired. Please sign in again."): AppError {
-    return new AppError(ApiErrorCode.TOKEN_EXPIRED, message, HttpStatus.UNAUTHORIZED);
+  static tokenExpired(
+    message = "Your session has expired. Please sign in again.",
+  ): AppError {
+    return new AppError(
+      ApiErrorCode.TOKEN_EXPIRED,
+      message,
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 
   /**
@@ -47,11 +53,16 @@ export class AppError extends HttpException {
    * deliberately generic so it never reveals whether the resource exists
    * (docs/SECURITY.md §2.3).
    */
-  static forbidden(message = "You do not have access to this resource."): AppError {
+  static forbidden(
+    message = "You do not have access to this resource.",
+  ): AppError {
     return new AppError(ApiErrorCode.FORBIDDEN, message, HttpStatus.FORBIDDEN);
   }
 
-  static notFound(resource = "resource", code: ApiErrorCode = ApiErrorCode.NOT_FOUND): AppError {
+  static notFound(
+    resource = "resource",
+    code: ApiErrorCode = ApiErrorCode.NOT_FOUND,
+  ): AppError {
     return new AppError(
       code,
       `The requested ${resource} could not be found.`,
@@ -84,7 +95,9 @@ export class AppError extends HttpException {
     );
   }
 
-  static rateLimited(message = "Too many requests. Please try again shortly."): AppError {
+  static rateLimited(
+    message = "Too many requests. Please try again shortly.",
+  ): AppError {
     return new AppError(
       ApiErrorCode.RATE_LIMITED,
       message,
@@ -92,7 +105,9 @@ export class AppError extends HttpException {
     );
   }
 
-  static approvalRequired(message = "Owner approval is required before this action can proceed."): AppError {
+  static approvalRequired(
+    message = "Owner approval is required before this action can proceed.",
+  ): AppError {
     return new AppError(
       ApiErrorCode.APPROVAL_REQUIRED,
       message,

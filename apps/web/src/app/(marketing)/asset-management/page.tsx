@@ -16,18 +16,46 @@ export const metadata: Metadata = buildMetadata({
   title: "Asset Management",
   description: DESCRIPTION,
   path: routes.assetManagement,
-  keywords: ["property asset management Ghana", "property investment Ghana", "rental performance Ghana"],
+  keywords: [
+    "property asset management Ghana",
+    "property investment Ghana",
+    "rental performance Ghana",
+  ],
 });
 
 const AREAS = [
-  { title: "Portfolio oversight", body: "A single view across every property you own, with property- and portfolio-level reporting." },
-  { title: "Rental performance", body: "Rent achieved vs market, arrears, vacancy loss and collection rate over time." },
-  { title: "Occupancy", body: "Occupied vs vacant units, lease expiry pipeline and re-letting time." },
-  { title: "Expense analysis", body: "Operating costs by category, so recurring drains are visible and can be addressed." },
-  { title: "Maintenance planning", body: "Preventive maintenance scheduled ahead of time to protect condition and value." },
-  { title: "Property improvement", body: "Targeted work that improves rentability or reduces running costs, with the case set out." },
-  { title: "Asset reporting", body: "Income, expenses, net operating income and an estimated yield — actuals and estimates clearly labelled." },
-  { title: "Strategic recommendations", body: "Practical options for each property: hold, improve, re-position or review." },
+  {
+    title: "Portfolio oversight",
+    body: "A single view across every property you own, with property- and portfolio-level reporting.",
+  },
+  {
+    title: "Rental performance",
+    body: "Rent achieved vs market, arrears, vacancy loss and collection rate over time.",
+  },
+  {
+    title: "Occupancy",
+    body: "Occupied vs vacant units, lease expiry pipeline and re-letting time.",
+  },
+  {
+    title: "Expense analysis",
+    body: "Operating costs by category, so recurring drains are visible and can be addressed.",
+  },
+  {
+    title: "Maintenance planning",
+    body: "Preventive maintenance scheduled ahead of time to protect condition and value.",
+  },
+  {
+    title: "Property improvement",
+    body: "Targeted work that improves rentability or reduces running costs, with the case set out.",
+  },
+  {
+    title: "Asset reporting",
+    body: "Income, expenses, net operating income and an estimated yield — actuals and estimates clearly labelled.",
+  },
+  {
+    title: "Strategic recommendations",
+    body: "Practical options for each property: hold, improve, re-position or review.",
+  },
 ];
 
 export default function AssetManagementPage() {
@@ -38,8 +66,14 @@ export default function AssetManagementPage() {
         eyebrow="Service"
         title="Manage the Property. Understand the Asset."
         lede="Property management keeps day-to-day operations running. Asset management is about long-term performance and value. NexaHaus connects both."
-        breadcrumb={[{ label: "Asset Management", href: routes.assetManagement }]}
-        jsonLd={{ name: "Asset Management", description: DESCRIPTION, path: routes.assetManagement }}
+        breadcrumb={[
+          { label: "Asset Management", href: routes.assetManagement },
+        ]}
+        jsonLd={{
+          name: "Asset Management",
+          description: DESCRIPTION,
+          path: routes.assetManagement,
+        }}
         primary={{ label: "Discuss Your Portfolio", href: routes.contact }}
       />
 
@@ -50,8 +84,8 @@ export default function AssetManagementPage() {
               Property management
             </p>
             <p className="mt-2 text-sm text-ink-muted">
-              Day-to-day operations: tenants, rent, maintenance, inspections, reporting.
-              Protects the property.
+              Day-to-day operations: tenants, rent, maintenance, inspections,
+              reporting. Protects the property.
             </p>
           </div>
           <div className="rounded-xl border border-navy-200 bg-navy-50 p-6">
@@ -59,8 +93,9 @@ export default function AssetManagementPage() {
               Asset management
             </p>
             <p className="mt-2 text-sm text-navy-800">
-              Long-term performance and value: how the property does as an asset, and what
-              would make it do better. Seeks to improve performance.
+              Long-term performance and value: how the property does as an
+              asset, and what would make it do better. Seeks to improve
+              performance.
             </p>
           </div>
         </div>
@@ -78,17 +113,26 @@ export default function AssetManagementPage() {
           <PerformancePanel
             occupancy={80}
             rows={[
-              { label: "Gross rental income", value: "GHS 342,000", note: "12-mo" },
+              {
+                label: "Gross rental income",
+                value: "GHS 342,000",
+                note: "12-mo",
+              },
               { label: "Operating expenses", value: "GHS 88,000" },
               { label: "Net operating income", value: "GHS 254,000" },
               { label: "Vacancy loss", value: "GHS 21,000" },
-              { label: "Estimated gross yield", value: "7.4%", note: "estimate" },
+              {
+                label: "Estimated gross yield",
+                value: "7.4%",
+                note: "estimate",
+              },
             ]}
           />
         </div>
         <p className="mt-6 max-w-prose text-xs text-ink-subtle">
-          Figures above are an illustrative example only. NexaHaus does not provide
-          valuation, tax or investment advice; estimated yields are not a valuation.
+          Figures above are an illustrative example only. NexaHaus does not
+          provide valuation, tax or investment advice; estimated yields are not
+          a valuation.
         </p>
       </Section>
 

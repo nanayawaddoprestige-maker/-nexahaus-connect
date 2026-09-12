@@ -9,19 +9,19 @@ launch and before enabling any regulated feature.
 The platform processes personal data of owners, tenants, leads, vendors and staff. It is
 designed to support the Act's principles.
 
-| Requirement | Platform support |
-|---|---|
-| Lawful basis & purpose | `ConsentRecord` (subject, purpose, lawful basis, evidence, granted/revoked). Marketing/survey/health-check flows capture explicit consent and store the exact wording shown. Processing purposes documented per data category. |
-| Data minimisation | Explicit DTOs; only fields with a stated purpose are collected. Tenant ID-document data is optional, access-restricted and encrypted. |
-| Accuracy & rectification | `DataSubjectRequest` type `RECTIFICATION`; audited edits. |
-| Right of access / portability | `DataSubjectRequest` types `ACCESS` / `EXPORT` produce a structured export of the subject's data within scope. |
-| Right to erasure (bounded) | `DataSubjectRequest` type `ERASURE`. Erasure **anonymises** rather than hard-deletes where financial/audit retention applies (see §3). `RetentionPolicy` governs what can be removed and when. |
-| Retention | `RetentionPolicy` per resource type (`retainForDays`, `action` = ANONYMIZE/DELETE/ARCHIVE). Financial ledger, statements, tax and audit records are retained for the statutory period regardless of an erasure request. |
-| Security safeguards | See [SECURITY.md](SECURITY.md) — encryption in transit, at rest where supported, RBAC, audit, access logging, breach detection. |
-| Data Protection Officer / registration | Admin area for DPO details, data-processing register, and processor (vendor) records. Designed to support Data Protection Commission registration. |
-| Processor management | `Vendor` + `VendorDocument` (contracts), plus a processing-activities register in settings. Notification/payment/storage providers are recorded with purpose and data categories. |
-| Breach handling | `AuditLog` + `DocumentAccessLog` support impact assessment; incident runbook covers notification obligations to the Commission and affected subjects. |
-| Cross-border transfers | Provider selection (email/SMS/storage/analytics) is config-driven; the processing register records provider location so transfers can be assessed and disclosed. |
+| Requirement                            | Platform support                                                                                                                                                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lawful basis & purpose                 | `ConsentRecord` (subject, purpose, lawful basis, evidence, granted/revoked). Marketing/survey/health-check flows capture explicit consent and store the exact wording shown. Processing purposes documented per data category. |
+| Data minimisation                      | Explicit DTOs; only fields with a stated purpose are collected. Tenant ID-document data is optional, access-restricted and encrypted.                                                                                          |
+| Accuracy & rectification               | `DataSubjectRequest` type `RECTIFICATION`; audited edits.                                                                                                                                                                      |
+| Right of access / portability          | `DataSubjectRequest` types `ACCESS` / `EXPORT` produce a structured export of the subject's data within scope.                                                                                                                 |
+| Right to erasure (bounded)             | `DataSubjectRequest` type `ERASURE`. Erasure **anonymises** rather than hard-deletes where financial/audit retention applies (see §3). `RetentionPolicy` governs what can be removed and when.                                 |
+| Retention                              | `RetentionPolicy` per resource type (`retainForDays`, `action` = ANONYMIZE/DELETE/ARCHIVE). Financial ledger, statements, tax and audit records are retained for the statutory period regardless of an erasure request.        |
+| Security safeguards                    | See [SECURITY.md](SECURITY.md) — encryption in transit, at rest where supported, RBAC, audit, access logging, breach detection.                                                                                                |
+| Data Protection Officer / registration | Admin area for DPO details, data-processing register, and processor (vendor) records. Designed to support Data Protection Commission registration.                                                                             |
+| Processor management                   | `Vendor` + `VendorDocument` (contracts), plus a processing-activities register in settings. Notification/payment/storage providers are recorded with purpose and data categories.                                              |
+| Breach handling                        | `AuditLog` + `DocumentAccessLog` support impact assessment; incident runbook covers notification obligations to the Commission and affected subjects.                                                                          |
+| Cross-border transfers                 | Provider selection (email/SMS/storage/analytics) is config-driven; the processing register records provider location so transfers can be assessed and disclosed.                                                               |
 
 **Consent is never assumed.** Marketing communications are gated on a stored consent
 record; unsubscribe/opt-out is honoured and recorded.
@@ -31,14 +31,14 @@ record; unsubscribe/opt-out is honoured and recorded.
 The product separates activities so that **regulated agency functions are enabled only when
 NexaHaus holds the required licensing and qualified personnel**.
 
-| Activity | Default | Gating |
-|---|---|---|
-| Property management | Enabled | Core product |
-| Asset management | Enabled | Core product |
-| Facilities management | Enabled | Core product |
-| Leasing (tenant sourcing, lease negotiation on behalf of owner) | **Disabled** | Feature flag + `LEASING_OFFICER` role + valid `PractitionerLicence` |
+| Activity                                                             | Default      | Gating                                                                   |
+| -------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
+| Property management                                                  | Enabled      | Core product                                                             |
+| Asset management                                                     | Enabled      | Core product                                                             |
+| Facilities management                                                | Enabled      | Core product                                                             |
+| Leasing (tenant sourcing, lease negotiation on behalf of owner)      | **Disabled** | Feature flag + `LEASING_OFFICER` role + valid `PractitionerLicence`      |
 | Real estate agency (brokerage, representing parties in transactions) | **Disabled** | Feature flag + `PractitionerLicence` (scope ORG, `designatedBroker` set) |
-| Property sales / marketing listings | **Disabled** | Feature flag + licence; not built into MVP |
+| Property sales / marketing listings                                  | **Disabled** | Feature flag + licence; not built into MVP                               |
 
 - `PractitionerLicence` stores licence type, number, status, issue/expiry, and the
   designated broker where applicable; expiring licences raise `ComplianceItem` alerts.

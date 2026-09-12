@@ -29,7 +29,9 @@ export class VendorsService {
     const { skip, take, page, pageSize } = pageParams(query);
     const where: Prisma.VendorWhereInput = {
       deletedAt: null,
-      ...(query.status ? { status: query.status as Prisma.EnumVendorStatusFilter["equals"] } : {}),
+      ...(query.status
+        ? { status: query.status as Prisma.EnumVendorStatusFilter["equals"] }
+        : {}),
       ...(query.category ? { categories: { has: query.category } } : {}),
       ...(query.q
         ? {
@@ -79,7 +81,9 @@ export class VendorsService {
       where: { id, deletedAt: null },
       include: {
         propertyAssignments: {
-          include: { property: { select: { id: true, name: true, ref: true } } },
+          include: {
+            property: { select: { id: true, name: true, ref: true } },
+          },
         },
         workOrders: {
           orderBy: { createdAt: "desc" },
@@ -187,18 +191,20 @@ export class VendorsService {
       resourceType: "vendor",
       resourceId: id,
       before: { name: existing.name, status: existing.status },
-      after: { name: input.name ?? existing.name, status: input.status ?? existing.status },
+      after: {
+        name: input.name ?? existing.name,
+        status: input.status ?? existing.status,
+      },
     });
     return this.getById(id);
   }
 
-  async assignToProperty(
-    id: string,
-    propertyId: string,
-    ctx: AuditContext,
-  ) {
+  async assignToProperty(id: string, propertyId: string, ctx: AuditContext) {
     const [vendor, property] = await Promise.all([
-      this.prisma.vendor.findFirst({ where: { id, deletedAt: null }, select: { id: true } }),
+      this.prisma.vendor.findFirst({
+        where: { id, deletedAt: null },
+        select: { id: true },
+      }),
       this.prisma.property.findFirst({
         where: { id: propertyId, deletedAt: null },
         select: { id: true },

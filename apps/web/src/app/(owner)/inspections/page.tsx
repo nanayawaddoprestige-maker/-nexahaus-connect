@@ -7,9 +7,17 @@ import type { InspectionRow } from "@/lib/ops-resources";
 import { formatDate, titleCase } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
-const CONDITION_TONE: Record<string, "positive" | "warning" | "critical" | "neutral"> = {
+const CONDITION_TONE: Record<
+  string,
+  "positive" | "warning" | "critical" | "neutral"
+> = {
   EXCELLENT: "positive",
   GOOD: "positive",
   FAIR: "warning",
@@ -19,7 +27,8 @@ const CONDITION_TONE: Record<string, "positive" | "warning" | "critical" | "neut
 export default function InspectionsPage() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["inspections", "list"],
-    queryFn: () => api.list<InspectionRow>("/inspections", { query: { pageSize: 50 } }),
+    queryFn: () =>
+      api.list<InspectionRow>("/inspections", { query: { pageSize: 50 } }),
   });
   const rows = data?.items ?? [];
 
@@ -61,7 +70,8 @@ export default function InspectionsPage() {
                     ) : null}
                   </div>
                   <p className="mt-1 text-xs text-ink-subtle">
-                    <span className="font-mono">{i.ref}</span> · {i.property.name}
+                    <span className="font-mono">{i.ref}</span> ·{" "}
+                    {i.property.name}
                     {i.inspector ? ` · ${i.inspector.fullName}` : ""}
                     {i.completedAt
                       ? ` · completed ${formatDate(i.completedAt)}`
@@ -72,7 +82,9 @@ export default function InspectionsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   {i.reportDocumentId ? (
-                    <span className="text-xs font-medium text-navy-700">Report ready</span>
+                    <span className="text-xs font-medium text-navy-700">
+                      Report ready
+                    </span>
                   ) : null}
                   <StatusBadge status={i.status} />
                 </div>

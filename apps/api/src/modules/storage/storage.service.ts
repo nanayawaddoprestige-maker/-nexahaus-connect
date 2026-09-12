@@ -52,7 +52,11 @@ export class StorageService {
   presignUpload(key: string, contentType: string): Promise<string> {
     return getSignedUrl(
       this.client,
-      new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType }),
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: contentType,
+      }),
       { expiresIn: this.ttl },
     );
   }

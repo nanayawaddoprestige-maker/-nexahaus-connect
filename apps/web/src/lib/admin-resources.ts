@@ -81,7 +81,11 @@ export interface ClientDetail {
 export interface ClientPortfolioSummary {
   currency: string;
   properties: { total: number; occupied: number; vacant: number };
-  rent: { expectedMinor: string; collectedMinor: string; outstandingMinor: string };
+  rent: {
+    expectedMinor: string;
+    collectedMinor: string;
+    outstandingMinor: string;
+  };
   openMaintenance: number;
 }
 

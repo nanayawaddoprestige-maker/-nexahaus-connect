@@ -25,7 +25,9 @@ export const requestUploadSchema = z
 
 export const finalizeUploadSchema = z
   .object({
-    checksumSha256: z.string().regex(/^[a-f0-9]{64}$/i, "expected a SHA-256 hex digest"),
+    checksumSha256: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/i, "expected a SHA-256 hex digest"),
   })
   .strict();
 

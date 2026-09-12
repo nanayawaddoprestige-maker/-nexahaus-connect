@@ -44,13 +44,19 @@ export function PerformancePanel({
         <div className="mb-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-ink-muted">Occupancy</span>
-            <span className="font-medium tabular-nums text-navy-900">{occ}%</span>
+            <span className="font-medium tabular-nums text-navy-900">
+              {occ}%
+            </span>
           </div>
           <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-navy-50">
             <div
               className={cn(
                 "h-full rounded-full",
-                occ < 60 ? "bg-critical" : occ < 80 ? "bg-warning" : "bg-positive",
+                occ < 60
+                  ? "bg-critical"
+                  : occ < 80
+                    ? "bg-warning"
+                    : "bg-positive",
               )}
               style={{ width: `${occ}%` }}
             />
@@ -59,12 +65,19 @@ export function PerformancePanel({
 
         <dl className="divide-y divide-line">
           {rows.map((r) => (
-            <div key={r.label} className="flex items-baseline justify-between py-2.5">
+            <div
+              key={r.label}
+              className="flex items-baseline justify-between py-2.5"
+            >
               <dt className="text-sm text-ink-muted">{r.label}</dt>
               <dd className="text-right">
-                <span className="text-sm font-medium tabular-nums text-navy-900">{r.value}</span>
+                <span className="text-sm font-medium tabular-nums text-navy-900">
+                  {r.value}
+                </span>
                 {r.note ? (
-                  <span className="ml-2 text-[11px] text-ink-subtle">{r.note}</span>
+                  <span className="ml-2 text-[11px] text-ink-subtle">
+                    {r.note}
+                  </span>
                 ) : null}
               </dd>
             </div>
@@ -72,8 +85,9 @@ export function PerformancePanel({
         </dl>
       </div>
       <figcaption className="sr-only">
-        Illustrative example of a NexaHaus asset-performance summary. Figures are
-        fictional; estimates are labelled and are not a professional valuation.
+        Illustrative example of a NexaHaus asset-performance summary. Figures
+        are fictional; estimates are labelled and are not a professional
+        valuation.
       </figcaption>
     </figure>
   );

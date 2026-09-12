@@ -57,8 +57,15 @@ export default function DiasporaPage() {
         title="Own Property in Ghana. Stay Connected From Anywhere."
         lede="You should be able to own property in Ghana without the stress of managing it from abroad. NexaHaus is built to be the professional layer between you and your property — so distance does not mean uncertainty."
         breadcrumb={[{ label: "Diaspora", href: routes.diaspora }]}
-        jsonLd={{ name: "Diaspora Property Management", description: DESCRIPTION, path: routes.diaspora }}
-        primary={{ label: "Request Diaspora Property Assessment", href: routes.propertyHealthCheck }}
+        jsonLd={{
+          name: "Diaspora Property Management",
+          description: DESCRIPTION,
+          path: routes.diaspora,
+        }}
+        primary={{
+          label: "Request Diaspora Property Assessment",
+          href: routes.propertyHealthCheck,
+        }}
       />
 
       <Section>
@@ -113,11 +120,28 @@ export default function DiasporaPage() {
         <FlowSteps
           className="mt-10"
           steps={[
-            { label: "Assessment", detail: "We review the property and how it is managed now." },
-            { label: "Onboarding", detail: "Property, tenants and documents set up in NexaHaus Connect." },
-            { label: "Management", detail: "Rent, maintenance and inspections handled on the ground." },
-            { label: "Visibility", detail: "You see status, finances and reports from anywhere." },
-            { label: "Approvals", detail: "You sign off significant costs from your phone." },
+            {
+              label: "Assessment",
+              detail: "We review the property and how it is managed now.",
+            },
+            {
+              label: "Onboarding",
+              detail:
+                "Property, tenants and documents set up in NexaHaus Connect.",
+            },
+            {
+              label: "Management",
+              detail:
+                "Rent, maintenance and inspections handled on the ground.",
+            },
+            {
+              label: "Visibility",
+              detail: "You see status, finances and reports from anywhere.",
+            },
+            {
+              label: "Approvals",
+              detail: "You sign off significant costs from your phone.",
+            },
           ]}
         />
       </Section>
@@ -133,7 +157,10 @@ export default function DiasporaPage() {
       <CtaBand
         title="You don't need to be in Ghana to know what is happening."
         body="Tell us where the property is and how it is managed today. We'll come back with an assessment."
-        primary={{ label: "Request Diaspora Property Assessment", href: routes.propertyHealthCheck }}
+        primary={{
+          label: "Request Diaspora Property Assessment",
+          href: routes.propertyHealthCheck,
+        }}
       />
     </>
   );

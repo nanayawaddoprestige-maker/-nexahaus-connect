@@ -28,7 +28,9 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduce || typeof IntersectionObserver === "undefined") return; // stay visible
 
     // Already on screen at mount → don't animate, avoid a pointless flash.
@@ -54,7 +56,11 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      style={state === "shown" && delay ? { transitionDelay: `${delay}ms` } : undefined}
+      style={
+        state === "shown" && delay
+          ? { transitionDelay: `${delay}ms` }
+          : undefined
+      }
       className={cn(
         "motion-safe:transition-all motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]",
         state === "armed"

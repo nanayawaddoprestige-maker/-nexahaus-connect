@@ -32,7 +32,8 @@ export function buildMetadata({
   keywords,
   type = "website",
 }: PageSeo): Metadata {
-  const canonical = path === "/" ? SITE_URL : new URL(path, SITE_URL).toString();
+  const canonical =
+    path === "/" ? SITE_URL : new URL(path, SITE_URL).toString();
   const index = ALLOW_INDEXING && !noindex;
 
   const meta: Metadata = {
@@ -61,7 +62,9 @@ export function buildMetadata({
   };
 
   if (image) {
-    meta.openGraph!.images = [{ url: image, width: 1200, height: 630, alt: title }];
+    meta.openGraph!.images = [
+      { url: image, width: 1200, height: 630, alt: title },
+    ];
     meta.twitter!.images = [image];
   }
 

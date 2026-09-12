@@ -8,17 +8,17 @@
 
 ## Alerts → first action
 
-| Alert | Look at | Likely cause / first move |
-|---|---|---|
-| `api /ready` failing | `/ready` body per dependency | DB or Redis unreachable → check that service; if DB primary down → [disaster-recovery.md](disaster-recovery.md) |
-| Error-rate spike (5xx) | Sentry issues, top failing route, recent deploy | Bad deploy → [deploy.md](deploy.md) Rollback; else scope to a module |
-| Latency p95 up | DB slow-query log, connection pool, queue depth | Missing index / N+1 → [../PERFORMANCE.md](../PERFORMANCE.md); saturated pool → scale or lower concurrency |
-| Queue backlog (BullMQ depth rising) | `worker` logs, failed jobs, Redis health | Worker crashed / not scaled → restart, add replicas; poison job → inspect `DomainEvent.lastError` |
-| DB connections near max | pool metrics, long transactions | Scale down `api` replicas or raise pool cautiously; kill stuck txns; check for a migration lock |
-| Failed-login spike | `AuditLog` failed-auth, source IPs | Credential stuffing → confirm lockout + rate limit holding; block IPs at edge |
-| Webhook signature failures | `PaymentProviderWebhookEvent` | Provider secret rotated without us, or an attacker → verify with provider; our side already drops them |
-| Storage errors | storage provider status, `STORAGE_*` config | Provider incident → uploads degrade gracefully; documents stay pending, not lost |
-| Cert / TLS expiry warning | edge cert manager | Renew; should be automated — file a bug if it wasn't |
+| Alert                               | Look at                                         | Likely cause / first move                                                                                       |
+| ----------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `api /ready` failing                | `/ready` body per dependency                    | DB or Redis unreachable → check that service; if DB primary down → [disaster-recovery.md](disaster-recovery.md) |
+| Error-rate spike (5xx)              | Sentry issues, top failing route, recent deploy | Bad deploy → [deploy.md](deploy.md) Rollback; else scope to a module                                            |
+| Latency p95 up                      | DB slow-query log, connection pool, queue depth | Missing index / N+1 → [../PERFORMANCE.md](../PERFORMANCE.md); saturated pool → scale or lower concurrency       |
+| Queue backlog (BullMQ depth rising) | `worker` logs, failed jobs, Redis health        | Worker crashed / not scaled → restart, add replicas; poison job → inspect `DomainEvent.lastError`               |
+| DB connections near max             | pool metrics, long transactions                 | Scale down `api` replicas or raise pool cautiously; kill stuck txns; check for a migration lock                 |
+| Failed-login spike                  | `AuditLog` failed-auth, source IPs              | Credential stuffing → confirm lockout + rate limit holding; block IPs at edge                                   |
+| Webhook signature failures          | `PaymentProviderWebhookEvent`                   | Provider secret rotated without us, or an attacker → verify with provider; our side already drops them          |
+| Storage errors                      | storage provider status, `STORAGE_*` config     | Provider incident → uploads degrade gracefully; documents stay pending, not lost                                |
+| Cert / TLS expiry warning           | edge cert manager                               | Renew; should be automated — file a bug if it wasn't                                                            |
 
 ## Useful checks
 
@@ -36,5 +36,5 @@ those need a config change + roll.
 ## Escalation
 
 1. Secondary on-call → 2. Engineering lead → 3. CTO.
-SEV1 involving personal data or funds: also notify the Data Protection Officer immediately
-(Act 843 clock starts) and Finance for any money discrepancy.
+   SEV1 involving personal data or funds: also notify the Data Protection Officer immediately
+   (Act 843 clock starts) and Finance for any money discrepancy.

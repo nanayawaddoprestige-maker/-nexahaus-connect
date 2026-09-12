@@ -24,8 +24,21 @@ export function ScoreRing({
 
   return (
     <div className="inline-flex flex-col items-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`Score ${score ?? "not scored"} of 100`}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth="6" />
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={`Score ${score ?? "not scored"} of 100`}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="6"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -49,12 +62,20 @@ export function ScoreRing({
           {score ?? "—"}
         </text>
       </svg>
-      {label ? <span className="mt-1 text-xs text-ink-subtle">{label}</span> : null}
+      {label ? (
+        <span className="mt-1 text-xs text-ink-subtle">{label}</span>
+      ) : null}
     </div>
   );
 }
 
-export function Bar({ value, tone }: { value: number; tone?: "positive" | "warning" | "critical" }) {
+export function Bar({
+  value,
+  tone,
+}: {
+  value: number;
+  tone?: "positive" | "warning" | "critical";
+}) {
   const pct = Math.max(0, Math.min(100, Math.round(value * 100)));
   const color =
     tone === "critical"
@@ -68,7 +89,10 @@ export function Bar({ value, tone }: { value: number; tone?: "positive" | "warni
             : "bg-positive";
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-navy-50">
-      <div className={cn("h-full rounded-full", color)} style={{ width: `${pct}%` }} />
+      <div
+        className={cn("h-full rounded-full", color)}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }

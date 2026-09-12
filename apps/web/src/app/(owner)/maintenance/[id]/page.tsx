@@ -32,8 +32,14 @@ export default function MaintenanceDetailPage() {
     const notFound = error instanceof ApiError && error.status === 404;
     return (
       <ErrorState
-        title={notFound ? "Request not found" : "We couldn't load this request."}
-        description={notFound ? "It may have been closed, or is outside your access." : "Please try again."}
+        title={
+          notFound ? "Request not found" : "We couldn't load this request."
+        }
+        description={
+          notFound
+            ? "It may have been closed, or is outside your access."
+            : "Please try again."
+        }
         onRetry={notFound ? undefined : () => void refetch()}
       />
     );
@@ -41,7 +47,10 @@ export default function MaintenanceDetailPage() {
 
   return (
     <div>
-      <button onClick={() => router.push("/maintenance")} className="mb-4 text-sm text-ink-muted hover:text-navy-900">
+      <button
+        onClick={() => router.push("/maintenance")}
+        className="mb-4 text-sm text-ink-muted hover:text-navy-900"
+      >
         ← All maintenance
       </button>
       <PageHeader
@@ -62,33 +71,52 @@ export default function MaintenanceDetailPage() {
       ) : null}
 
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Estimated cost" value={formatMoney(data.estimatedCost)} />
-        <StatCard label="Approved cost" value={formatMoney(data.approvedCost)} />
-        <StatCard label="Actual cost" value={formatMoney(data.actualCost)} tone={data.actualCost ? "positive" : "default"} />
+        <StatCard
+          label="Estimated cost"
+          value={formatMoney(data.estimatedCost)}
+        />
+        <StatCard
+          label="Approved cost"
+          value={formatMoney(data.approvedCost)}
+        />
+        <StatCard
+          label="Actual cost"
+          value={formatMoney(data.actualCost)}
+          tone={data.actualCost ? "positive" : "default"}
+        />
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader title="Details" />
-          <p className="whitespace-pre-line text-sm text-ink">{data.description}</p>
+          <p className="whitespace-pre-line text-sm text-ink">
+            {data.description}
+          </p>
           <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-3 border-t border-line pt-4 text-sm">
             <div>
               <dt className="nx-label">Reported by</dt>
               <dd className="mt-0.5 text-navy-900">
-                {data.reportedBy.tenant?.fullName ?? titleCase(data.reportedBy.type)}
+                {data.reportedBy.tenant?.fullName ??
+                  titleCase(data.reportedBy.type)}
               </dd>
             </div>
             <div>
               <dt className="nx-label">Scheduled</dt>
-              <dd className="mt-0.5 text-navy-900">{formatDate(data.scheduledFor)}</dd>
+              <dd className="mt-0.5 text-navy-900">
+                {formatDate(data.scheduledFor)}
+              </dd>
             </div>
             <div>
               <dt className="nx-label">Completed</dt>
-              <dd className="mt-0.5 text-navy-900">{formatDate(data.completedAt)}</dd>
+              <dd className="mt-0.5 text-navy-900">
+                {formatDate(data.completedAt)}
+              </dd>
             </div>
             <div>
               <dt className="nx-label">Verified</dt>
-              <dd className="mt-0.5 text-navy-900">{formatDate(data.verifiedAt)}</dd>
+              <dd className="mt-0.5 text-navy-900">
+                {formatDate(data.verifiedAt)}
+              </dd>
             </div>
           </dl>
 
@@ -99,7 +127,9 @@ export default function MaintenanceDetailPage() {
                 {data.workOrders.map((w) => (
                   <li key={w.id} className="flex items-center justify-between">
                     <span className="text-navy-900">
-                      <span className="font-mono text-xs text-ink-subtle">{w.ref}</span>
+                      <span className="font-mono text-xs text-ink-subtle">
+                        {w.ref}
+                      </span>
                       {w.vendor ? ` · ${w.vendor.name}` : ""}
                       {w.completionNotes ? ` — ${w.completionNotes}` : ""}
                     </span>

@@ -12,7 +12,11 @@ interface PropertyRow {
   status: string;
   city: string;
   occupancy: { rate: number };
-  finance: { collectedRentMinor: string; outstandingRentMinor: string; currency: string };
+  finance: {
+    collectedRentMinor: string;
+    outstandingRentMinor: string;
+    currency: string;
+  };
 }
 
 export default function Properties() {
@@ -31,7 +35,10 @@ export default function Properties() {
       data={data ?? []}
       keyExtractor={(item) => item.id}
       refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={() => void refetch()}
+        />
       }
       ListEmptyComponent={
         <Text style={styles.muted}>
@@ -55,11 +62,17 @@ export default function Properties() {
             <Metric label="Occupancy" value={percent(item.occupancy.rate)} />
             <Metric
               label="Collected"
-              value={money(item.finance.collectedRentMinor, item.finance.currency)}
+              value={money(
+                item.finance.collectedRentMinor,
+                item.finance.currency,
+              )}
             />
             <Metric
               label="Outstanding"
-              value={money(item.finance.outstandingRentMinor, item.finance.currency)}
+              value={money(
+                item.finance.outstandingRentMinor,
+                item.finance.currency,
+              )}
             />
           </View>
         </View>
@@ -88,8 +101,17 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  name: { fontSize: theme.font.size.base, fontWeight: "700", color: theme.color.navy900, flex: 1 },
+  cardTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  name: {
+    fontSize: theme.font.size.base,
+    fontWeight: "700",
+    color: theme.color.navy900,
+    flex: 1,
+  },
   badge: {
     fontSize: theme.font.size.xs,
     color: theme.color.navy700,
@@ -99,7 +121,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: "hidden",
   },
-  sub: { fontSize: theme.font.size.xs, color: theme.color.inkSubtle, marginTop: 4 },
+  sub: {
+    fontSize: theme.font.size.xs,
+    color: theme.color.inkSubtle,
+    marginTop: 4,
+  },
   metrics: {
     flexDirection: "row",
     gap: 12,
@@ -108,6 +134,15 @@ const styles = StyleSheet.create({
     borderTopColor: theme.color.line,
     paddingTop: 12,
   },
-  metricLabel: { fontSize: 10, color: theme.color.inkSubtle, letterSpacing: 0.4 },
-  metricValue: { fontSize: theme.font.size.sm, fontWeight: "700", color: theme.color.navy900, marginTop: 4 },
+  metricLabel: {
+    fontSize: 10,
+    color: theme.color.inkSubtle,
+    letterSpacing: 0.4,
+  },
+  metricValue: {
+    fontSize: theme.font.size.sm,
+    fontWeight: "700",
+    color: theme.color.navy900,
+    marginTop: 4,
+  },
 });

@@ -10,7 +10,11 @@ export function InsightsTeaser() {
   return (
     <Section tone="sunken" id="insights">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeader eyebrow={insightsTeaser.eyebrow} title={insightsTeaser.headline} lede={insightsTeaser.body} />
+        <SectionHeader
+          eyebrow={insightsTeaser.eyebrow}
+          title={insightsTeaser.headline}
+          lede={insightsTeaser.body}
+        />
         <Link
           href={insightsTeaser.cta.href}
           className="inline-flex items-center gap-1 text-sm font-semibold text-navy-800 hover:text-navy-900"
@@ -38,8 +42,8 @@ export function InsightsTeaser() {
             ))}
           </ul>
           <p className="mt-4 max-w-prose text-sm text-ink-subtle">
-            The first guides are being written now. Join Early Access to get them as they
-            publish.
+            The first guides are being written now. Join Early Access to get
+            them as they publish.
           </p>
         </>
       )}

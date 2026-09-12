@@ -85,27 +85,46 @@ export class NotificationsService {
 
     if (enabled.email && user.email && wants.has("EMAIL")) {
       await this.safe("email", () =>
-        this.email.send({ to: user.email!, subject: input.title, body: input.body, data: input.data }),
+        this.email.send({
+          to: user.email!,
+          subject: input.title,
+          body: input.body,
+          data: input.data,
+        }),
       );
     }
     if (enabled.sms && user.phone && wants.has("SMS")) {
       await this.safe("sms", () =>
-        this.sms.send({ to: user.phone!, body: `${input.title}: ${input.body}` }),
+        this.sms.send({
+          to: user.phone!,
+          body: `${input.title}: ${input.body}`,
+        }),
       );
     }
     if (enabled.whatsapp && user.phone && wants.has("WHATSAPP")) {
       await this.safe("whatsapp", () =>
-        this.whatsapp.send({ to: user.phone!, body: `${input.title}: ${input.body}` }),
+        this.whatsapp.send({
+          to: user.phone!,
+          body: `${input.title}: ${input.body}`,
+        }),
       );
     }
     if (enabled.push && wants.has("PUSH")) {
       await this.safe("push", () =>
-        this.push.send({ to: input.userId, subject: input.title, body: input.body, data: input.data }),
+        this.push.send({
+          to: input.userId,
+          subject: input.title,
+          body: input.body,
+          data: input.data,
+        }),
       );
     }
   }
 
-  async notifyMany(userIds: string[], base: Omit<NotifyInput, "userId">): Promise<void> {
+  async notifyMany(
+    userIds: string[],
+    base: Omit<NotifyInput, "userId">,
+  ): Promise<void> {
     await Promise.all(
       [...new Set(userIds)].map((userId) => this.notify({ ...base, userId })),
     );
@@ -189,7 +208,13 @@ export class NotificationsService {
   async setPreference(
     user: AuthUser,
     type: string,
-    prefs: Partial<{ inApp: boolean; email: boolean; sms: boolean; whatsapp: boolean; push: boolean }>,
+    prefs: Partial<{
+      inApp: boolean;
+      email: boolean;
+      sms: boolean;
+      whatsapp: boolean;
+      push: boolean;
+    }>,
   ) {
     const saved = await this.prisma.notificationPreference.upsert({
       where: { userId_type: { userId: user.userId, type } },
@@ -218,7 +243,10 @@ export class NotificationsService {
     try {
       await fn();
     } catch (err) {
-      this.logger.warn({ err, channel }, "Notification channel dispatch failed");
+      this.logger.warn(
+        { err, channel },
+        "Notification channel dispatch failed",
+      );
     }
   }
 }

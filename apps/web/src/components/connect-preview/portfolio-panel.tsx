@@ -50,7 +50,9 @@ export function PortfolioPanel({
         <span
           className={cn(
             "rounded-full border px-2 py-0.5 text-[10px] font-medium",
-            dark ? "border-white/15 text-navy-200" : "border-line text-ink-subtle",
+            dark
+              ? "border-white/15 text-navy-200"
+              : "border-line text-ink-subtle",
           )}
         >
           {data.label}
@@ -75,7 +77,12 @@ export function PortfolioPanel({
               >
                 {s.value}
               </div>
-              <div className={cn("mt-0.5 text-[11px]", dark ? "text-navy-200" : "text-ink-subtle")}>
+              <div
+                className={cn(
+                  "mt-0.5 text-[11px]",
+                  dark ? "text-navy-200" : "text-ink-subtle",
+                )}
+              >
                 {s.label}
               </div>
             </div>
@@ -84,8 +91,13 @@ export function PortfolioPanel({
 
         <dl className="mt-4 space-y-2">
           {data.finance.map((f) => (
-            <div key={f.label} className="flex items-center justify-between text-sm">
-              <dt className={dark ? "text-navy-200" : "text-ink-muted"}>{f.label}</dt>
+            <div
+              key={f.label}
+              className="flex items-center justify-between text-sm"
+            >
+              <dt className={dark ? "text-navy-200" : "text-ink-muted"}>
+                {f.label}
+              </dt>
               <dd
                 className={cn(
                   "font-medium tabular-nums",
@@ -106,10 +118,18 @@ export function PortfolioPanel({
                 dark ? "bg-navy-900" : "bg-navy-50",
               )}
             >
-              <div className="h-full rounded-full bg-gold-400" style={{ width: `${collectedPct}%` }} />
+              <div
+                className="h-full rounded-full bg-gold-400"
+                style={{ width: `${collectedPct}%` }}
+              />
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <span className={cn("text-[11px]", dark ? "text-navy-300" : "text-ink-subtle")}>
+              <span
+                className={cn(
+                  "text-[11px]",
+                  dark ? "text-navy-300" : "text-ink-subtle",
+                )}
+              >
                 {collectedPct}% of expected rent collected
               </span>
               <span
@@ -125,16 +145,23 @@ export function PortfolioPanel({
         ) : null}
       </div>
       <figcaption className="sr-only">
-        Illustrative example of the NexaHaus Connect portfolio dashboard. Figures are
-        fictional and do not represent real company or client performance.
+        Illustrative example of the NexaHaus Connect portfolio dashboard.
+        Figures are fictional and do not represent real company or client
+        performance.
       </figcaption>
     </figure>
   );
 }
 
-function pctFromFinance(finance: { label: string; value: string }[]): number | null {
-  const expected = numFrom(finance.find((f) => /expected/i.test(f.label))?.value);
-  const collected = numFrom(finance.find((f) => /collected/i.test(f.label))?.value);
+function pctFromFinance(
+  finance: { label: string; value: string }[],
+): number | null {
+  const expected = numFrom(
+    finance.find((f) => /expected/i.test(f.label))?.value,
+  );
+  const collected = numFrom(
+    finance.find((f) => /collected/i.test(f.label))?.value,
+  );
   if (!expected || collected == null) return null;
   return Math.round((collected / expected) * 100);
 }

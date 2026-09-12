@@ -34,7 +34,8 @@ function greeting(): string {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [period, setPeriod] = useState<(typeof PERIODS)[number]["value"]>("this_month");
+  const [period, setPeriod] =
+    useState<(typeof PERIODS)[number]["value"]>("this_month");
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["dashboard", "owner", period],
@@ -117,7 +118,9 @@ export default function DashboardPage() {
                   ? `${data.attention.urgentMaintenance} urgent`
                   : "nothing urgent"
               }
-              tone={data.attention.urgentMaintenance > 0 ? "critical" : "default"}
+              tone={
+                data.attention.urgentMaintenance > 0 ? "critical" : "default"
+              }
             />
             <StatCard
               label="Pending approvals"
@@ -147,8 +150,16 @@ export default function DashboardPage() {
                   }))}
                   margin={{ top: 8, right: 8, bottom: 0, left: 8 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#e5e7eb"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12 }}
+                    stroke="#9ca3af"
+                  />
                   <YAxis
                     tick={{ fontSize: 12 }}
                     stroke="#9ca3af"
@@ -159,8 +170,16 @@ export default function DashboardPage() {
                       `${data.currency} ${v.toLocaleString("en-GH")}`
                     }
                   />
-                  <Bar dataKey="Expected" fill="#a7b6d3" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="Collected" fill="#0a1f44" radius={[3, 3, 0, 0]} />
+                  <Bar
+                    dataKey="Expected"
+                    fill="#a7b6d3"
+                    radius={[3, 3, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="Collected"
+                    fill="#0a1f44"
+                    radius={[3, 3, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -34,7 +34,9 @@ export function MobileMenu() {
       }
       if (e.key === "Tab" && panelRef.current) {
         const focusables = Array.from(
-          panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+          panelRef.current.querySelectorAll<HTMLElement>(
+            "a[href], button:not([disabled])",
+          ),
         );
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
@@ -72,12 +74,22 @@ export function MobileMenu() {
         className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy-900 hover:bg-navy-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-          <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+          <path
+            d="M3 5h14M3 10h14M3 15h14"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+          />
         </svg>
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Site menu">
+        <div
+          className="fixed inset-0 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+        >
           <button
             type="button"
             aria-label="Close menu"
@@ -100,8 +112,19 @@ export function MobileMenu() {
                 aria-label="Close menu"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy-900 hover:bg-navy-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                  <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M4 4l10 10M14 4L4 14"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -115,7 +138,9 @@ export function MobileMenu() {
                     href={item.href}
                     className={cn(
                       "block rounded-lg px-3 py-3 text-[15px] font-medium",
-                      active ? "bg-navy-50 text-navy-900" : "text-ink-muted hover:bg-surface-sunken hover:text-navy-900",
+                      active
+                        ? "bg-navy-50 text-navy-900"
+                        : "text-ink-muted hover:bg-surface-sunken hover:text-navy-900",
                     )}
                   >
                     {item.label}
@@ -130,10 +155,21 @@ export function MobileMenu() {
             </nav>
 
             <div className="space-y-2 border-t border-line px-5 py-4">
-              <Cta href={cta.primary.href} variant="primary" className="w-full" event="cta_clicked" eventProps={{ location: "mobile_menu" }}>
+              <Cta
+                href={cta.primary.href}
+                variant="primary"
+                className="w-full"
+                event="cta_clicked"
+                eventProps={{ location: "mobile_menu" }}
+              >
                 {cta.primary.label}
               </Cta>
-              <Cta href={cta.secondary.href} variant="secondary" className="w-full" eventProps={{ location: "mobile_menu" }}>
+              <Cta
+                href={cta.secondary.href}
+                variant="secondary"
+                className="w-full"
+                eventProps={{ location: "mobile_menu" }}
+              >
                 {cta.secondary.label}
               </Cta>
               <ClientLoginLink className="w-full justify-center border border-line text-navy-800 hover:bg-surface-sunken" />

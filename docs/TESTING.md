@@ -2,13 +2,13 @@
 
 ## 1. Layers & tooling
 
-| Layer | Tool | Scope |
-|---|---|---|
-| Unit | Vitest (packages, web) / Jest (api) | Pure logic: money, rent allocation, health score, permissions, lead scoring, statement math, validators |
+| Layer       | Tool                                                                    | Scope                                                                                                            |
+| ----------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Unit        | Vitest (packages, web) / Jest (api)                                     | Pure logic: money, rent allocation, health score, permissions, lead scoring, statement math, validators          |
 | Integration | Jest + Supertest + ephemeral Postgres/Redis (Testcontainers or compose) | HTTP → guard → service → real DB. Auth, authorization, tenant isolation, workflows, idempotency, document access |
-| E2E | Playwright | Real browser against a seeded compose stack. Critical user journeys + the isolation suite |
-| Contract | OpenAPI schema diff | Fails CI on unintended breaking API changes |
-| Security | Scripted suites (part of integration/e2e) | The checklist in [SECURITY.md](SECURITY.md#9-security-testing-checklist-release-gate) |
+| E2E         | Playwright                                                              | Real browser against a seeded compose stack. Critical user journeys + the isolation suite                        |
+| Contract    | OpenAPI schema diff                                                     | Fails CI on unintended breaking API changes                                                                      |
+| Security    | Scripted suites (part of integration/e2e)                               | The checklist in [SECURITY.md](SECURITY.md#9-security-testing-checklist-release-gate)                            |
 
 Coverage gates (CI-enforced) on critical modules: `finance` (payments, allocations,
 statements, fees, distributions), `authz` (guards, scope resolution), `health-score`,
@@ -17,6 +17,7 @@ statements, fees, distributions), `authz` (guards, scope resolution), `health-sc
 ## 2. Mandatory unit tests
 
 ### 2.1 Money & rent (spec §81)
+
 ```
 expected 800000 (GHS 8,000.00 in pesewas), pay 800000
   → paidMinor 800000, outstanding 0, status PAID
@@ -36,6 +37,7 @@ currency mismatch in add()/allocate() → throws
 ```
 
 ### 2.2 Management fee (spec §98 — never hardcoded 10%)
+
 ```
 feeType PERCENT_OF_COLLECTED, feePercent 5, collected 2450000 → fee 122500
 feeType FIXED_MONTHLY, feeFixedMinor 300000 → fee 300000 regardless of collection
@@ -44,6 +46,7 @@ each property uses its own agreement's fee structure
 ```
 
 ### 2.3 Owner statement (spec §18) — reproducible from transactions
+
 ```
 given a fixed set of transactions for a period
   → generating the statement twice yields identical totals
@@ -53,6 +56,7 @@ given a fixed set of transactions for a period
 ```
 
 ### 2.4 Property Health Score (spec §11) — transparent & configurable
+
 ```
 with weights config vN and known component inputs
   → score = round(Σ componentValue_i * weight_i), 0..100 clamped
@@ -62,6 +66,7 @@ with weights config vN and known component inputs
 ```
 
 ### 2.5 Permissions & scope resolution
+
 ```
 OWNER token → clientIds resolved from ClientUser only
 PROPERTY_MANAGER token → assignedPropertyIds from PropertyAssignment only
@@ -71,6 +76,7 @@ request body attempting to set clientId/role is ignored by scope resolver
 ```
 
 ### 2.6 Lead scoring (spec §74)
+
 ```
 configurable factors → deterministic score → grade bands A/B/C/D
 changing LeadScoreConfig re-scores on next evaluation, not retroactively silently
@@ -114,7 +120,7 @@ changing LeadScoreConfig re-scores on next evaluation, not retroactively silentl
    → rent charge becomes PAID → owner dashboard "Collected" updates → notification → audit
    entry visible to admin.
 4. Owner approval: maintenance estimate above threshold → owner notified → reviews photos
-   + cost → approves → staff notified → audit logged.
+   - cost → approves → staff notified → audit logged.
 5. Admin: create client → onboard → add property + units → assign property manager →
    property becomes ACTIVE.
 
@@ -129,9 +135,10 @@ secret leakage scan of build output.
 ## 6. CI gates
 
 `lint` + `typecheck` + `prisma validate` + unit + integration + critical-module coverage
-+ e2e (incl. isolation suite) + OpenAPI contract check + `pnpm audit` (high/critical fails)
-+ build-output secret scan. All green = mergeable; tagged release additionally requires the
-manual security-checklist sign-off.
+
+- e2e (incl. isolation suite) + OpenAPI contract check + `pnpm audit` (high/critical fails)
+- build-output secret scan. All green = mergeable; tagged release additionally requires the
+  manual security-checklist sign-off.
 
 ## 7. Test data
 

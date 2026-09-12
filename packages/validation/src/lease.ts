@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { LeaseFrequency, LeaseStatus } from "@nexahaus/types";
-import { dateOnly, moneyInput, paginationQuery, positiveMinor, uuid } from "./common.js";
+import {
+  dateOnly,
+  moneyInput,
+  paginationQuery,
+  positiveMinor,
+  uuid,
+} from "./common.js";
 
 export const createLeaseSchema = z
   .object({

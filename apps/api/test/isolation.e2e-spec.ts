@@ -28,7 +28,9 @@ interface Owner {
 
 async function makeOwner(label: string): Promise<Owner> {
   const passwordHash = await argon2.hash(PASSWORD, { type: argon2.argon2id });
-  const ownerRole = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.OWNER } });
+  const ownerRole = await prisma.role.findUniqueOrThrow({
+    where: { key: RoleKey.OWNER },
+  });
   const email = `owner.${label}.${Date.now()}@nexahaus.test`;
 
   const user = await prisma.user.create({
@@ -48,7 +50,13 @@ async function makeOwner(label: string): Promise<Owner> {
       type: "INDIVIDUAL",
       displayName: `Client ${label}`,
       status: "ACTIVE",
-      users: { create: { userId: user.id, relationship: "PRIMARY", acceptedAt: new Date() } },
+      users: {
+        create: {
+          userId: user.id,
+          relationship: "PRIMARY",
+          acceptedAt: new Date(),
+        },
+      },
     },
   });
 
@@ -63,7 +71,9 @@ async function makeOwner(label: string): Promise<Owner> {
       city: "Accra",
       region: "Greater Accra",
       unitCount: 1,
-      owners: { create: { clientId: client.id, sharePercent: 100, isPrimary: true } },
+      owners: {
+        create: { clientId: client.id, sharePercent: 100, isPrimary: true },
+      },
     },
   });
 
@@ -76,7 +86,9 @@ describe("Multi-tenant isolation (e2e)", () => {
   let b: Owner;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -96,9 +108,15 @@ describe("Multi-tenant isolation (e2e)", () => {
   });
 
   afterAll(async () => {
-    await prisma.property.deleteMany({ where: { id: { in: [a.propertyId, b.propertyId] } } });
-    await prisma.client.deleteMany({ where: { id: { in: [a.clientId, b.clientId] } } });
-    await prisma.user.deleteMany({ where: { email: { in: [a.email, b.email] } } });
+    await prisma.property.deleteMany({
+      where: { id: { in: [a.propertyId, b.propertyId] } },
+    });
+    await prisma.client.deleteMany({
+      where: { id: { in: [a.clientId, b.clientId] } },
+    });
+    await prisma.user.deleteMany({
+      where: { email: { in: [a.email, b.email] } },
+    });
     await prisma.$disconnect();
     await app.close();
   });
@@ -136,7 +154,9 @@ describe("Multi-tenant isolation (e2e)", () => {
       .set("authorization", `Bearer ${a.access}`)
       .send({ name: "Hijacked" });
     expect([403, 404]).toContain(res.status);
-    const still = await prisma.property.findUnique({ where: { id: b.propertyId } });
+    const still = await prisma.property.findUnique({
+      where: { id: b.propertyId },
+    });
     expect(still?.name).toBe("B House");
   });
 

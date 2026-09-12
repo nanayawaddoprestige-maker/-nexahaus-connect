@@ -15,9 +15,13 @@ export function SiteFooter() {
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" />
-            <span className="text-base font-semibold text-white">{COMPANY.shortName}</span>
+            <span className="text-base font-semibold text-white">
+              {COMPANY.shortName}
+            </span>
           </div>
-          <p className="mt-3 max-w-xs text-sm text-navy-100">{COMPANY.tagline}</p>
+          <p className="mt-3 max-w-xs text-sm text-navy-100">
+            {COMPANY.tagline}
+          </p>
           <p className="mt-4 text-xs leading-relaxed text-navy-300">
             {COMPANY.legalName}
             <br />
@@ -32,13 +36,21 @@ export function SiteFooter() {
           {hasContact ? (
             <p className="mt-3 text-xs text-navy-300">
               {CONTACT.email ? (
-                <a className="hover:text-white" href={`mailto:${CONTACT.email}`}>
+                <a
+                  className="hover:text-white"
+                  href={`mailto:${CONTACT.email}`}
+                >
                   {CONTACT.email}
                 </a>
               ) : null}
-              {CONTACT.email && CONTACT.phone ? <span aria-hidden> · </span> : null}
+              {CONTACT.email && CONTACT.phone ? (
+                <span aria-hidden> · </span>
+              ) : null}
               {CONTACT.phone ? (
-                <a className="hover:text-white" href={`tel:${CONTACT.phone.replace(/\s+/g, "")}`}>
+                <a
+                  className="hover:text-white"
+                  href={`tel:${CONTACT.phone.replace(/\s+/g, "")}`}
+                >
                   {CONTACT.phone}
                 </a>
               ) : null}
@@ -55,7 +67,10 @@ export function SiteFooter() {
             <ul className="mt-3 space-y-2 text-sm">
               {group.items.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-navy-100 hover:text-white">
+                  <Link
+                    href={item.href}
+                    className="text-navy-100 hover:text-white"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -65,7 +80,9 @@ export function SiteFooter() {
         ))}
 
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-navy-300">Access</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-navy-300">
+            Access
+          </h2>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
               <ClientLoginLink className="px-0 py-0 text-navy-100 hover:text-white" />
@@ -83,7 +100,8 @@ export function SiteFooter() {
             {PRE_LAUNCH_MODE
               ? `First office opening in ${LAUNCH.city}, ${LAUNCH.label}.`
               : `Operating from ${LAUNCH.city}, ${CONTACT.country}.`}{" "}
-            NexaHaus does not provide legal, valuation, tax or investment advice.
+            NexaHaus does not provide legal, valuation, tax or investment
+            advice.
           </p>
         </div>
       </div>

@@ -20,7 +20,8 @@ const prisma = new PrismaClient();
 function crackOtp(codeHash: string): string {
   for (let n = 0; n < 1_000_000; n += 1) {
     const code = n.toString().padStart(6, "0");
-    if (createHash("sha256").update(code).digest("hex") === codeHash) return code;
+    if (createHash("sha256").update(code).digest("hex") === codeHash)
+      return code;
   }
   throw new Error("otp not found");
 }
@@ -31,7 +32,9 @@ describe("Auth flow (e2e)", () => {
   const password = "AuthFlow!2027xyz";
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());

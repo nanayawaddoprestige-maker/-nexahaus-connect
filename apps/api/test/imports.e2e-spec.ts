@@ -27,32 +27,48 @@ describe("CSV import (e2e)", () => {
   const createdClientRefs: string[] = [];
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     await app.init();
 
-    const role = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.SUPER_ADMIN } });
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { key: RoleKey.SUPER_ADMIN },
+    });
     const email = `import.admin.${stamp}@nexahaus.test`;
     const user = await prisma.user.create({
       data: {
-        email, fullName: "Import Admin",
+        email,
+        fullName: "Import Admin",
         passwordHash: await argon2.hash(PASSWORD, { type: argon2.argon2id }),
-        status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: role.id } },
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: role.id } },
       },
     });
     cleanupUsers.push(user.id);
     admin = (
-      await request(app.getHttpServer()).post("/api/v1/auth/login").send({ identifier: email, password: PASSWORD }).expect(200)
+      await request(app.getHttpServer())
+        .post("/api/v1/auth/login")
+        .send({ identifier: email, password: PASSWORD })
+        .expect(200)
     ).body.data.tokens.accessToken;
   });
 
   afterAll(async () => {
-    await prisma.clientOnboarding.deleteMany({ where: { client: { ref: { in: createdClientRefs } } } });
-    await prisma.client.deleteMany({ where: { ref: { in: createdClientRefs } } });
-    await prisma.importJob.deleteMany({ where: { createdById: { in: cleanupUsers } } });
+    await prisma.clientOnboarding.deleteMany({
+      where: { client: { ref: { in: createdClientRefs } } },
+    });
+    await prisma.client.deleteMany({
+      where: { ref: { in: createdClientRefs } },
+    });
+    await prisma.importJob.deleteMany({
+      where: { createdById: { in: cleanupUsers } },
+    });
     await prisma.user.deleteMany({ where: { id: { in: cleanupUsers } } });
     await prisma.$disconnect();
     await app.close();
@@ -76,10 +92,16 @@ describe("CSV import (e2e)", () => {
     expect(res.body.data.totalRows).toBe(3);
     expect(res.body.data.validRows).toBe(2);
     expect(res.body.data.errorRows).toBe(1);
-    expect(res.body.data.errors.some((e: { field?: string }) => e.field === "displayName")).toBe(true);
+    expect(
+      res.body.data.errors.some(
+        (e: { field?: string }) => e.field === "displayName",
+      ),
+    ).toBe(true);
 
     // Nothing created yet.
-    const created = await prisma.client.count({ where: { displayName: `Import One ${stamp}` } });
+    const created = await prisma.client.count({
+      where: { displayName: `Import One ${stamp}` },
+    });
     expect(created).toBe(0);
   });
 
@@ -112,7 +134,9 @@ describe("CSV import (e2e)", () => {
     expect(committed.createdRefs).toHaveLength(1);
     createdClientRefs.push(...committed.createdRefs);
 
-    const created = await prisma.client.findFirst({ where: { displayName: `Import Alpha ${stamp}` } });
+    const created = await prisma.client.findFirst({
+      where: { displayName: `Import Alpha ${stamp}` },
+    });
     expect(created).toBeTruthy();
   });
 
@@ -144,9 +168,15 @@ describe("CSV import (e2e)", () => {
     expect(committed.commitFailures[0].message).toMatch(/client not found/i);
 
     // clean up the property we made
-    await prisma.propertyOwner.deleteMany({ where: { property: { name: `Imported Flat ${stamp}` } } });
-    await prisma.propertyOnboardingChecklist.deleteMany({ where: { property: { name: `Imported Flat ${stamp}` } } });
-    await prisma.property.deleteMany({ where: { name: `Imported Flat ${stamp}` } });
+    await prisma.propertyOwner.deleteMany({
+      where: { property: { name: `Imported Flat ${stamp}` } },
+    });
+    await prisma.propertyOnboardingChecklist.deleteMany({
+      where: { property: { name: `Imported Flat ${stamp}` } },
+    });
+    await prisma.property.deleteMany({
+      where: { name: `Imported Flat ${stamp}` },
+    });
   });
 
   it("only staff with settings:write can import", async () => {

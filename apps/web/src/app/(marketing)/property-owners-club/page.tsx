@@ -25,8 +25,13 @@ export default function PropertyOwnersClubPage() {
         "Networking",
         "Owner reports",
       ]}
-      breadcrumb={[{ label: "Property Owners Club", href: routes.propertyOwnersClub }]}
-      primary={{ label: "Join the Community", href: `${routes.earlyAccess}?programme=owners-club` }}
+      breadcrumb={[
+        { label: "Property Owners Club", href: routes.propertyOwnersClub },
+      ]}
+      primary={{
+        label: "Join the Community",
+        href: `${routes.earlyAccess}?programme=owners-club`,
+      }}
     />
   );
 }

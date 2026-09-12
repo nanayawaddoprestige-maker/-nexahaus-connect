@@ -49,7 +49,8 @@ export class ApprovalsController {
   decide(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(decideSchema)) body: z.infer<typeof decideSchema>,
+    @Body(new ZodValidationPipe(decideSchema))
+    body: z.infer<typeof decideSchema>,
     @Req() req: Request,
   ) {
     return this.approvals.decide(

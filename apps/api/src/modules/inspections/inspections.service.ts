@@ -120,7 +120,16 @@ export class InspectionsService {
     const inspection = await this.prisma.inspection.findUnique({
       where: { id },
       include: {
-        property: { select: { id: true, clientId: true, name: true, ref: true, addressLine: true, city: true } },
+        property: {
+          select: {
+            id: true,
+            clientId: true,
+            name: true,
+            ref: true,
+            addressLine: true,
+            city: true,
+          },
+        },
         unit: { select: { id: true, label: true } },
         inspector: { select: { id: true, fullName: true } },
         template: { select: { id: true, name: true, version: true } },
@@ -172,7 +181,11 @@ export class InspectionsService {
     };
   }
 
-  async create(user: AuthUser, input: CreateInspectionInput, ctx: AuditContext) {
+  async create(
+    user: AuthUser,
+    input: CreateInspectionInput,
+    ctx: AuditContext,
+  ) {
     const [property, inspector] = await Promise.all([
       this.prisma.property.findFirst({
         where: { id: input.propertyId, deletedAt: null },
@@ -183,8 +196,10 @@ export class InspectionsService {
         select: { id: true },
       }),
     ]);
-    if (!property || !propertyInScope(user, property)) throw AppError.notFound("property");
-    if (!inspector) throw AppError.validation("That inspector could not be found.");
+    if (!property || !propertyInScope(user, property))
+      throw AppError.notFound("property");
+    if (!inspector)
+      throw AppError.validation("That inspector could not be found.");
 
     const inspection = await this.prisma.$transaction(async (tx) => {
       const ref = await this.refs.next("inspection", tx);
@@ -197,7 +212,9 @@ export class InspectionsService {
           templateId: input.templateId ?? null,
           inspectorUserId: input.inspectorUserId,
           status: input.scheduledFor ? "SCHEDULED" : "ASSIGNED",
-          scheduledFor: input.scheduledFor ? new Date(input.scheduledFor) : null,
+          scheduledFor: input.scheduledFor
+            ? new Date(input.scheduledFor)
+            : null,
           createdById: user.userId,
         },
       });
@@ -207,7 +224,11 @@ export class InspectionsService {
           action: "inspection.create",
           resourceType: "inspection",
           resourceId: created.id,
-          after: { ref: created.ref, type: input.type, inspectorUserId: input.inspectorUserId },
+          after: {
+            ref: created.ref,
+            type: input.type,
+            inspectorUserId: input.inspectorUserId,
+          },
         },
         tx,
       );
@@ -229,7 +250,9 @@ export class InspectionsService {
     if (!inspection) throw AppError.notFound("inspection");
     const isInspector = inspection.inspectorUserId === user.userId;
     if (!isInspector && !user.permissions.includes("inspection:review")) {
-      throw AppError.forbidden("Only the assigned inspector can submit this inspection.");
+      throw AppError.forbidden(
+        "Only the assigned inspector can submit this inspection.",
+      );
     }
     if (!["ASSIGNED", "SCHEDULED", "IN_PROGRESS"].includes(inspection.status)) {
       throw AppError.illegalTransition(
@@ -283,7 +306,10 @@ export class InspectionsService {
           action: "inspection.submit",
           resourceType: "inspection",
           resourceId: id,
-          after: { overallCondition: input.overallCondition, items: input.items.length },
+          after: {
+            overallCondition: input.overallCondition,
+            items: input.items.length,
+          },
         },
         tx,
       );
@@ -302,7 +328,14 @@ export class InspectionsService {
       where: { id },
       include: {
         property: {
-          select: { id: true, clientId: true, name: true, ref: true, addressLine: true, city: true },
+          select: {
+            id: true,
+            clientId: true,
+            name: true,
+            ref: true,
+            addressLine: true,
+            city: true,
+          },
         },
         inspector: { select: { fullName: true } },
         items: { orderBy: [{ area: "asc" }, { sortOrder: "asc" }] },
@@ -312,7 +345,9 @@ export class InspectionsService {
       throw AppError.notFound("inspection");
     }
     if (inspection.status !== "COMPLETED") {
-      throw AppError.illegalTransition("Only a completed inspection can be reviewed.");
+      throw AppError.illegalTransition(
+        "Only a completed inspection can be reviewed.",
+      );
     }
 
     let reportDocumentId: string | null = null;
@@ -408,7 +443,10 @@ export class InspectionsService {
           action: "inspection.review",
           resourceType: "inspection",
           resourceId: id,
-          after: { status: reportDocumentId ? "REPORT_ISSUED" : "REVIEWED", reportDocumentId },
+          after: {
+            status: reportDocumentId ? "REPORT_ISSUED" : "REVIEWED",
+            reportDocumentId,
+          },
         },
         tx,
       );

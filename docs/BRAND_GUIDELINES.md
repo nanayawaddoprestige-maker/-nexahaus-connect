@@ -35,18 +35,18 @@ unrealistic promises · fake stats / testimonials / awards / partnerships.
 Navy is the principal corporate colour; gold is a restrained premium accent.
 Tokens live in `apps/web/tailwind.config.ts`.
 
-| Token | Hex | Use |
-|---|---|---|
-| `navy-900` | `#0a1f44` | Primary brand, dark sections, primary buttons, headings |
-| `navy-800` | `#0f1f3d` | Primary button hover |
-| `navy-700` | `#182d54` | Secondary text on light, links |
-| `navy-50` | `#eef1f7` | Tint hovers |
-| `gold-400` | `#c9a227` | Accent: eyebrow rule, status dot, CTA on navy |
-| `gold-500/600` | `#a9871d` / `#856a16` | Accent text on light (AA contrast) |
-| `ink` / `ink-muted` / `ink-subtle` | `#111827` / `#4b5563` / `#6b7280` | Body copy scale |
-| `surface` / `surface-sunken` | `#ffffff` / `#f7f8fa` | Page and band backgrounds |
-| `line` | `#e5e7eb` | Hairline borders |
-| `positive` / `warning` / `critical` | `#0f766e` / `#b45309` / `#b91c1c` | Score bands, states |
+| Token                               | Hex                               | Use                                                     |
+| ----------------------------------- | --------------------------------- | ------------------------------------------------------- |
+| `navy-900`                          | `#0a1f44`                         | Primary brand, dark sections, primary buttons, headings |
+| `navy-800`                          | `#0f1f3d`                         | Primary button hover                                    |
+| `navy-700`                          | `#182d54`                         | Secondary text on light, links                          |
+| `navy-50`                           | `#eef1f7`                         | Tint hovers                                             |
+| `gold-400`                          | `#c9a227`                         | Accent: eyebrow rule, status dot, CTA on navy           |
+| `gold-500/600`                      | `#a9871d` / `#856a16`             | Accent text on light (AA contrast)                      |
+| `ink` / `ink-muted` / `ink-subtle`  | `#111827` / `#4b5563` / `#6b7280` | Body copy scale                                         |
+| `surface` / `surface-sunken`        | `#ffffff` / `#f7f8fa`             | Page and band backgrounds                               |
+| `line`                              | `#e5e7eb`                         | Hairline borders                                        |
+| `positive` / `warning` / `critical` | `#0f766e` / `#b45309` / `#b91c1c` | Score bands, states                                     |
 
 Rules: never use gold for large fills or body text. Never communicate meaning by
 colour alone — always pair with a label, icon or text. Health-score bands: < 60

@@ -27,7 +27,11 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const result = await login(identifier.trim(), password, mfaCode || undefined);
+      const result = await login(
+        identifier.trim(),
+        password,
+        mfaCode || undefined,
+      );
       if (result.mfaRequired) {
         setMfaRequired(true);
       } else {
@@ -50,11 +54,13 @@ export default function LoginPage() {
         <BrandLockup />
         <div>
           <h1 className="max-w-md text-3xl font-semibold leading-tight text-white">
-            Know exactly what is happening with your property — wherever you are.
+            Know exactly what is happening with your property — wherever you
+            are.
           </h1>
           <p className="mt-4 max-w-md text-navy-200">
             Status, tenants, rent, maintenance, inspections, documents and
-            performance for every property in your portfolio, in one secure place.
+            performance for every property in your portfolio, in one secure
+            place.
           </p>
         </div>
         <p className="text-xs text-navy-300">
@@ -101,7 +107,9 @@ export default function LoginPage() {
                   maxLength={6}
                   required
                   value={mfaCode}
-                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) =>
+                    setMfaCode(e.target.value.replace(/\D/g, ""))
+                  }
                   className={inputClass}
                   placeholder="6-digit code"
                 />
@@ -132,10 +140,18 @@ const inputClass =
   "h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-1";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-navy-900">{label}</span>
+      <span className="mb-1.5 block text-sm font-medium text-navy-900">
+        {label}
+      </span>
       {children}
     </label>
   );

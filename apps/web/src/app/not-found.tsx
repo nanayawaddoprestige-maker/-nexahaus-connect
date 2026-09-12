@@ -13,9 +13,15 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col bg-surface">
       <header className="border-b border-line">
         <div className="nx-container flex h-16 items-center">
-          <Link href={routes.home} className="flex items-center gap-2.5" aria-label="NexaHaus home">
+          <Link
+            href={routes.home}
+            className="flex items-center gap-2.5"
+            aria-label="NexaHaus home"
+          >
             <BrandMark className="h-8 w-8" />
-            <span className="text-sm font-semibold text-navy-900">NexaHaus</span>
+            <span className="text-sm font-semibold text-navy-900">
+              NexaHaus
+            </span>
           </Link>
         </div>
       </header>
@@ -27,8 +33,8 @@ export default function NotFound() {
             Looks like this property page has moved.
           </h1>
           <p className="mt-4 max-w-prose text-lg text-ink-muted">
-            The page you were looking for isn&rsquo;t here. It may have been renamed or is
-            still being built ahead of our December 2027 launch.
+            The page you were looking for isn&rsquo;t here. It may have been
+            renamed or is still being built ahead of our December 2027 launch.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

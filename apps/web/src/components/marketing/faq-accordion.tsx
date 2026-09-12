@@ -48,7 +48,9 @@ export function FaqAccordion({
                 onClick={() => toggle(i)}
                 className="flex w-full items-start justify-between gap-4 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
               >
-                <span className="text-[15px] font-semibold text-navy-900">{item.question}</span>
+                <span className="text-[15px] font-semibold text-navy-900">
+                  {item.question}
+                </span>
                 <span
                   aria-hidden
                   className={cn(
@@ -57,7 +59,12 @@ export function FaqAccordion({
                   )}
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                    <path
+                      d="M8 3v10M3 8h10"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </span>
               </button>

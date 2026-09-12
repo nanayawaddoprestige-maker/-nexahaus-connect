@@ -34,7 +34,10 @@ export const SITE_DOMAIN = SITE_URL.replace(/^https?:\/\//, "");
  * uses "launching" language; when false it switches to "now operating" language.
  * The physical office is planned for December 2027 — see `LAUNCH`.
  */
-export const PRE_LAUNCH_MODE = flag(process.env.NEXT_PUBLIC_PRE_LAUNCH_MODE, true);
+export const PRE_LAUNCH_MODE = flag(
+  process.env.NEXT_PUBLIC_PRE_LAUNCH_MODE,
+  true,
+);
 
 export const LAUNCH = {
   /** ISO date the countdown targets. Configurable; day is intentionally the 1st
@@ -112,7 +115,10 @@ export const MEDIA = {
 } as const;
 
 /** Allow indexing? Defaults to on; set false to keep a staging deploy private. */
-export const ALLOW_INDEXING = flag(process.env.NEXT_PUBLIC_ALLOW_INDEXING, true);
+export const ALLOW_INDEXING = flag(
+  process.env.NEXT_PUBLIC_ALLOW_INDEXING,
+  true,
+);
 
 export const COMPANY = {
   legalName: "NexaHaus Properties & Asset Management Ltd.",

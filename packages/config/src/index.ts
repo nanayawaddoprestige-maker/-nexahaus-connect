@@ -55,7 +55,12 @@ export interface AppConfig {
     otelServiceName: string;
     release: string;
   };
-  demo: { seed: boolean; ownerEmail: string; adminEmail: string; password: string };
+  demo: {
+    seed: boolean;
+    ownerEmail: string;
+    adminEmail: string;
+    password: string;
+  };
 }
 
 let cached: AppConfig | null = null;
@@ -82,9 +87,11 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
 
   // Cross-field production guards.
   if (e.NODE_ENV === "production") {
-    const weak = [e.JWT_ACCESS_SECRET, e.JWT_REFRESH_SECRET, e.PAYMENT_WEBHOOK_SECRET].some(
-      (s) => /change-me/i.test(s),
-    );
+    const weak = [
+      e.JWT_ACCESS_SECRET,
+      e.JWT_REFRESH_SECRET,
+      e.PAYMENT_WEBHOOK_SECRET,
+    ].some((s) => /change-me/i.test(s));
     if (weak) {
       throw new Error(
         "Refusing to boot in production with a placeholder secret (contains 'change-me').",
@@ -148,8 +155,16 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): AppConfig {
       provider: e.MALWARE_SCAN_PROVIDER,
       endpoint: e.MALWARE_SCAN_ENDPOINT ?? "",
     },
-    email: { provider: e.EMAIL_PROVIDER, apiKey: e.EMAIL_API_KEY, from: e.EMAIL_FROM },
-    sms: { provider: e.SMS_PROVIDER, apiKey: e.SMS_API_KEY, senderId: e.SMS_SENDER_ID },
+    email: {
+      provider: e.EMAIL_PROVIDER,
+      apiKey: e.EMAIL_API_KEY,
+      from: e.EMAIL_FROM,
+    },
+    sms: {
+      provider: e.SMS_PROVIDER,
+      apiKey: e.SMS_API_KEY,
+      senderId: e.SMS_SENDER_ID,
+    },
     whatsapp: { provider: e.WHATSAPP_PROVIDER, apiKey: e.WHATSAPP_API_KEY },
     push: { provider: e.PUSH_PROVIDER, apiKey: e.PUSH_API_KEY },
     payments: {

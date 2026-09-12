@@ -4,25 +4,26 @@
 
 The build machine currently has **only Git**. Install:
 
-| Tool | Version | Why | Windows install |
-|---|---|---|---|
-| Node.js | 20 LTS (≥ 20.11) | Runs api/web/mobile tooling | `winget install OpenJS.NodeJS.LTS` or nvm-windows |
-| Corepack → pnpm | pnpm 9.x | Monorepo package manager | `corepack enable` then `corepack prepare pnpm@latest --activate` |
-| Docker Desktop | latest | Local Postgres + Redis + MinIO | `winget install Docker.DockerDesktop` |
-| (optional) Expo tooling | via `pnpm` | Mobile app | installed as a workspace dep |
+| Tool                    | Version          | Why                            | Windows install                                                  |
+| ----------------------- | ---------------- | ------------------------------ | ---------------------------------------------------------------- |
+| Node.js                 | 20 LTS (≥ 20.11) | Runs api/web/mobile tooling    | `winget install OpenJS.NodeJS.LTS` or nvm-windows                |
+| Corepack → pnpm         | pnpm 9.x         | Monorepo package manager       | `corepack enable` then `corepack prepare pnpm@latest --activate` |
+| Docker Desktop          | latest           | Local Postgres + Redis + MinIO | `winget install Docker.DockerDesktop`                            |
+| (optional) Expo tooling | via `pnpm`       | Mobile app                     | installed as a workspace dep                                     |
 
 Verify:
+
 ```bash
 node -v && pnpm -v && docker --version
 ```
 
 ## 2. Environments
 
-| Env | Purpose | Data | Deploy trigger |
-|---|---|---|---|
-| `development` | Local dev | docker compose; seedable demo data | manual |
-| `staging` | Production-like validation | isolated DB; seed or restored anonymised snapshot | merge to `main` |
-| `production` | Live | real data; no demo seed | tagged release / manual approval |
+| Env           | Purpose                    | Data                                              | Deploy trigger                   |
+| ------------- | -------------------------- | ------------------------------------------------- | -------------------------------- |
+| `development` | Local dev                  | docker compose; seedable demo data                | manual                           |
+| `staging`     | Production-like validation | isolated DB; seed or restored anonymised snapshot | merge to `main`                  |
+| `production`  | Live                       | real data; no demo seed                           | tagged release / manual approval |
 
 Only environment variables differ between environments. Full catalogue: [`.env.example`](../.env.example).
 
@@ -67,7 +68,7 @@ locally.
 - **api / web / worker** are stateless and horizontally scalable. Sessions live in
   Postgres/Redis, not memory.
 - **Migrations** run as a pre-deploy job: `pnpm --filter @nexahaus/api prisma migrate
-  deploy`. Never `migrate dev` outside local.
+deploy`. Never `migrate dev` outside local.
 - **Zero-downtime**: migrations are backward-compatible (expand → deploy → contract in a
   later release).
 
@@ -123,12 +124,12 @@ Release gate: all of the above green **plus** the security checklist in
 
 ## 8. Backups & disaster recovery
 
-| Asset | Strategy | Target |
-|---|---|---|
-| PostgreSQL | Automated daily base backup + continuous WAL archiving (PITR). Encrypted. Retention 30 days (financial/audit rows also protected by `RetentionPolicy`). | RPO ≤ 5 min, RTO ≤ 1 h |
-| Object storage | Versioned bucket + cross-region replication. Lifecycle keeps prior versions 90 days. | RPO ≈ 0 |
-| Secrets | Managed secrets store (not in repo/images). Rotation runbook. | — |
-| Restore drills | Quarterly: restore latest snapshot to a scratch environment, run smoke + a statement-reproduction check. | verified quarterly |
+| Asset          | Strategy                                                                                                                                                | Target                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| PostgreSQL     | Automated daily base backup + continuous WAL archiving (PITR). Encrypted. Retention 30 days (financial/audit rows also protected by `RetentionPolicy`). | RPO ≤ 5 min, RTO ≤ 1 h |
+| Object storage | Versioned bucket + cross-region replication. Lifecycle keeps prior versions 90 days.                                                                    | RPO ≈ 0                |
+| Secrets        | Managed secrets store (not in repo/images). Rotation runbook.                                                                                           | —                      |
+| Restore drills | Quarterly: restore latest snapshot to a scratch environment, run smoke + a statement-reproduction check.                                                | verified quarterly     |
 
 DR runbook (from Phase 10) in `/docs/runbooks/disaster-recovery.md`: provision infra from
 IaC → restore DB (PITR to chosen timestamp) → point storage to replica → deploy last-good

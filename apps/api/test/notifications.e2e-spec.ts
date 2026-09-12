@@ -43,7 +43,9 @@ describe("Notifications & messaging (e2e)", () => {
   }
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -58,27 +60,67 @@ describe("Notifications & messaging (e2e)", () => {
     ]);
 
     const staffUser = await prisma.user.create({
-      data: { email: `n.staff.${stamp}@nexahaus.test`, fullName: "N Staff", passwordHash: hash, status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: adminRole.id } } },
+      data: {
+        email: `n.staff.${stamp}@nexahaus.test`,
+        fullName: "N Staff",
+        passwordHash: hash,
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: adminRole.id } },
+      },
     });
     const ownerAUser = await prisma.user.create({
-      data: { email: `n.ownerA.${stamp}@nexahaus.test`, fullName: "Owner A", passwordHash: hash, status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: ownerRole.id } } },
+      data: {
+        email: `n.ownerA.${stamp}@nexahaus.test`,
+        fullName: "Owner A",
+        passwordHash: hash,
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: ownerRole.id } },
+      },
     });
     const ownerBUser = await prisma.user.create({
-      data: { email: `n.ownerB.${stamp}@nexahaus.test`, fullName: "Owner B", passwordHash: hash, status: "ACTIVE", emailVerifiedAt: new Date(), roles: { create: { roleId: ownerRole.id } } },
+      data: {
+        email: `n.ownerB.${stamp}@nexahaus.test`,
+        fullName: "Owner B",
+        passwordHash: hash,
+        status: "ACTIVE",
+        emailVerifiedAt: new Date(),
+        roles: { create: { roleId: ownerRole.id } },
+      },
     });
     ownerAUserId = ownerAUser.id;
     cleanupUsers.push(staffUser.id, ownerAUser.id, ownerBUser.id);
 
     const clientA = await prisma.client.create({
       data: {
-        ref: `CL-N-A-${stamp}`, type: "INDIVIDUAL", displayName: "N Client A", status: "ACTIVE",
-        users: { create: { userId: ownerAUser.id, relationship: "PRIMARY", canApprove: true, acceptedAt: new Date() } },
+        ref: `CL-N-A-${stamp}`,
+        type: "INDIVIDUAL",
+        displayName: "N Client A",
+        status: "ACTIVE",
+        users: {
+          create: {
+            userId: ownerAUser.id,
+            relationship: "PRIMARY",
+            canApprove: true,
+            acceptedAt: new Date(),
+          },
+        },
       },
     });
     const clientB = await prisma.client.create({
       data: {
-        ref: `CL-N-B-${stamp}`, type: "INDIVIDUAL", displayName: "N Client B", status: "ACTIVE",
-        users: { create: { userId: ownerBUser.id, relationship: "PRIMARY", acceptedAt: new Date() } },
+        ref: `CL-N-B-${stamp}`,
+        type: "INDIVIDUAL",
+        displayName: "N Client B",
+        status: "ACTIVE",
+        users: {
+          create: {
+            userId: ownerBUser.id,
+            relationship: "PRIMARY",
+            acceptedAt: new Date(),
+          },
+        },
       },
     });
     clientAId = clientA.id;
@@ -86,14 +128,28 @@ describe("Notifications & messaging (e2e)", () => {
 
     const propertyA = await prisma.property.create({
       data: {
-        ref: `NH-N-${stamp}`, clientId: clientA.id, name: "N House", type: "HOUSE", status: "OCCUPIED",
-        addressLine: "6 Test Road", city: "Accra", region: "Greater Accra", unitCount: 1,
-        owners: { create: { clientId: clientA.id, sharePercent: 100, isPrimary: true } },
+        ref: `NH-N-${stamp}`,
+        clientId: clientA.id,
+        name: "N House",
+        type: "HOUSE",
+        status: "OCCUPIED",
+        addressLine: "6 Test Road",
+        city: "Accra",
+        region: "Greater Accra",
+        unitCount: 1,
+        owners: {
+          create: { clientId: clientA.id, sharePercent: 100, isPrimary: true },
+        },
         agreements: {
           create: {
-            feeType: "PERCENT_OF_COLLECTED", feePercent: 10, feeCurrency: "GHS",
-            startDate: new Date("2027-01-01"), inspectionFrequency: "QUARTERLY",
-            maintenanceApprovalThresholdMinor: 150_000n, thresholdCurrency: "GHS", status: "ACTIVE",
+            feeType: "PERCENT_OF_COLLECTED",
+            feePercent: 10,
+            feeCurrency: "GHS",
+            startDate: new Date("2027-01-01"),
+            inspectionFrequency: "QUARTERLY",
+            maintenanceApprovalThresholdMinor: 150_000n,
+            thresholdCurrency: "GHS",
+            status: "ACTIVE",
           },
         },
       },
@@ -106,17 +162,37 @@ describe("Notifications & messaging (e2e)", () => {
   });
 
   afterAll(async () => {
-    await prisma.notification.deleteMany({ where: { userId: { in: cleanupUsers } } });
-    await prisma.notificationPreference.deleteMany({ where: { userId: { in: cleanupUsers } } });
-    await prisma.message.deleteMany({ where: { thread: { propertyId: propertyAId } } });
-    await prisma.threadParticipant.deleteMany({ where: { thread: { propertyId: propertyAId } } });
-    await prisma.messageThread.deleteMany({ where: { propertyId: propertyAId } });
-    await prisma.domainEvent.deleteMany({ where: { payload: { path: ["propertyId"], equals: propertyAId } } });
-    await prisma.approvalEvent.deleteMany({ where: { approval: { propertyId: propertyAId } } });
+    await prisma.notification.deleteMany({
+      where: { userId: { in: cleanupUsers } },
+    });
+    await prisma.notificationPreference.deleteMany({
+      where: { userId: { in: cleanupUsers } },
+    });
+    await prisma.message.deleteMany({
+      where: { thread: { propertyId: propertyAId } },
+    });
+    await prisma.threadParticipant.deleteMany({
+      where: { thread: { propertyId: propertyAId } },
+    });
+    await prisma.messageThread.deleteMany({
+      where: { propertyId: propertyAId },
+    });
+    await prisma.domainEvent.deleteMany({
+      where: { payload: { path: ["propertyId"], equals: propertyAId } },
+    });
+    await prisma.approvalEvent.deleteMany({
+      where: { approval: { propertyId: propertyAId } },
+    });
     await prisma.approval.deleteMany({ where: { propertyId: propertyAId } });
-    await prisma.maintenanceStatusHistory.deleteMany({ where: { request: { propertyId: propertyAId } } });
-    await prisma.maintenanceRequest.deleteMany({ where: { propertyId: propertyAId } });
-    await prisma.managementAgreement.deleteMany({ where: { propertyId: propertyAId } });
+    await prisma.maintenanceStatusHistory.deleteMany({
+      where: { request: { propertyId: propertyAId } },
+    });
+    await prisma.maintenanceRequest.deleteMany({
+      where: { propertyId: propertyAId },
+    });
+    await prisma.managementAgreement.deleteMany({
+      where: { propertyId: propertyAId },
+    });
     await prisma.property.deleteMany({ where: { id: propertyAId } });
     await prisma.client.deleteMany({ where: { id: { in: cleanupClients } } });
     await prisma.user.deleteMany({ where: { id: { in: cleanupUsers } } });
@@ -128,7 +204,13 @@ describe("Notifications & messaging (e2e)", () => {
     const created = await request(app.getHttpServer())
       .post("/api/v1/maintenance")
       .set("authorization", `Bearer ${staff}`)
-      .send({ propertyId: propertyAId, category: "PLUMBING", priority: "HIGH", title: "Leak", description: "Under the sink." })
+      .send({
+        propertyId: propertyAId,
+        category: "PLUMBING",
+        priority: "HIGH",
+        title: "Leak",
+        description: "Under the sink.",
+      })
       .expect(201);
     const id = created.body.data.id as string;
 
@@ -145,7 +227,10 @@ describe("Notifications & messaging (e2e)", () => {
     await request(app.getHttpServer())
       .post(`/api/v1/maintenance/${id}/transition`)
       .set("authorization", `Bearer ${staff}`)
-      .send({ toStatus: "IN_PROGRESS", estimatedCost: { minor: "200000", currency: "GHS" } })
+      .send({
+        toStatus: "IN_PROGRESS",
+        estimatedCost: { minor: "200000", currency: "GHS" },
+      })
       .expect(201);
 
     await outbox.drainForTests();
@@ -188,7 +273,13 @@ describe("Notifications & messaging (e2e)", () => {
     await prisma.domainEvent.create({
       data: {
         type: "PAYMENT_RECEIVED",
-        payload: { clientId: clientAId, propertyId: propertyAId, paymentId: "x", amountMinor: "1", currency: "GHS" },
+        payload: {
+          clientId: clientAId,
+          propertyId: propertyAId,
+          paymentId: "x",
+          amountMinor: "1",
+          currency: "GHS",
+        },
       },
     });
     await outbox.drainForTests();
@@ -196,7 +287,9 @@ describe("Notifications & messaging (e2e)", () => {
     const feed = await request(app.getHttpServer())
       .get("/api/v1/notifications")
       .set("authorization", `Bearer ${ownerA}`);
-    const rentRows = (feed.body.data as { type: string }[]).filter((n) => n.type === "RENT_RECEIVED");
+    const rentRows = (feed.body.data as { type: string }[]).filter(
+      (n) => n.type === "RENT_RECEIVED",
+    );
     expect(rentRows).toHaveLength(0);
   });
 
@@ -204,7 +297,12 @@ describe("Notifications & messaging (e2e)", () => {
     const thread = await request(app.getHttpServer())
       .post("/api/v1/messages/threads")
       .set("authorization", `Bearer ${ownerA}`)
-      .send({ type: "OWNER_NEXAHAUS", title: "Question about NH-N", propertyId: propertyAId, firstMessage: "Hello, a question." })
+      .send({
+        type: "OWNER_NEXAHAUS",
+        title: "Question about NH-N",
+        propertyId: propertyAId,
+        firstMessage: "Hello, a question.",
+      })
       .expect(201);
     const threadId = thread.body.data.id as string;
 
@@ -226,7 +324,9 @@ describe("Notifications & messaging (e2e)", () => {
       .get("/api/v1/messages/threads")
       .set("authorization", `Bearer ${ownerB}`)
       .expect(200);
-    expect((list.body.data as { id: string }[]).some((t) => t.id === threadId)).toBe(false);
+    expect(
+      (list.body.data as { id: string }[]).some((t) => t.id === threadId),
+    ).toBe(false);
   });
 
   it("replying emits MESSAGE_RECEIVED → the other participant is notified", async () => {
@@ -234,7 +334,9 @@ describe("Notifications & messaging (e2e)", () => {
       where: { propertyId: propertyAId },
       include: { participants: true },
     });
-    const staffParticipant = thread.participants.find((p) => p.role === "NEXAHAUS_SIDE");
+    const staffParticipant = thread.participants.find(
+      (p) => p.role === "NEXAHAUS_SIDE",
+    );
     expect(staffParticipant).toBeTruthy();
 
     await request(app.getHttpServer())

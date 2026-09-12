@@ -73,13 +73,19 @@ export class UnitsService {
           building: u.building,
           floor: u.floor,
           marketRent: u.marketRentMinor
-            ? { minor: u.marketRentMinor.toString(), currency: u.marketRentCurrency ?? "GHS" }
+            ? {
+                minor: u.marketRentMinor.toString(),
+                currency: u.marketRentCurrency ?? "GHS",
+              }
             : null,
           activeLease: lease
             ? {
                 id: lease.id,
                 ref: lease.ref,
-                rent: { minor: lease.rentMinor.toString(), currency: lease.rentCurrency },
+                rent: {
+                  minor: lease.rentMinor.toString(),
+                  currency: lease.rentCurrency,
+                },
                 endDate: lease.endDate.toISOString(),
                 tenant: lease.parties[0]?.tenant ?? null,
               }
@@ -90,7 +96,11 @@ export class UnitsService {
         buildings: buildings.map((b) => ({
           id: b.id,
           name: b.name,
-          floors: b.floors.map((f) => ({ id: f.id, label: f.label, level: f.level })),
+          floors: b.floors.map((f) => ({
+            id: f.id,
+            label: f.label,
+            level: f.level,
+          })),
         })),
       },
     };
@@ -99,7 +109,11 @@ export class UnitsService {
   async getById(user: AuthUser, id: string) {
     const unit = await this.prisma.unit.findFirst({
       where: { id, deletedAt: null },
-      include: { property: { select: { id: true, clientId: true, name: true, ref: true } } },
+      include: {
+        property: {
+          select: { id: true, clientId: true, name: true, ref: true },
+        },
+      },
     });
     if (!unit || !propertyInScope(user, unit.property)) {
       throw AppError.notFound("unit");
@@ -113,7 +127,10 @@ export class UnitsService {
       bathrooms: unit.bathrooms,
       floorAreaSqm: unit.floorAreaSqm ? Number(unit.floorAreaSqm) : null,
       marketRent: unit.marketRentMinor
-        ? { minor: unit.marketRentMinor.toString(), currency: unit.marketRentCurrency ?? "GHS" }
+        ? {
+            minor: unit.marketRentMinor.toString(),
+            currency: unit.marketRentCurrency ?? "GHS",
+          }
         : null,
       property: unit.property,
     };
@@ -139,7 +156,9 @@ export class UnitsService {
           bedrooms: input.bedrooms ?? null,
           bathrooms: input.bathrooms ?? null,
           floorAreaSqm: input.floorAreaSqm ?? null,
-          marketRentMinor: input.marketRent ? BigInt(input.marketRent.minor) : null,
+          marketRentMinor: input.marketRent
+            ? BigInt(input.marketRent.minor)
+            : null,
           marketRentCurrency: input.marketRent?.currency ?? null,
           status: input.status,
         },
@@ -183,7 +202,9 @@ export class UnitsService {
       bathrooms: input.bathrooms ?? undefined,
       floorAreaSqm: input.floorAreaSqm ?? undefined,
       status: input.status ?? undefined,
-      marketRentMinor: input.marketRent ? BigInt(input.marketRent.minor) : undefined,
+      marketRentMinor: input.marketRent
+        ? BigInt(input.marketRent.minor)
+        : undefined,
       marketRentCurrency: input.marketRent?.currency ?? undefined,
     };
     await this.prisma.unit.update({ where: { id }, data });
@@ -193,7 +214,10 @@ export class UnitsService {
       resourceType: "unit",
       resourceId: id,
       before: { label: existing.label, status: existing.status },
-      after: { label: input.label ?? existing.label, status: input.status ?? existing.status },
+      after: {
+        label: input.label ?? existing.label,
+        status: input.status ?? existing.status,
+      },
     });
     return this.getById(user, id);
   }
@@ -211,7 +235,12 @@ export class UnitsService {
         name: input.name,
         floorsCount: input.floors?.length ?? null,
         floors: input.floors
-          ? { create: input.floors.map((f) => ({ level: f.level, label: f.label })) }
+          ? {
+              create: input.floors.map((f) => ({
+                level: f.level,
+                label: f.label,
+              })),
+            }
           : undefined,
       },
       include: { floors: true },

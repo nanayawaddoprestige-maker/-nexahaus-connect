@@ -26,10 +26,15 @@ describe("Lease lifecycle (e2e)", () => {
   let unitId: string;
   let tenantId: string;
   let leaseId: string;
-  const created: { users: string[]; clients: string[] } = { users: [], clients: [] };
+  const created: { users: string[]; clients: string[] } = {
+    users: [],
+    clients: [],
+  };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -37,7 +42,9 @@ describe("Lease lifecycle (e2e)", () => {
     await app.init();
 
     // A scope-exempt SUPER_ADMIN keeps the test focused on the workflow.
-    const role = await prisma.role.findUniqueOrThrow({ where: { key: RoleKey.SUPER_ADMIN } });
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { key: RoleKey.SUPER_ADMIN },
+    });
     const email = `lease.admin.${stamp}@nexahaus.test`;
     const user = await prisma.user.create({
       data: {
@@ -76,11 +83,21 @@ describe("Lease lifecycle (e2e)", () => {
     });
     propertyId = property.id;
     const unit = await prisma.unit.create({
-      data: { propertyId, ref: `NHU-LEASE-${stamp}`, label: "Whole property", status: "VACANT" },
+      data: {
+        propertyId,
+        ref: `NHU-LEASE-${stamp}`,
+        label: "Whole property",
+        status: "VACANT",
+      },
     });
     unitId = unit.id;
     const tenant = await prisma.tenant.create({
-      data: { ref: `TN-LEASE-${stamp}`, fullName: "Lease Tenant", phone: "+233201112223", status: "ACTIVE" },
+      data: {
+        ref: `TN-LEASE-${stamp}`,
+        fullName: "Lease Tenant",
+        phone: "+233201112223",
+        status: "ACTIVE",
+      },
     });
     tenantId = tenant.id;
 
@@ -150,7 +167,11 @@ describe("Lease lifecycle (e2e)", () => {
       .expect(201);
     expect(res.body.data.status).toBe("ACTIVE");
     expect(res.body.data.rentCharges).toHaveLength(12);
-    expect(res.body.data.rentCharges.every((c: { status: string }) => c.status === "EXPECTED")).toBe(true);
+    expect(
+      res.body.data.rentCharges.every(
+        (c: { status: string }) => c.status === "EXPECTED",
+      ),
+    ).toBe(true);
     expect(res.body.data.summary.billedMinor).toBe("9600000"); // 12 * 800,000
 
     const unit = await prisma.unit.findUnique({ where: { id: unitId } });
@@ -170,13 +191,20 @@ describe("Lease lifecycle (e2e)", () => {
     const res = await request(app.getHttpServer())
       .post(`/api/v1/leases/${leaseId}/renew`)
       .set("authorization", `Bearer ${access}`)
-      .send({ newEndDate: "2028-07-01", newRent: { minor: "850000", currency: "GHS" } })
+      .send({
+        newEndDate: "2028-07-01",
+        newRent: { minor: "850000", currency: "GHS" },
+      })
       .expect(201);
     expect(res.body.data.status).toBe("ACTIVE");
     expect(res.body.data.rentCharges).toHaveLength(18);
     // the 6 new charges carry the new rent
     const newOnes = res.body.data.rentCharges.slice(12);
-    expect(newOnes.every((c: { amount: { minor: string } }) => c.amount.minor === "850000")).toBe(true);
+    expect(
+      newOnes.every(
+        (c: { amount: { minor: string } }) => c.amount.minor === "850000",
+      ),
+    ).toBe(true);
   });
 
   it("terminates the lease: future unpaid charges waived, unit VACANT", async () => {
@@ -187,7 +215,9 @@ describe("Lease lifecycle (e2e)", () => {
       .expect(201);
     expect(res.body.data.status).toBe("TERMINATED");
 
-    const waived = await prisma.rentCharge.count({ where: { leaseId, status: "WAIVED" } });
+    const waived = await prisma.rentCharge.count({
+      where: { leaseId, status: "WAIVED" },
+    });
     expect(waived).toBeGreaterThan(0);
     const unit = await prisma.unit.findUnique({ where: { id: unitId } });
     expect(unit?.status).toBe("VACANT");
@@ -200,7 +230,12 @@ describe("Lease lifecycle (e2e)", () => {
     });
     const kinds = new Set(actions.map((a) => a.action));
     expect(kinds).toEqual(
-      new Set(["lease.create", "lease.activate", "lease.renew", "lease.terminate"]),
+      new Set([
+        "lease.create",
+        "lease.activate",
+        "lease.renew",
+        "lease.terminate",
+      ]),
     );
   });
 });

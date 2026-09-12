@@ -82,7 +82,9 @@ export const managementAgreementSchema = z
   })
   .strict()
   .superRefine((v, ctx) => {
-    const pct = v.feeType === "PERCENT_OF_COLLECTED" || v.feeType === "PERCENT_OF_EXPECTED";
+    const pct =
+      v.feeType === "PERCENT_OF_COLLECTED" ||
+      v.feeType === "PERCENT_OF_EXPECTED";
     if (pct && v.feePercent === undefined) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -118,4 +120,6 @@ export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;
 export type ListPropertyQuery = z.infer<typeof listPropertyQuery>;
 export type CreateUnitInput = z.infer<typeof createUnitSchema>;
-export type ManagementAgreementInput = z.infer<typeof managementAgreementSchema>;
+export type ManagementAgreementInput = z.infer<
+  typeof managementAgreementSchema
+>;

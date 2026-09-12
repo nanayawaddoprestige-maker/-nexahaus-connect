@@ -35,7 +35,9 @@ export const createDistributionSchema = z
     periodStart: dateOnly,
     periodEnd: dateOnly,
     amount: moneyInput,
-    method: z.enum(["MOBILE_MONEY", "BANK_TRANSFER", "OTHER"]).default("BANK_TRANSFER"),
+    method: z
+      .enum(["MOBILE_MONEY", "BANK_TRANSFER", "OTHER"])
+      .default("BANK_TRANSFER"),
   })
   .strict();
 

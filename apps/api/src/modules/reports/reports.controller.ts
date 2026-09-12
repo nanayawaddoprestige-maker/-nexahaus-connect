@@ -50,7 +50,10 @@ export class ReportsController {
       res
         .status(200)
         .setHeader("content-type", "text/csv; charset=utf-8")
-        .setHeader("content-disposition", `attachment; filename="${filename}.csv"`)
+        .setHeader(
+          "content-disposition",
+          `attachment; filename="${filename}.csv"`,
+        )
         .send(this.reports.toCsv(report));
       return;
     }

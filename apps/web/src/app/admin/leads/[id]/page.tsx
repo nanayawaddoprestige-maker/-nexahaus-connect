@@ -29,25 +29,36 @@ export default function LeadDetailPage() {
   });
 
   const addActivity = useMutation({
-    mutationFn: () => api.post(`/leads/${params.id}/activities`, { type: noteType, body: note.trim() }),
+    mutationFn: () =>
+      api.post(`/leads/${params.id}/activities`, {
+        type: noteType,
+        body: note.trim(),
+      }),
     onSuccess: () => {
       setNote("");
       void qc.invalidateQueries({ queryKey: ["lead", params.id] });
     },
   });
   const move = useMutation({
-    mutationFn: (status: string) => api.patch(`/leads/${params.id}`, { status }),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["lead", params.id] }),
+    mutationFn: (status: string) =>
+      api.patch(`/leads/${params.id}`, { status }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["lead", params.id] }),
   });
   const convert = useMutation({
-    mutationFn: () => api.post<{ clientId: string }>(`/leads/${params.id}/convert`, {}),
+    mutationFn: () =>
+      api.post<{ clientId: string }>(`/leads/${params.id}/convert`, {}),
     onSuccess: (res) => router.push(`/admin/clients/${res.clientId}`),
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Could not convert this lead."),
+    onError: (e) =>
+      setError(
+        e instanceof ApiError ? e.message : "Could not convert this lead.",
+      ),
   });
 
   if (lead.isLoading) return <Skeleton className="h-96 w-full" />;
   if (lead.isError || !lead.data) {
-    const notFound = lead.error instanceof ApiError && lead.error.status === 404;
+    const notFound =
+      lead.error instanceof ApiError && lead.error.status === 404;
     return (
       <ErrorState
         title={notFound ? "Lead not found" : "We couldn't load this lead."}
@@ -59,7 +70,10 @@ export default function LeadDetailPage() {
 
   return (
     <div>
-      <button onClick={() => router.push("/admin/leads")} className="mb-4 text-sm text-ink-muted hover:text-navy-900">
+      <button
+        onClick={() => router.push("/admin/leads")}
+        className="mb-4 text-sm text-ink-muted hover:text-navy-900"
+      >
         ← All leads
       </button>
       <PageHeader
@@ -67,17 +81,30 @@ export default function LeadDetailPage() {
           <span className="flex items-center gap-3">
             {l.name}
             <StatusBadge status={l.status} />
-            <StatusBadge status={`Grade ${l.grade}`} tone={GRADE_TONE[l.grade]} />
+            <StatusBadge
+              status={`Grade ${l.grade}`}
+              tone={GRADE_TONE[l.grade]}
+            />
           </span>
         }
         subtitle={`${l.ref} · ${l.email} · ${l.phone} · via ${titleCase(l.source)}`}
         action={
           l.convertedClientId ? (
-            <Button size="sm" variant="secondary" onClick={() => router.push(`/admin/clients/${l.convertedClientId}`)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                router.push(`/admin/clients/${l.convertedClientId}`)
+              }
+            >
               View client
             </Button>
           ) : (
-            <Button size="sm" loading={convert.isPending} onClick={() => convert.mutate()}>
+            <Button
+              size="sm"
+              loading={convert.isPending}
+              onClick={() => convert.mutate()}
+            >
               Convert to client
             </Button>
           )
@@ -92,8 +119,16 @@ export default function LeadDetailPage() {
             <Row label="Property count" value={l.propertyCount ?? "—"} />
             <Row label="Property type" value={l.propertyType ?? "—"} />
             <Row label="Location" value={l.location ?? "—"} />
-            <Row label="Lives in Ghana" value={l.livesInGhana == null ? "—" : l.livesInGhana ? "Yes" : "No"} />
-            <Row label="Segment" value={l.segment ? titleCase(l.segment) : "—"} />
+            <Row
+              label="Lives in Ghana"
+              value={
+                l.livesInGhana == null ? "—" : l.livesInGhana ? "Yes" : "No"
+              }
+            />
+            <Row
+              label="Segment"
+              value={l.segment ? titleCase(l.segment) : "—"}
+            />
             <Row label="Campaign" value={l.campaign ?? "—"} />
           </dl>
           {l.biggestChallenge ? (
@@ -105,7 +140,10 @@ export default function LeadDetailPage() {
           {l.serviceInterest.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {l.serviceInterest.map((s) => (
-                <span key={s} className="rounded-md border border-line bg-surface-sunken px-2 py-0.5 text-xs text-ink-muted">
+                <span
+                  key={s}
+                  className="rounded-md border border-line bg-surface-sunken px-2 py-0.5 text-xs text-ink-muted"
+                >
                   {s}
                 </span>
               ))}
@@ -122,7 +160,9 @@ export default function LeadDetailPage() {
                   disabled={l.status === s || !!l.convertedClientId}
                   className={
                     "rounded-md px-2 py-1 text-xs font-medium " +
-                    (l.status === s ? "bg-navy-900 text-white" : "border border-line text-ink-muted hover:text-navy-900 disabled:opacity-40")
+                    (l.status === s
+                      ? "bg-navy-900 text-white"
+                      : "border border-line text-ink-muted hover:text-navy-900 disabled:opacity-40")
                   }
                 >
                   {titleCase(s)}
@@ -152,7 +192,8 @@ export default function LeadDetailPage() {
           ) : null}
           {l.healthChecks[0] ? (
             <p className="mt-3 border-t border-line pt-3 text-xs text-ink-subtle">
-              Health check completed · preliminary {l.healthChecks[0].preliminaryScore}/100
+              Health check completed · preliminary{" "}
+              {l.healthChecks[0].preliminaryScore}/100
             </p>
           ) : null}
         </Card>
@@ -167,7 +208,9 @@ export default function LeadDetailPage() {
             className="h-9 rounded-lg border border-line bg-surface px-2 text-sm"
           >
             {["NOTE", "CALL", "EMAIL", "MEETING", "TASK"].map((t) => (
-              <option key={t} value={t}>{titleCase(t)}</option>
+              <option key={t} value={t}>
+                {titleCase(t)}
+              </option>
             ))}
           </select>
           <input
@@ -176,7 +219,12 @@ export default function LeadDetailPage() {
             placeholder="Log a call, note or next step…"
             className="h-9 flex-1 rounded-lg border border-line bg-surface px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
           />
-          <Button size="sm" loading={addActivity.isPending} disabled={!note.trim()} onClick={() => addActivity.mutate()}>
+          <Button
+            size="sm"
+            loading={addActivity.isPending}
+            disabled={!note.trim()}
+            onClick={() => addActivity.mutate()}
+          >
             Log
           </Button>
         </div>

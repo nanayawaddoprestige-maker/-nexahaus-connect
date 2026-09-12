@@ -25,11 +25,22 @@ export function CtaBand({
         <h2 className="nx-display text-display-md text-white">{title}</h2>
         {body ? <p className="mt-3 text-navy-100">{body}</p> : null}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <Cta href={primary.href} variant="gold" size="lg" event={primaryEvent} eventProps={{ location }}>
+          <Cta
+            href={primary.href}
+            variant="gold"
+            size="lg"
+            event={primaryEvent}
+            eventProps={{ location }}
+          >
             {primary.label}
           </Cta>
           {secondary ? (
-            <Cta href={secondary.href} variant="onNavy" size="lg" eventProps={{ location }}>
+            <Cta
+              href={secondary.href}
+              variant="onNavy"
+              size="lg"
+              eventProps={{ location }}
+            >
               {secondary.label}
             </Cta>
           ) : null}

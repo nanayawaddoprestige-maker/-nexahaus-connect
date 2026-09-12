@@ -59,7 +59,9 @@ export function Eyebrow({
   onNavy?: boolean;
 }) {
   return (
-    <p className={cn("nx-eyebrow", onNavy && "text-gold-400", className)}>{children}</p>
+    <p className={cn("nx-eyebrow", onNavy && "text-gold-400", className)}>
+      {children}
+    </p>
   );
 }
 
@@ -169,7 +171,12 @@ export function Stat({
         {label}
       </div>
       {hint ? (
-        <div className={cn("mt-0.5 text-xs", onNavy ? "text-navy-300" : "text-ink-subtle")}>
+        <div
+          className={cn(
+            "mt-0.5 text-xs",
+            onNavy ? "text-navy-300" : "text-ink-subtle",
+          )}
+        >
           {hint}
         </div>
       ) : null}

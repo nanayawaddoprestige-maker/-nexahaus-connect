@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import {
@@ -56,7 +65,10 @@ export class ImportsController {
     res
       .status(200)
       .setHeader("content-type", "text/csv; charset=utf-8")
-      .setHeader("content-disposition", `attachment; filename="import-${id}-errors.csv"`)
+      .setHeader(
+        "content-disposition",
+        `attachment; filename="import-${id}-errors.csv"`,
+      )
       .send(csv);
   }
 }

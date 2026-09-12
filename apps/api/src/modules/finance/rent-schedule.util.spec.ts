@@ -6,21 +6,33 @@ describe("rentPeriods", () => {
   it("generates one monthly period per month of a 12-month term", () => {
     const periods = rentPeriods(d("2027-01-01"), d("2028-01-01"), "MONTHLY");
     expect(periods).toHaveLength(12);
-    expect(periods[0]!.periodStart.toISOString()).toBe("2027-01-01T00:00:00.000Z");
-    expect(periods[0]!.periodEnd.toISOString()).toBe("2027-02-01T00:00:00.000Z");
+    expect(periods[0]!.periodStart.toISOString()).toBe(
+      "2027-01-01T00:00:00.000Z",
+    );
+    expect(periods[0]!.periodEnd.toISOString()).toBe(
+      "2027-02-01T00:00:00.000Z",
+    );
     expect(periods[0]!.dueDate.toISOString()).toBe("2027-01-01T00:00:00.000Z");
-    expect(periods[11]!.periodStart.toISOString()).toBe("2027-12-01T00:00:00.000Z");
+    expect(periods[11]!.periodStart.toISOString()).toBe(
+      "2027-12-01T00:00:00.000Z",
+    );
   });
 
   it("generates 4 quarterly periods for a 12-month term", () => {
     const periods = rentPeriods(d("2027-01-01"), d("2028-01-01"), "QUARTERLY");
     expect(periods).toHaveLength(4);
-    expect(periods.map((p) => p.periodStart.getUTCMonth())).toEqual([0, 3, 6, 9]);
+    expect(periods.map((p) => p.periodStart.getUTCMonth())).toEqual([
+      0, 3, 6, 9,
+    ]);
   });
 
   it("generates 2 biannual and 1 annual period", () => {
-    expect(rentPeriods(d("2027-01-01"), d("2028-01-01"), "BIANNUAL")).toHaveLength(2);
-    expect(rentPeriods(d("2027-01-01"), d("2028-01-01"), "ANNUAL")).toHaveLength(1);
+    expect(
+      rentPeriods(d("2027-01-01"), d("2028-01-01"), "BIANNUAL"),
+    ).toHaveLength(2);
+    expect(
+      rentPeriods(d("2027-01-01"), d("2028-01-01"), "ANNUAL"),
+    ).toHaveLength(1);
   });
 
   it("bills a trailing partial period in full", () => {
@@ -47,6 +59,8 @@ describe("rentPeriods", () => {
   });
 
   it("returns nothing when end is not after start", () => {
-    expect(rentPeriods(d("2027-05-01"), d("2027-05-01"), "MONTHLY")).toEqual([]);
+    expect(rentPeriods(d("2027-05-01"), d("2027-05-01"), "MONTHLY")).toEqual(
+      [],
+    );
   });
 });

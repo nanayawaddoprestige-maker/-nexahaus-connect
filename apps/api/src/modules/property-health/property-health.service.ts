@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { DomainEventType, HealthComponentKey, type AuthUser } from "@nexahaus/types";
+import {
+  DomainEventType,
+  HealthComponentKey,
+  type AuthUser,
+} from "@nexahaus/types";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { AuditService, type AuditContext } from "../../audit/audit.service";
@@ -47,7 +51,10 @@ export class PropertyHealthService {
     });
     const version = (latest?.version ?? 0) + 1;
     await this.prisma.$transaction([
-      this.prisma.healthScoreConfig.updateMany({ where: { active: true }, data: { active: false } }),
+      this.prisma.healthScoreConfig.updateMany({
+        where: { active: true },
+        data: { active: false },
+      }),
       this.prisma.healthScoreConfig.create({
         data: { version, weights, active: true, createdById: user.userId },
       }),
@@ -99,7 +106,14 @@ export class PropertyHealthService {
       orderBy: { scoredAt: "desc" },
     });
     if (!score) {
-      return { propertyId, property: property.name, score: null, scoredAt: null, components: [], recommendations: [] };
+      return {
+        propertyId,
+        property: property.name,
+        score: null,
+        scoredAt: null,
+        components: [],
+        recommendations: [],
+      };
     }
     return {
       propertyId,
@@ -157,7 +171,10 @@ export class PropertyHealthService {
   ) {
     const cfg = await this.activeConfig();
     const factors = await this.gatherFactors(propertyId);
-    const result = computeHealthScore(factors, cfg.weights as Record<ComponentKey, number>);
+    const result = computeHealthScore(
+      factors,
+      cfg.weights as Record<ComponentKey, number>,
+    );
 
     const stored = await this.prisma.$transaction(async (tx) => {
       const row = await tx.propertyHealthScore.create({
@@ -240,13 +257,19 @@ export class PropertyHealthService {
         _sum: { amountMinor: true, paidMinor: true },
       }),
       this.prisma.maintenanceRequest.count({
-        where: { propertyId, status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] } },
+        where: {
+          propertyId,
+          status: { notIn: ["CLOSED", "CANCELLED", "VERIFIED"] },
+        },
       }),
       this.prisma.maintenanceRequest.count({
         where: { propertyId, createdAt: { gte: sixMonths.start } },
       }),
       this.prisma.inspection.findFirst({
-        where: { propertyId, status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] } },
+        where: {
+          propertyId,
+          status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] },
+        },
         orderBy: { completedAt: "desc" },
         select: { overallCondition: true, completedAt: true },
       }),
@@ -261,7 +284,10 @@ export class PropertyHealthService {
         select: { category: true, expiresAt: true },
       }),
       this.prisma.complianceItem.count({
-        where: { status: { in: ["EXPIRED", "MISSING"] }, category: "PROPERTY_DOC" },
+        where: {
+          status: { in: ["EXPIRED", "MISSING"] },
+          category: "PROPERTY_DOC",
+        },
       }),
       this.prisma.transaction.aggregate({
         where: {
@@ -274,12 +300,14 @@ export class PropertyHealthService {
     ]);
 
     const totalUnits = units.reduce((s, g) => s + g._count._all, 0);
-    const occupied = units.find((g) => g.status === "OCCUPIED")?._count._all ?? 0;
+    const occupied =
+      units.find((g) => g.status === "OCCUPIED")?._count._all ?? 0;
     const occupancy = totalUnits === 0 ? 0.5 : occupied / totalUnits;
 
     const expected = rent._sum.amountMinor ?? 0n;
     const collected = rent._sum.paidMinor ?? 0n;
-    const collectionRate = expected === 0n ? 0.8 : Number(collected) / Number(expected);
+    const collectionRate =
+      expected === 0n ? 0.8 : Number(collected) / Number(expected);
 
     const maintenanceValue =
       totalMaintenance === 0
@@ -292,18 +320,29 @@ export class PropertyHealthService {
     );
 
     const presentCats = new Set(docs.map((d) => d.category));
-    const presentRequired = REQUIRED_DOC_CATEGORIES.filter((c) => presentCats.has(c as never)).length;
-    const expiredDocs = docs.filter((d) => d.expiresAt && d.expiresAt < new Date()).length;
+    const presentRequired = REQUIRED_DOC_CATEGORIES.filter((c) =>
+      presentCats.has(c as never),
+    ).length;
+    const expiredDocs = docs.filter(
+      (d) => d.expiresAt && d.expiresAt < new Date(),
+    ).length;
     const documentation = Math.max(
       0,
       presentRequired / REQUIRED_DOC_CATEGORIES.length - expiredDocs * 0.1,
     );
 
-    const security = Math.max(0.3, 0.95 - complianceIssues * 0.15 - urgentItems * 0.03);
+    const security = Math.max(
+      0.3,
+      0.95 - complianceIssues * 0.15 - urgentItems * 0.03,
+    );
 
     const net = netTxn._sum.amountMinor ?? 0n;
     const financial =
-      expected === 0n ? 0.7 : net > 0n ? Math.min(1, 0.7 + Number(net) / Number(expected)) : 0.4;
+      expected === 0n
+        ? 0.7
+        : net > 0n
+          ? Math.min(1, 0.7 + Number(net) / Number(expected))
+          : 0.4;
 
     return [
       {

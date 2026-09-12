@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import type { Request } from "express";
 import {
@@ -90,9 +82,15 @@ export class LeasesController {
   terminate(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(terminateLeaseSchema)) body: TerminateLeaseInput,
+    @Body(new ZodValidationPipe(terminateLeaseSchema))
+    body: TerminateLeaseInput,
     @Req() req: Request,
   ) {
-    return this.leases.terminate(user, id, body, auditCtxFromRequest(req, user));
+    return this.leases.terminate(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 }

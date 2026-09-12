@@ -47,7 +47,9 @@ export function StatCard({
   return (
     <div className="nx-card">
       <p className="nx-label">{label}</p>
-      <p className={cn("mt-2 text-2xl font-semibold tabular-nums", toneClass)}>{value}</p>
+      <p className={cn("mt-2 text-2xl font-semibold tabular-nums", toneClass)}>
+        {value}
+      </p>
       {hint ? <p className="mt-1 text-xs text-ink-subtle">{hint}</p> : null}
     </div>
   );

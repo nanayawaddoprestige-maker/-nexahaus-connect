@@ -9,21 +9,38 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
 
 export default function TenantRentPage() {
-  const rent = useQuery({ queryKey: ["tenant", "rent"], queryFn: () => api.get<TenantRent>("/tenant/rent") });
-  const payments = useQuery({ queryKey: ["tenant", "payments"], queryFn: () => api.list<TenantPayment>("/tenant/payments") });
+  const rent = useQuery({
+    queryKey: ["tenant", "rent"],
+    queryFn: () => api.get<TenantRent>("/tenant/rent"),
+  });
+  const payments = useQuery({
+    queryKey: ["tenant", "payments"],
+    queryFn: () => api.list<TenantPayment>("/tenant/payments"),
+  });
 
   if (rent.isLoading) return <Skeleton className="h-96 w-full" />;
-  if (rent.isError || !rent.data) return <ErrorState onRetry={() => void rent.refetch()} />;
+  if (rent.isError || !rent.data)
+    return <ErrorState onRetry={() => void rent.refetch()} />;
 
   const r = rent.data;
 
   return (
     <div>
-      <PageHeader title="Rent" subtitle="What you owe, what you've paid, and how to pay." />
+      <PageHeader
+        title="Rent"
+        subtitle="What you owe, what you've paid, and how to pay."
+      />
 
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Billed to date" value={formatMinor(r.summary.billedMinor, r.currency)} />
-        <StatCard label="Paid" value={formatMinor(r.summary.paidMinor, r.currency)} tone="positive" />
+        <StatCard
+          label="Billed to date"
+          value={formatMinor(r.summary.billedMinor, r.currency)}
+        />
+        <StatCard
+          label="Paid"
+          value={formatMinor(r.summary.paidMinor, r.currency)}
+          tone="positive"
+        />
         <StatCard
           label="Outstanding"
           value={formatMinor(r.summary.outstandingMinor, r.currency)}
@@ -37,7 +54,9 @@ export default function TenantRentPage() {
       </Card>
 
       <Card className="mb-6 overflow-x-auto p-0">
-        <div className="border-b border-line px-4 py-3 text-sm font-semibold text-navy-900">Rent schedule</div>
+        <div className="border-b border-line px-4 py-3 text-sm font-semibold text-navy-900">
+          Rent schedule
+        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-[10.5px] uppercase tracking-wide text-ink-subtle">
@@ -52,9 +71,20 @@ export default function TenantRentPage() {
             {r.charges.map((c) => (
               <tr key={c.id} className="border-b border-line last:border-0">
                 <td className="px-4 py-2.5 text-ink-muted">{c.period}</td>
-                <td className="px-4 py-2.5 text-ink-muted">{formatDate(c.dueDate)}</td>
-                <td className="px-4 py-2.5 text-right tabular-nums text-navy-900">{formatMoney(c.amount)}</td>
-                <td className={"px-4 py-2.5 text-right tabular-nums " + (c.outstandingMinor === "0" ? "text-ink-subtle" : "text-warning")}>
+                <td className="px-4 py-2.5 text-ink-muted">
+                  {formatDate(c.dueDate)}
+                </td>
+                <td className="px-4 py-2.5 text-right tabular-nums text-navy-900">
+                  {formatMoney(c.amount)}
+                </td>
+                <td
+                  className={
+                    "px-4 py-2.5 text-right tabular-nums " +
+                    (c.outstandingMinor === "0"
+                      ? "text-ink-subtle"
+                      : "text-warning")
+                  }
+                >
                   {formatMinor(c.outstandingMinor, c.amount.currency)}
                 </td>
                 <td className="px-4 py-2.5">
@@ -75,15 +105,23 @@ export default function TenantRentPage() {
         ) : (
           <ul className="divide-y divide-line text-sm">
             {payments.data!.items.map((p) => (
-              <li key={p.id} className="flex items-center justify-between py-2.5">
+              <li
+                key={p.id}
+                className="flex items-center justify-between py-2.5"
+              >
                 <div>
-                  <p className="font-medium text-navy-900">{formatMoney(p.amount)}</p>
+                  <p className="font-medium text-navy-900">
+                    {formatMoney(p.amount)}
+                  </p>
                   <p className="text-xs text-ink-subtle">
                     {titleCase(p.method)} · {formatDate(p.receivedAt)}
                     {p.reference ? ` · ${p.reference}` : ""}
                   </p>
                 </div>
-                <StatusBadge status={p.status} tone={p.status === "CONFIRMED" ? "positive" : "neutral"} />
+                <StatusBadge
+                  status={p.status}
+                  tone={p.status === "CONFIRMED" ? "positive" : "neutral"}
+                />
               </li>
             ))}
           </ul>

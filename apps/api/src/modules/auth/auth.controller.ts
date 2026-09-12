@@ -46,7 +46,11 @@ export class AuthController {
     return { ip: req.ip ?? null, userAgent: req.header("user-agent") ?? null };
   }
 
-  private setRefreshCookie(res: Response, token: string, expiresAt: string): void {
+  private setRefreshCookie(
+    res: Response,
+    token: string,
+    expiresAt: string,
+  ): void {
     res.cookie(REFRESH_COOKIE, token, {
       httpOnly: true,
       secure: config.isProduction,
@@ -122,7 +126,11 @@ export class AuthController {
     if (!token) throw AppError.unauthenticated("No refresh token supplied.");
     const tokens = await this.auth.refresh(token, this.meta(req));
     if (tokens.refreshToken) {
-      this.setRefreshCookie(res, tokens.refreshToken, tokens.refreshTokenExpiresAt);
+      this.setRefreshCookie(
+        res,
+        tokens.refreshToken,
+        tokens.refreshTokenExpiresAt,
+      );
     }
     return tokens;
   }
@@ -193,7 +201,8 @@ export class AuthController {
   @Post("password/forgot")
   @HttpCode(202)
   forgotPassword(
-    @Body(new ZodValidationPipe(forgotPasswordSchema)) body: ForgotPasswordInput,
+    @Body(new ZodValidationPipe(forgotPasswordSchema))
+    body: ForgotPasswordInput,
   ) {
     return this.auth.forgotPassword(body);
   }

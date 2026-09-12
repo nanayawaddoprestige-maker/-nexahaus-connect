@@ -14,9 +14,24 @@ import { theme } from "@/lib/theme";
 
 interface OwnerDashboard {
   currency: string;
-  portfolio: { totalProperties: number; occupancyRate: number; occupiedUnits: number; totalUnits: number };
-  rent: { expectedMinor: string; collectedMinor: string; outstandingMinor: string; collectionRate: number };
-  attention: { openMaintenance: number; urgentMaintenance: number; pendingApprovals: number; inspectionsDue: number };
+  portfolio: {
+    totalProperties: number;
+    occupancyRate: number;
+    occupiedUnits: number;
+    totalUnits: number;
+  };
+  rent: {
+    expectedMinor: string;
+    collectedMinor: string;
+    outstandingMinor: string;
+    collectionRate: number;
+  };
+  attention: {
+    openMaintenance: number;
+    urgentMaintenance: number;
+    pendingApprovals: number;
+    inspectionsDue: number;
+  };
   portfolioHealthScore: number | null;
 }
 
@@ -34,7 +49,10 @@ export default function Dashboard() {
       style={styles.root}
       contentContainerStyle={{ padding: 16 }}
       refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={() => void refetch()}
+        />
       }
     >
       <Text style={styles.greeting}>Good day, {firstName}</Text>
@@ -44,7 +62,9 @@ export default function Dashboard() {
         <Text style={styles.muted}>Loading…</Text>
       ) : isError || !data ? (
         <View style={styles.card}>
-          <Text style={styles.muted}>We couldn&apos;t load your dashboard.</Text>
+          <Text style={styles.muted}>
+            We couldn&apos;t load your dashboard.
+          </Text>
           <Pressable onPress={() => void refetch()} style={styles.retry}>
             <Text style={styles.retryText}>Retry</Text>
           </Pressable>
@@ -52,8 +72,14 @@ export default function Dashboard() {
       ) : (
         <>
           <View style={styles.grid}>
-            <Stat label="Properties" value={String(data.portfolio.totalProperties)} />
-            <Stat label="Occupancy" value={percent(data.portfolio.occupancyRate)} />
+            <Stat
+              label="Properties"
+              value={String(data.portfolio.totalProperties)}
+            />
+            <Stat
+              label="Occupancy"
+              value={percent(data.portfolio.occupancyRate)}
+            />
             <Stat
               label="Collected"
               value={money(data.rent.collectedMinor, data.currency)}
@@ -67,7 +93,10 @@ export default function Dashboard() {
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Needs attention</Text>
-            <Row label="Open maintenance" value={data.attention.openMaintenance} />
+            <Row
+              label="Open maintenance"
+              value={data.attention.openMaintenance}
+            />
             <Row
               label="Urgent"
               value={data.attention.urgentMaintenance}
@@ -78,7 +107,10 @@ export default function Dashboard() {
               value={data.attention.pendingApprovals}
               tone={data.attention.pendingApprovals ? "warning" : undefined}
             />
-            <Row label="Inspections due" value={data.attention.inspectionsDue} />
+            <Row
+              label="Inspections due"
+              value={data.attention.inspectionsDue}
+            />
           </View>
 
           <View style={styles.card}>
@@ -151,8 +183,17 @@ function Row({
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: theme.color.surfaceSunken },
-  greeting: { fontSize: theme.font.size.xl, fontWeight: "700", color: theme.color.navy900 },
-  sub: { fontSize: theme.font.size.sm, color: theme.color.inkMuted, marginTop: 4, marginBottom: 16 },
+  greeting: {
+    fontSize: theme.font.size.xl,
+    fontWeight: "700",
+    color: theme.color.navy900,
+  },
+  sub: {
+    fontSize: theme.font.size.sm,
+    color: theme.color.inkMuted,
+    marginTop: 4,
+    marginBottom: 16,
+  },
   muted: { color: theme.color.inkSubtle, fontSize: theme.font.size.sm },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   stat: {
@@ -163,8 +204,17 @@ const styles = StyleSheet.create({
     borderColor: theme.color.line,
     padding: 14,
   },
-  statLabel: { fontSize: theme.font.size.xs, color: theme.color.inkSubtle, letterSpacing: 0.5 },
-  statValue: { fontSize: theme.font.size.lg, fontWeight: "700", color: theme.color.navy900, marginTop: 6 },
+  statLabel: {
+    fontSize: theme.font.size.xs,
+    color: theme.color.inkSubtle,
+    letterSpacing: 0.5,
+  },
+  statValue: {
+    fontSize: theme.font.size.lg,
+    fontWeight: "700",
+    color: theme.color.navy900,
+    marginTop: 6,
+  },
   card: {
     backgroundColor: theme.color.surface,
     borderRadius: theme.radius.lg,
@@ -173,12 +223,37 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 16,
   },
-  cardTitle: { fontSize: theme.font.size.sm, fontWeight: "700", color: theme.color.navy900, marginBottom: 10 },
-  rowLine: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 6 },
+  cardTitle: {
+    fontSize: theme.font.size.sm,
+    fontWeight: "700",
+    color: theme.color.navy900,
+    marginBottom: 10,
+  },
+  rowLine: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 6,
+  },
   rowLabel: { color: theme.color.inkMuted, fontSize: theme.font.size.base },
-  rowValue: { color: theme.color.navy900, fontWeight: "600", fontSize: theme.font.size.base },
-  healthScore: { fontSize: theme.font.size.xxl, fontWeight: "700", color: theme.color.navy900 },
-  retry: { marginTop: 12, alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 14, borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.color.line },
+  rowValue: {
+    color: theme.color.navy900,
+    fontWeight: "600",
+    fontSize: theme.font.size.base,
+  },
+  healthScore: {
+    fontSize: theme.font.size.xxl,
+    fontWeight: "700",
+    color: theme.color.navy900,
+  },
+  retry: {
+    marginTop: 12,
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.color.line,
+  },
   retryText: { color: theme.color.navy900, fontWeight: "600" },
   signOut: { marginTop: 28, alignItems: "center", padding: 12 },
   signOutText: { color: theme.color.inkSubtle, fontSize: theme.font.size.sm },

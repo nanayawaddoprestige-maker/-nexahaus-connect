@@ -10,7 +10,10 @@ export function ProgressBar({
   const clamped = Math.max(0, Math.min(100, percent));
   return (
     <div
-      className={cn("h-2 w-full overflow-hidden rounded-full bg-navy-50", className)}
+      className={cn(
+        "h-2 w-full overflow-hidden rounded-full bg-navy-50",
+        className,
+      )}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}
@@ -45,7 +48,12 @@ export function StepList({
           >
             {s.done ? "✓" : s.index}
           </span>
-          <span className={cn(s.done ? "text-ink-muted" : "text-navy-900", s.current && "font-medium")}>
+          <span
+            className={cn(
+              s.done ? "text-ink-muted" : "text-navy-900",
+              s.current && "font-medium",
+            )}
+          >
             {s.label}
           </span>
         </li>

@@ -18,7 +18,11 @@ export const metadata: Metadata = buildMetadata({
   title: "Property Rescue",
   description: DESCRIPTION,
   path: routes.propertyRescue,
-  keywords: ["underperforming rental property Ghana", "property management review Ghana", "property assessment Ghana"],
+  keywords: [
+    "underperforming rental property Ghana",
+    "property management review Ghana",
+    "property assessment Ghana",
+  ],
 });
 
 const EXAMINES = [
@@ -41,7 +45,11 @@ export default function PropertyRescuePage() {
         title="Is Your Property Underperforming?"
         lede="Some properties do not need another caretaker. They need a proper assessment. Property Rescue is a structured way to find out what is holding an asset back — and what to do about it."
         breadcrumb={[{ label: "Property Rescue", href: routes.propertyRescue }]}
-        jsonLd={{ name: "Property Rescue", description: DESCRIPTION, path: routes.propertyRescue }}
+        jsonLd={{
+          name: "Property Rescue",
+          description: DESCRIPTION,
+          path: routes.propertyRescue,
+        }}
         primary={{ label: "Start the assessment", href: "#assess" }}
         secondary={{ label: "How it works", href: "#approach" }}
       />
@@ -51,11 +59,27 @@ export default function PropertyRescuePage() {
         <FlowSteps
           className="mt-10"
           steps={[
-            { label: "Assess", detail: "Review the property against the areas below." },
-            { label: "Identify", detail: "Name the specific problems, with evidence." },
-            { label: "Prioritize", detail: "Rank the corrective actions by impact." },
-            { label: "Improve", detail: "Work through the actions — pricing, maintenance, tenancy." },
-            { label: "Monitor", detail: "Re-assess and track the score over time." },
+            {
+              label: "Assess",
+              detail: "Review the property against the areas below.",
+            },
+            {
+              label: "Identify",
+              detail: "Name the specific problems, with evidence.",
+            },
+            {
+              label: "Prioritize",
+              detail: "Rank the corrective actions by impact.",
+            },
+            {
+              label: "Improve",
+              detail:
+                "Work through the actions — pricing, maintenance, tenancy.",
+            },
+            {
+              label: "Monitor",
+              detail: "Re-assess and track the score over time.",
+            },
           ]}
         />
       </Section>
@@ -63,19 +87,22 @@ export default function PropertyRescuePage() {
       <Section tone="sunken">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
           <div>
-            <SectionHeader eyebrow="What we examine" title="Where underperformance usually hides." />
+            <SectionHeader
+              eyebrow="What we examine"
+              title="Where underperformance usually hides."
+            />
             <CheckList items={EXAMINES} columns={2} className="mt-8" />
             <p className="mt-6 max-w-prose text-xs text-ink-subtle">
-              This preliminary digital result is an indicative management assessment and
-              does not constitute a professional property valuation, legal advice or
-              investment advice.
+              This preliminary digital result is an indicative management
+              assessment and does not constitute a professional property
+              valuation, legal advice or investment advice.
             </p>
           </div>
           <div className="flex flex-col items-center rounded-2xl border border-line bg-surface p-8 shadow-card">
             <HealthGauge score={72} caption="Illustrative example" />
             <p className="mt-3 text-center text-xs text-ink-subtle">
-              A Property Rescue assessment produces an overall score out of 100 and the
-              specific problems behind it.
+              A Property Rescue assessment produces an overall score out of 100
+              and the specific problems behind it.
             </p>
           </div>
         </div>
@@ -92,9 +119,10 @@ export default function PropertyRescuePage() {
             <PropertyRescueForm />
           </div>
           <p className="mt-4 text-xs text-ink-subtle">
-            A written report and a professional assessment are the next step. This
-            preliminary digital result is an indicative management assessment and does not
-            constitute a professional property valuation, legal advice or investment advice.
+            A written report and a professional assessment are the next step.
+            This preliminary digital result is an indicative management
+            assessment and does not constitute a professional property
+            valuation, legal advice or investment advice.
           </p>
         </div>
       </Section>

@@ -52,7 +52,11 @@ export function rentPeriods(
 
   const step = MONTHS_BY_FREQUENCY[frequency];
   let cursor = new Date(
-    Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()),
+    Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate(),
+    ),
   );
   let guard = 0;
   while (cursor < endDate && guard < 600) {

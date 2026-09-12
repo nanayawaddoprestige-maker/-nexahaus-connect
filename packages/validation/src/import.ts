@@ -43,7 +43,12 @@ export const importPropertyRow = z
     bedrooms: intFromString,
     bathrooms: intFromString,
     estimatedValueMinor: minorFromString,
-    estimatedValueCurrency: z.string().trim().length(3).optional().or(z.literal("")),
+    estimatedValueCurrency: z
+      .string()
+      .trim()
+      .length(3)
+      .optional()
+      .or(z.literal("")),
   })
   .strip();
 
@@ -54,7 +59,12 @@ export const importUnitRow = z
     bedrooms: intFromString,
     bathrooms: intFromString,
     marketRentMinor: minorFromString,
-    marketRentCurrency: z.string().trim().length(3).optional().or(z.literal("")),
+    marketRentCurrency: z
+      .string()
+      .trim()
+      .length(3)
+      .optional()
+      .or(z.literal("")),
     status: z.nativeEnum(UnitStatus).default(UnitStatus.VACANT),
   })
   .strip();
@@ -64,7 +74,12 @@ export const importTenantRow = z
     fullName: z.string().trim().min(2).max(160),
     phone: ghanaPhone,
     email: email.optional().or(z.literal("")),
-    emergencyContactName: z.string().trim().max(120).optional().or(z.literal("")),
+    emergencyContactName: z
+      .string()
+      .trim()
+      .max(120)
+      .optional()
+      .or(z.literal("")),
     emergencyContactPhone: ghanaPhone.optional().or(z.literal("")),
     status: z.nativeEnum(TenantStatus).default(TenantStatus.ACTIVE),
   })

@@ -19,7 +19,8 @@ export function MessagesView() {
 
   const threads = useQuery({
     queryKey: ["messages", "threads"],
-    queryFn: () => api.list<ThreadRow>("/messages/threads", { query: { pageSize: 30 } }),
+    queryFn: () =>
+      api.list<ThreadRow>("/messages/threads", { query: { pageSize: 30 } }),
     refetchInterval: 30_000,
   });
   const thread = useQuery({
@@ -28,7 +29,8 @@ export function MessagesView() {
     enabled: !!selectedId,
   });
   const send = useMutation({
-    mutationFn: (body: string) => api.post(`/messages/threads/${selectedId}/messages`, { body }),
+    mutationFn: (body: string) =>
+      api.post(`/messages/threads/${selectedId}/messages`, { body }),
     onSuccess: () => {
       setDraft("");
       void qc.invalidateQueries({ queryKey: ["messages"] });
@@ -36,7 +38,8 @@ export function MessagesView() {
   });
 
   useEffect(() => {
-    if (selectedId) void api.post(`/messages/threads/${selectedId}/read`).catch(() => {});
+    if (selectedId)
+      void api.post(`/messages/threads/${selectedId}/read`).catch(() => {});
   }, [selectedId]);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -54,7 +57,9 @@ export function MessagesView() {
             ))}
           </div>
         ) : rows.length === 0 ? (
-          <p className="p-6 text-center text-sm text-ink-subtle">No conversations yet.</p>
+          <p className="p-6 text-center text-sm text-ink-subtle">
+            No conversations yet.
+          </p>
         ) : (
           rows.map((t) => (
             <button
@@ -66,7 +71,9 @@ export function MessagesView() {
               )}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium text-navy-900">{t.title}</span>
+                <span className="truncate text-sm font-medium text-navy-900">
+                  {t.title}
+                </span>
                 {t.unread > 0 ? (
                   <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-navy-700 px-1 text-[10px] font-semibold text-white">
                     {t.unread}
@@ -76,7 +83,9 @@ export function MessagesView() {
               <p className="truncate text-xs text-ink-subtle">
                 {t.lastMessage?.preview ?? titleCase(t.type)}
               </p>
-              <p className="text-[11px] text-ink-subtle">{relativeDays(t.lastMessageAt)}</p>
+              <p className="text-[11px] text-ink-subtle">
+                {relativeDays(t.lastMessageAt)}
+              </p>
             </button>
           ))
         )}
@@ -84,7 +93,10 @@ export function MessagesView() {
 
       <Card className="flex max-h-[70vh] flex-col p-0">
         {!selectedId ? (
-          <EmptyState title="Select a conversation" description="Choose a thread to read and reply." />
+          <EmptyState
+            title="Select a conversation"
+            description="Choose a thread to read and reply."
+          />
         ) : thread.isLoading || !thread.data ? (
           <div className="flex-1 p-4">
             <Skeleton className="h-full w-full" />
@@ -92,25 +104,39 @@ export function MessagesView() {
         ) : (
           <>
             <div className="border-b border-line px-4 py-3">
-              <p className="text-sm font-semibold text-navy-900">{thread.data.title}</p>
+              <p className="text-sm font-semibold text-navy-900">
+                {thread.data.title}
+              </p>
               <p className="text-xs text-ink-subtle">
                 {thread.data.participants.map((p) => p.name).join(", ")}
               </p>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {thread.data.messages.map((m) => (
-                <div key={m.id} className={cn("flex", m.fromMe && "justify-end")}>
+                <div
+                  key={m.id}
+                  className={cn("flex", m.fromMe && "justify-end")}
+                >
                   <div
                     className={cn(
                       "max-w-[80%] rounded-lg px-3 py-2 text-sm",
-                      m.fromMe ? "bg-navy-900 text-white" : "bg-surface-sunken text-ink",
+                      m.fromMe
+                        ? "bg-navy-900 text-white"
+                        : "bg-surface-sunken text-ink",
                     )}
                   >
                     {!m.fromMe ? (
-                      <p className="mb-0.5 text-[11px] font-medium text-ink-subtle">{m.sender.fullName}</p>
+                      <p className="mb-0.5 text-[11px] font-medium text-ink-subtle">
+                        {m.sender.fullName}
+                      </p>
                     ) : null}
                     <p className="whitespace-pre-line">{m.body}</p>
-                    <p className={cn("mt-1 text-[10px]", m.fromMe ? "text-navy-200" : "text-ink-subtle")}>
+                    <p
+                      className={cn(
+                        "mt-1 text-[10px]",
+                        m.fromMe ? "text-navy-200" : "text-ink-subtle",
+                      )}
+                    >
                       {formatDate(m.createdAt)}
                     </p>
                   </div>
@@ -131,7 +157,11 @@ export function MessagesView() {
                 placeholder="Write a message…"
                 className="h-10 flex-1 rounded-lg border border-line bg-surface px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500"
               />
-              <Button type="submit" loading={send.isPending} disabled={!draft.trim()}>
+              <Button
+                type="submit"
+                loading={send.isPending}
+                disabled={!draft.trim()}
+              >
                 Send
               </Button>
             </form>

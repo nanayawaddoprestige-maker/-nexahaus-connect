@@ -11,15 +11,21 @@ const STAFF_ROLES = new Set([
   "SUPPORT_STAFF",
 ]);
 
-export function isStaff(user: Pick<AuthUser, "roles"> | null | undefined): boolean {
+export function isStaff(
+  user: Pick<AuthUser, "roles"> | null | undefined,
+): boolean {
   return !!user?.roles.some((r) => STAFF_ROLES.has(r));
 }
 
-export function isTenant(user: Pick<AuthUser, "roles"> | null | undefined): boolean {
+export function isTenant(
+  user: Pick<AuthUser, "roles"> | null | undefined,
+): boolean {
   return !!user?.roles.includes("TENANT" as AuthUser["roles"][number]);
 }
 
-export function isVendor(user: Pick<AuthUser, "roles"> | null | undefined): boolean {
+export function isVendor(
+  user: Pick<AuthUser, "roles"> | null | undefined,
+): boolean {
   return !!user?.roles.includes("VENDOR" as AuthUser["roles"][number]);
 }
 

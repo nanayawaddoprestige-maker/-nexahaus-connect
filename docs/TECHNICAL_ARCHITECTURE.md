@@ -60,18 +60,18 @@ NexaHaus is hard-coded to an unverified value.
 
 Key vars (see repo-root `.env.example`, "Marketing web app" block):
 
-| Var | Default | Purpose |
-|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://www.nexahaus.com` | canonical origin |
-| `NEXT_PUBLIC_PRE_LAUNCH_MODE` | `true` | pre/post-launch messaging |
-| `NEXT_PUBLIC_LAUNCH_DATE` / `_CITY` / `_LABEL` | `2027-12-01` / `Accra` / `December 2027` | launch badge / countdown |
-| `NEXT_PUBLIC_CLIENT_PORTAL_URL` | `/login` | "Client Login" target |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | _(empty)_ | floating WhatsApp CTA (hidden if unset) |
-| `NEXT_PUBLIC_CONTACT_*` | _(empty)_ | contact details (placeholders until official) |
-| `NEXT_PUBLIC_SOCIAL_*` | _(empty)_ | social links (hidden if unset) |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER` / `_KEY` / `_HOST` | `noop` | analytics abstraction |
-| `NEXT_PUBLIC_ALLOW_INDEXING` | `true` | master robots switch |
-| `NEXT_PUBLIC_HERO_IMAGE` / `_ALT` | _(empty)_ | optional hero photography |
+| Var                                                 | Default                                  | Purpose                                       |
+| --------------------------------------------------- | ---------------------------------------- | --------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                              | `https://www.nexahaus.com`               | canonical origin                              |
+| `NEXT_PUBLIC_PRE_LAUNCH_MODE`                       | `true`                                   | pre/post-launch messaging                     |
+| `NEXT_PUBLIC_LAUNCH_DATE` / `_CITY` / `_LABEL`      | `2027-12-01` / `Accra` / `December 2027` | launch badge / countdown                      |
+| `NEXT_PUBLIC_CLIENT_PORTAL_URL`                     | `/login`                                 | "Client Login" target                         |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER`                       | _(empty)_                                | floating WhatsApp CTA (hidden if unset)       |
+| `NEXT_PUBLIC_CONTACT_*`                             | _(empty)_                                | contact details (placeholders until official) |
+| `NEXT_PUBLIC_SOCIAL_*`                              | _(empty)_                                | social links (hidden if unset)                |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` / `_KEY` / `_HOST` | `noop`                                   | analytics abstraction                         |
+| `NEXT_PUBLIC_ALLOW_INDEXING`                        | `true`                                   | master robots switch                          |
+| `NEXT_PUBLIC_HERO_IMAGE` / `_ALT`                   | _(empty)_                                | optional hero photography                     |
 
 Server-side (`API_ORIGIN`, secrets, DB) are unchanged and documented in
 `docs/ARCHITECTURE.md`.

@@ -69,7 +69,10 @@ export class ExpensesService {
         description: e.description,
         amount: { minor: e.amountMinor.toString(), currency: e.currency },
         tax: { minor: e.taxMinor.toString(), currency: e.currency },
-        total: { minor: (e.amountMinor + e.taxMinor).toString(), currency: e.currency },
+        total: {
+          minor: (e.amountMinor + e.taxMinor).toString(),
+          currency: e.currency,
+        },
         status: e.status,
         approvalStatus: e.approvalStatus,
         paymentStatus: e.paymentStatus,
@@ -87,7 +90,9 @@ export class ExpensesService {
     const expense = await this.prisma.expense.findUnique({
       where: { id },
       include: {
-        property: { select: { id: true, clientId: true, name: true, ref: true } },
+        property: {
+          select: { id: true, clientId: true, name: true, ref: true },
+        },
         vendor: { select: { id: true, name: true } },
         approvals: { orderBy: { decidedAt: "desc" } },
       },
@@ -100,7 +105,10 @@ export class ExpensesService {
       ref: expense.ref,
       category: expense.category,
       description: expense.description,
-      amount: { minor: expense.amountMinor.toString(), currency: expense.currency },
+      amount: {
+        minor: expense.amountMinor.toString(),
+        currency: expense.currency,
+      },
       tax: { minor: expense.taxMinor.toString(), currency: expense.currency },
       total: {
         minor: (expense.amountMinor + expense.taxMinor).toString(),
@@ -135,7 +143,9 @@ export class ExpensesService {
       throw AppError.notFound("property");
     }
     if (input.tax && input.tax.currency !== input.amount.currency) {
-      throw AppError.validation("Tax currency must match the expense currency.");
+      throw AppError.validation(
+        "Tax currency must match the expense currency.",
+      );
     }
 
     const expense = await this.prisma.$transaction(async (tx) => {
@@ -166,7 +176,11 @@ export class ExpensesService {
           action: "expense.create",
           resourceType: "expense",
           resourceId: created.id,
-          after: { ref: created.ref, category: created.category, amountMinor: input.amount.minor },
+          after: {
+            ref: created.ref,
+            category: created.category,
+            amountMinor: input.amount.minor,
+          },
         },
         tx,
       );
@@ -178,7 +192,9 @@ export class ExpensesService {
   async submit(user: AuthUser, id: string, ctx: AuditContext) {
     const expense = await this.loadInScope(user, id);
     if (expense.status !== "DRAFT") {
-      throw AppError.illegalTransition(`A ${expense.status} expense cannot be submitted.`);
+      throw AppError.illegalTransition(
+        `A ${expense.status} expense cannot be submitted.`,
+      );
     }
     const total = expense.amountMinor + expense.taxMinor;
     const threshold = await this.thresholdFor(expense.propertyId);
@@ -212,7 +228,10 @@ export class ExpensesService {
           action: "expense.submit",
           resourceType: "expense",
           resourceId: id,
-          after: { status: needsApproval ? "SUBMITTED" : "APPROVED", needsApproval },
+          after: {
+            status: needsApproval ? "SUBMITTED" : "APPROVED",
+            needsApproval,
+          },
         },
         tx,
       );
@@ -230,7 +249,9 @@ export class ExpensesService {
   ) {
     const expense = await this.loadInScope(user, id);
     if (!["SUBMITTED", "DRAFT"].includes(expense.status)) {
-      throw AppError.illegalTransition(`A ${expense.status} expense cannot be decided.`);
+      throw AppError.illegalTransition(
+        `A ${expense.status} expense cannot be decided.`,
+      );
     }
     await this.prisma.$transaction(async (tx) => {
       await tx.expense.update({
@@ -262,7 +283,12 @@ export class ExpensesService {
     return this.getById(user, id);
   }
 
-  async pay(user: AuthUser, id: string, input: PayExpenseInput, ctx: AuditContext) {
+  async pay(
+    user: AuthUser,
+    id: string,
+    input: PayExpenseInput,
+    ctx: AuditContext,
+  ) {
     const expense = await this.loadInScope(user, id);
     if (expense.status !== "APPROVED") {
       throw AppError.illegalTransition("Only an approved expense can be paid.");
@@ -314,7 +340,11 @@ export class ExpensesService {
           action: "expense.pay",
           resourceType: "expense",
           resourceId: id,
-          after: { status: "PAID", method: input.method, amountMinor: total.toString() },
+          after: {
+            status: "PAID",
+            method: input.method,
+            amountMinor: total.toString(),
+          },
         },
         tx,
       );
@@ -345,8 +375,9 @@ export class ExpensesService {
     const setting = await this.prisma.organizationSetting.findUnique({
       where: { key: "approval.thresholds" },
     });
-    const raw = (setting?.value as { maintenanceCostMinor?: string } | undefined)
-      ?.maintenanceCostMinor;
+    const raw = (
+      setting?.value as { maintenanceCostMinor?: string } | undefined
+    )?.maintenanceCostMinor;
     return raw ? BigInt(raw) : DEFAULT_THRESHOLD_MINOR;
   }
 }

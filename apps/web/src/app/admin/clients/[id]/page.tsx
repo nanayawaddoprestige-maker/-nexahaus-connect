@@ -25,7 +25,9 @@ export default function ClientDetailPage() {
   const portfolio = useQuery({
     queryKey: ["admin", "client", params.id, "portfolio"],
     queryFn: () =>
-      api.get<ClientPortfolioSummary>(`/clients/${params.id}/portfolio-summary`),
+      api.get<ClientPortfolioSummary>(
+        `/clients/${params.id}/portfolio-summary`,
+      ),
     enabled: client.isSuccess,
   });
 
@@ -38,11 +40,16 @@ export default function ClientDetailPage() {
     );
   }
   if (client.isError || !client.data) {
-    const notFound = client.error instanceof ApiError && client.error.status === 404;
+    const notFound =
+      client.error instanceof ApiError && client.error.status === 404;
     return (
       <ErrorState
         title={notFound ? "Client not found" : "We couldn't load this client."}
-        description={notFound ? "It may have been removed, or is outside your access." : "Please try again."}
+        description={
+          notFound
+            ? "It may have been removed, or is outside your access."
+            : "Please try again."
+        }
         onRetry={notFound ? undefined : () => void client.refetch()}
       />
     );
@@ -72,10 +79,30 @@ export default function ClientDetailPage() {
 
       {portfolio.data ? (
         <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatCard label="Properties" value={portfolio.data.properties.total} hint={`${portfolio.data.properties.occupied} occupied · ${portfolio.data.properties.vacant} vacant`} />
-          <StatCard label="Expected rent (mo.)" value={formatMinor(portfolio.data.rent.expectedMinor, portfolio.data.currency)} />
-          <StatCard label="Collected (mo.)" value={formatMinor(portfolio.data.rent.collectedMinor, portfolio.data.currency)} tone="positive" />
-          <StatCard label="Open maintenance" value={portfolio.data.openMaintenance} />
+          <StatCard
+            label="Properties"
+            value={portfolio.data.properties.total}
+            hint={`${portfolio.data.properties.occupied} occupied · ${portfolio.data.properties.vacant} vacant`}
+          />
+          <StatCard
+            label="Expected rent (mo.)"
+            value={formatMinor(
+              portfolio.data.rent.expectedMinor,
+              portfolio.data.currency,
+            )}
+          />
+          <StatCard
+            label="Collected (mo.)"
+            value={formatMinor(
+              portfolio.data.rent.collectedMinor,
+              portfolio.data.currency,
+            )}
+            tone="positive"
+          />
+          <StatCard
+            label="Open maintenance"
+            value={portfolio.data.openMaintenance}
+          />
         </section>
       ) : null}
 
@@ -84,10 +111,16 @@ export default function ClientDetailPage() {
           <CardHeader title="Profile" />
           <dl className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
             <Row label="Legal name" value={c.legalName ?? "—"} />
-            <Row label="Service package" value={c.servicePackage ? titleCase(c.servicePackage) : "—"} />
+            <Row
+              label="Service package"
+              value={c.servicePackage ? titleCase(c.servicePackage) : "—"}
+            />
             <Row label="Email" value={c.primaryEmail ?? "—"} />
             <Row label="Phone" value={c.primaryPhone ?? "—"} />
-            <Row label="Account manager" value={c.accountManager?.fullName ?? "Unassigned"} />
+            <Row
+              label="Account manager"
+              value={c.accountManager?.fullName ?? "Unassigned"}
+            />
             <Row label="Client since" value={formatDate(c.createdAt)} />
           </dl>
 
@@ -101,12 +134,18 @@ export default function ClientDetailPage() {
                   <li key={u.id} className="flex items-center justify-between">
                     <span className="text-navy-900">
                       {u.fullName}
-                      <span className="ml-2 text-xs text-ink-subtle">{u.email}</span>
+                      <span className="ml-2 text-xs text-ink-subtle">
+                        {u.email}
+                      </span>
                     </span>
                     <span className="flex items-center gap-2 text-xs text-ink-subtle">
                       {titleCase(u.relationship)}
-                      {u.canApprove ? <StatusBadge status="Can approve" tone="info" /> : null}
-                      {!u.accepted ? <StatusBadge status="Invited" tone="warning" /> : null}
+                      {u.canApprove ? (
+                        <StatusBadge status="Can approve" tone="info" />
+                      ) : null}
+                      {!u.accepted ? (
+                        <StatusBadge status="Invited" tone="warning" />
+                      ) : null}
                     </span>
                   </li>
                 ))}
@@ -122,9 +161,15 @@ export default function ClientDetailPage() {
                   <li key={ct.id} className="flex justify-between">
                     <span className="text-navy-900">
                       {ct.name}
-                      {ct.role ? <span className="ml-2 text-xs text-ink-subtle">{ct.role}</span> : null}
+                      {ct.role ? (
+                        <span className="ml-2 text-xs text-ink-subtle">
+                          {ct.role}
+                        </span>
+                      ) : null}
                     </span>
-                    <span className="text-ink-subtle">{ct.phone ?? ct.email ?? "—"}</span>
+                    <span className="text-ink-subtle">
+                      {ct.phone ?? ct.email ?? "—"}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -144,12 +189,17 @@ export default function ClientDetailPage() {
                   {c.onboarding.completionPercent}%
                 </span>
               </div>
-              <ProgressBar percent={c.onboarding.completionPercent} className="mb-4" />
+              <ProgressBar
+                percent={c.onboarding.completionPercent}
+                className="mb-4"
+              />
               <StepList steps={c.onboarding.steps} />
               <div className="mt-4 border-t border-line pt-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-ink-muted">KYC</span>
-                  <span className="text-navy-900">{titleCase(c.onboarding.kycStatus)}</span>
+                  <span className="text-navy-900">
+                    {titleCase(c.onboarding.kycStatus)}
+                  </span>
                 </div>
                 <div className="mt-1 flex justify-between">
                   <span className="text-ink-muted">Agreement</span>
@@ -160,7 +210,9 @@ export default function ClientDetailPage() {
               </div>
             </>
           ) : (
-            <p className="text-sm text-ink-subtle">Onboarding has not started.</p>
+            <p className="text-sm text-ink-subtle">
+              Onboarding has not started.
+            </p>
           )}
         </Card>
       </div>

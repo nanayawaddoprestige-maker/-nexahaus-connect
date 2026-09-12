@@ -27,7 +27,10 @@ export interface UseStepsResult {
  * Step state for a multi-step form. Navigation is caller-controlled: call
  * `next()` only after the current step validates.
  */
-export function useSteps(steps: StepDef[], onStepChange?: (step: StepDef, index: number) => void): UseStepsResult {
+export function useSteps(
+  steps: StepDef[],
+  onStepChange?: (step: StepDef, index: number) => void,
+): UseStepsResult {
   const [index, setIndex] = useState(0);
   const total = steps.length;
 
@@ -69,7 +72,10 @@ export function StepProgress({
   className?: string;
 }) {
   return (
-    <ol className={cn("flex flex-wrap gap-x-2 gap-y-3", className)} aria-label="Progress">
+    <ol
+      className={cn("flex flex-wrap gap-x-2 gap-y-3", className)}
+      aria-label="Progress"
+    >
       {steps.map((step, i) => {
         const state = i < index ? "done" : i === index ? "current" : "todo";
         const clickable = state === "done" && onGoTo;
@@ -77,7 +83,9 @@ export function StepProgress({
         return (
           <li key={step.id} className="flex items-center gap-2">
             <Tag
-              {...(clickable ? { type: "button" as const, onClick: () => onGoTo(i) } : {})}
+              {...(clickable
+                ? { type: "button" as const, onClick: () => onGoTo(i) }
+                : {})}
               aria-current={state === "current" ? "step" : undefined}
               className={cn(
                 "flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium",
@@ -96,8 +104,20 @@ export function StepProgress({
                 )}
               >
                 {state === "done" ? (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-                    <path d="M1.5 5.5l2 2 5-5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                    aria-hidden
+                  >
+                    <path
+                      d="M1.5 5.5l2 2 5-5.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 ) : (
                   i + 1
@@ -144,10 +164,16 @@ export function StepPanel({
 
   return (
     <div className="motion-safe:animate-fade-up">
-      <h2 ref={headingRef} tabIndex={-1} className="text-lg font-semibold text-navy-900 focus-visible:outline-none">
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        className="text-lg font-semibold text-navy-900 focus-visible:outline-none"
+      >
         {title}
       </h2>
-      {description ? <p className="mt-1 text-sm text-ink-muted">{description}</p> : null}
+      {description ? (
+        <p className="mt-1 text-sm text-ink-muted">{description}</p>
+      ) : null}
       <div className="mt-5 space-y-5">{children}</div>
     </div>
   );

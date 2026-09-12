@@ -23,16 +23,26 @@ describe("computeLeadScore (spec §74)", () => {
   });
 
   it("infers diaspora from a non-Ghana location when the flag is missing", () => {
-    const withUK = computeLeadScore({ propertyCount: 2, location: "London, UK" });
-    const withAccra = computeLeadScore({ propertyCount: 2, location: "Accra, Ghana" });
+    const withUK = computeLeadScore({
+      propertyCount: 2,
+      location: "London, UK",
+    });
+    const withAccra = computeLeadScore({
+      propertyCount: 2,
+      location: "Accra, Ghana",
+    });
     expect(withUK.score).toBeGreaterThan(withAccra.score);
     expect(withUK.breakdown.some((b) => b.factor === "diaspora")).toBe(true);
-    expect(withAccra.breakdown.some((b) => b.factor === "diaspora")).toBe(false);
+    expect(withAccra.breakdown.some((b) => b.factor === "diaspora")).toBe(
+      false,
+    );
   });
 
   it("caps engagement at its configured weight", () => {
     const res = computeLeadScore({ engagementTouches: 50 });
-    expect(res.breakdown.find((b) => b.factor === "engagement")?.points).toBe(10);
+    expect(res.breakdown.find((b) => b.factor === "engagement")?.points).toBe(
+      10,
+    );
   });
 
   it("is deterministic and respects overridden grade thresholds", () => {

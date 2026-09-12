@@ -4,8 +4,19 @@ import { useMemo, useRef, useState } from "react";
 import { propertyRescueSchema } from "@nexahaus/validation";
 import { submitPublic } from "@/lib/submit-public";
 import { track } from "@/lib/analytics";
-import { PROPERTY_TYPES, PROPERTY_COUNT_OPTIONS, parsePropertyCount } from "@/lib/form-options";
-import { TextInput, SelectInput, TextArea, ConsentCheckbox, Honeypot, FormError } from "./fields";
+import {
+  PROPERTY_TYPES,
+  PROPERTY_COUNT_OPTIONS,
+  parsePropertyCount,
+} from "@/lib/form-options";
+import {
+  TextInput,
+  SelectInput,
+  TextArea,
+  ConsentCheckbox,
+  Honeypot,
+  FormError,
+} from "./fields";
 import { ChoiceGroup, YesNo } from "./choice";
 import { useSteps, StepProgress, StepPanel, StepNav } from "./steps";
 import { ScoreResult } from "./score-result";
@@ -23,7 +34,12 @@ const STEPS = [
 ];
 
 type A = {
-  occupancy: "" | "FULLY_OCCUPIED" | "PARTLY_VACANT" | "MOSTLY_VACANT" | "VACANT";
+  occupancy:
+    | ""
+    | "FULLY_OCCUPIED"
+    | "PARTLY_VACANT"
+    | "MOSTLY_VACANT"
+    | "VACANT";
   rentVsMarket: "" | "ABOVE" | "AT" | "BELOW" | "NOT_SURE";
   collectionReliability: "" | "ALWAYS" | "USUALLY" | "SOMETIMES" | "RARELY";
   arrears: boolean | null;
@@ -106,11 +122,21 @@ export function PropertyRescueForm() {
       case "property":
         return !!s.propertyCount;
       case "management":
-        return a.professionallyManaged !== null && !!a.collectionReliability && a.documentsInOrder !== null;
+        return (
+          a.professionallyManaged !== null &&
+          !!a.collectionReliability &&
+          a.documentsInOrder !== null
+        );
       case "finance":
-        return !!a.rentVsMarket && a.arrears !== null && a.knowsExpenses !== null;
+        return (
+          !!a.rentVsMarket && a.arrears !== null && a.knowsExpenses !== null
+        );
       case "maintenance":
-        return !!a.maintenanceBacklog && a.conditionConcerns !== null && !!a.lastInspection;
+        return (
+          !!a.maintenanceBacklog &&
+          a.conditionConcerns !== null &&
+          !!a.lastInspection
+        );
       case "occupancy":
         return !!a.occupancy;
       case "you":
@@ -154,9 +180,15 @@ export function PropertyRescueForm() {
       answers: {
         occupancy: a.occupancy as Exclude<A["occupancy"], "">,
         rentVsMarket: a.rentVsMarket as Exclude<A["rentVsMarket"], "">,
-        collectionReliability: a.collectionReliability as Exclude<A["collectionReliability"], "">,
+        collectionReliability: a.collectionReliability as Exclude<
+          A["collectionReliability"],
+          ""
+        >,
         arrears: !!a.arrears,
-        maintenanceBacklog: a.maintenanceBacklog as Exclude<A["maintenanceBacklog"], "">,
+        maintenanceBacklog: a.maintenanceBacklog as Exclude<
+          A["maintenanceBacklog"],
+          ""
+        >,
         conditionConcerns: !!a.conditionConcerns,
         lastInspection: a.lastInspection as Exclude<A["lastInspection"], "">,
         documentsInOrder: !!a.documentsInOrder,
@@ -169,19 +201,29 @@ export function PropertyRescueForm() {
 
     const parsed = propertyRescueSchema.safeParse(payload);
     if (!parsed.success) {
-      setStepError("Something in your answers looks off. Please review and try again.");
+      setStepError(
+        "Something in your answers looks off. Please review and try again.",
+      );
       return;
     }
 
     setSubmitting(true);
-    const res = await submitPublic<RescueResponse>("/property-rescue", parsed.data);
+    const res = await submitPublic<RescueResponse>(
+      "/property-rescue",
+      parsed.data,
+    );
     setSubmitting(false);
     if (res.ok && res.data) {
       track("form_completed", { form: "property_rescue" });
-      track("property_rescue_requested", { score: res.data.preliminaryScore, band: res.data.band });
+      track("property_rescue_requested", {
+        score: res.data.preliminaryScore,
+        band: res.data.band,
+      });
       setResult(res.data);
     } else {
-      setStepError(res.error ?? "We couldn't complete the assessment. Please try again.");
+      setStepError(
+        res.error ?? "We couldn't complete the assessment. Please try again.",
+      );
     }
   }
 
@@ -191,7 +233,10 @@ export function PropertyRescueForm() {
         score={result.preliminaryScore}
         headline={result.headline}
         disclaimer="This preliminary digital result is an indicative management assessment and does not constitute a professional property valuation, legal advice or investment advice."
-        primary={{ label: "Request a professional assessment", href: "/contact" }}
+        primary={{
+          label: "Request a professional assessment",
+          href: "/contact",
+        }}
         primaryEvent="property_rescue_requested"
         breakdown={result.findings.slice(0, 6)}
       />
@@ -206,24 +251,51 @@ export function PropertyRescueForm() {
       <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-navy-50">
         <div
           className="h-full rounded-full bg-navy-900 transition-all"
-          style={{ width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%` }}
+          style={{
+            width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%`,
+          }}
         />
       </div>
 
       <div className="mt-6">
         {steps.current.id === "property" && (
-          <StepPanel stepKey="property" title="The property" description="Answer for the property you want assessed.">
+          <StepPanel
+            stepKey="property"
+            title="The property"
+            description="Answer for the property you want assessed."
+          >
             <div className="grid gap-4 sm:grid-cols-2">
-              <SelectInput label="How many properties do you own?" options={PROPERTY_COUNT_OPTIONS} value={s.propertyCount} onChange={(e) => set("propertyCount", e.target.value)} required />
-              <SelectInput label="Property type" options={PROPERTY_TYPES} value={s.propertyType} onChange={(e) => set("propertyType", e.target.value)} />
-              <TextInput label="Where is it?" placeholder="e.g. Spintex, Accra" value={s.propertyLocation} onChange={(e) => set("propertyLocation", e.target.value)} wrapClassName="sm:col-span-2" />
+              <SelectInput
+                label="How many properties do you own?"
+                options={PROPERTY_COUNT_OPTIONS}
+                value={s.propertyCount}
+                onChange={(e) => set("propertyCount", e.target.value)}
+                required
+              />
+              <SelectInput
+                label="Property type"
+                options={PROPERTY_TYPES}
+                value={s.propertyType}
+                onChange={(e) => set("propertyType", e.target.value)}
+              />
+              <TextInput
+                label="Where is it?"
+                placeholder="e.g. Spintex, Accra"
+                value={s.propertyLocation}
+                onChange={(e) => set("propertyLocation", e.target.value)}
+                wrapClassName="sm:col-span-2"
+              />
             </div>
           </StepPanel>
         )}
 
         {steps.current.id === "management" && (
           <StepPanel stepKey="management" title="Management">
-            <YesNo label="Is the property professionally managed?" value={a.professionallyManaged} onChange={(v) => setA("professionallyManaged", v)} />
+            <YesNo
+              label="Is the property professionally managed?"
+              value={a.professionallyManaged}
+              onChange={(v) => setA("professionallyManaged", v)}
+            />
             <ChoiceGroup
               label="How reliable is rent collection?"
               options={[
@@ -235,7 +307,11 @@ export function PropertyRescueForm() {
               value={a.collectionReliability}
               onChange={(v) => setA("collectionReliability", v)}
             />
-            <YesNo label="Are the key documents in order (title, tenancy, insurance)?" value={a.documentsInOrder} onChange={(v) => setA("documentsInOrder", v)} />
+            <YesNo
+              label="Are the key documents in order (title, tenancy, insurance)?"
+              value={a.documentsInOrder}
+              onChange={(v) => setA("documentsInOrder", v)}
+            />
           </StepPanel>
         )}
 
@@ -252,8 +328,16 @@ export function PropertyRescueForm() {
               value={a.rentVsMarket}
               onChange={(v) => setA("rentVsMarket", v)}
             />
-            <YesNo label="Are there outstanding rent arrears?" value={a.arrears} onChange={(v) => setA("arrears", v)} />
-            <YesNo label="Do you have a clear picture of the property's operating costs?" value={a.knowsExpenses} onChange={(v) => setA("knowsExpenses", v)} />
+            <YesNo
+              label="Are there outstanding rent arrears?"
+              value={a.arrears}
+              onChange={(v) => setA("arrears", v)}
+            />
+            <YesNo
+              label="Do you have a clear picture of the property's operating costs?"
+              value={a.knowsExpenses}
+              onChange={(v) => setA("knowsExpenses", v)}
+            />
           </StepPanel>
         )}
 
@@ -270,7 +354,11 @@ export function PropertyRescueForm() {
               value={a.maintenanceBacklog}
               onChange={(v) => setA("maintenanceBacklog", v)}
             />
-            <YesNo label="Do you have concerns about the property's condition?" value={a.conditionConcerns} onChange={(v) => setA("conditionConcerns", v)} />
+            <YesNo
+              label="Do you have concerns about the property's condition?"
+              value={a.conditionConcerns}
+              onChange={(v) => setA("conditionConcerns", v)}
+            />
             <ChoiceGroup
               label="When was it last inspected?"
               options={[
@@ -302,11 +390,36 @@ export function PropertyRescueForm() {
         )}
 
         {steps.current.id === "you" && (
-          <StepPanel stepKey="you" title="About you" description="So we can send your result and follow up.">
+          <StepPanel
+            stepKey="you"
+            title="About you"
+            description="So we can send your result and follow up."
+          >
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextInput label="Your name" required value={s.name} onChange={(e) => set("name", e.target.value)} autoComplete="name" />
-              <TextInput label="Email" type="email" required value={s.email} onChange={(e) => set("email", e.target.value)} autoComplete="email" />
-              <TextInput label="Phone" type="tel" required placeholder="+233…" value={s.phone} onChange={(e) => set("phone", e.target.value)} hint="Include the country code." />
+              <TextInput
+                label="Your name"
+                required
+                value={s.name}
+                onChange={(e) => set("name", e.target.value)}
+                autoComplete="name"
+              />
+              <TextInput
+                label="Email"
+                type="email"
+                required
+                value={s.email}
+                onChange={(e) => set("email", e.target.value)}
+                autoComplete="email"
+              />
+              <TextInput
+                label="Phone"
+                type="tel"
+                required
+                placeholder="+233…"
+                value={s.phone}
+                onChange={(e) => set("phone", e.target.value)}
+                hint="Include the country code."
+              />
             </div>
             <ChoiceGroup
               label="Where do you live?"

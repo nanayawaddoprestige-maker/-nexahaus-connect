@@ -25,7 +25,9 @@ describe("PermissionGuard", () => {
     jest
       .spyOn(reflector, "getAllAndOverride")
       .mockReturnValue(["property:read", "property:write"]);
-    const ctx = contextWith({ permissions: ["property:read", "property:write", "unit:read"] });
+    const ctx = contextWith({
+      permissions: ["property:read", "property:write", "unit:read"],
+    });
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
@@ -44,7 +46,9 @@ describe("PermissionGuard", () => {
   });
 
   it("rejects an unauthenticated request", () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["property:read"]);
+    jest
+      .spyOn(reflector, "getAllAndOverride")
+      .mockReturnValue(["property:read"]);
     expect(() => guard.canActivate(contextWith(undefined))).toThrow(AppError);
   });
 });

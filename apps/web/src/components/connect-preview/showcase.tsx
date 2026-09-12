@@ -14,8 +14,16 @@ const TABS = [
   { id: "dashboard", label: "Dashboard", render: () => <DashboardPanel /> },
   { id: "property", label: "Property", render: () => <PropertyDetailPanel /> },
   { id: "finance", label: "Finance", render: () => <StatementPanel /> },
-  { id: "maintenance", label: "Maintenance", render: () => <MaintenancePanel /> },
-  { id: "inspections", label: "Inspections", render: () => <InspectionPanel /> },
+  {
+    id: "maintenance",
+    label: "Maintenance",
+    render: () => <MaintenancePanel />,
+  },
+  {
+    id: "inspections",
+    label: "Inspections",
+    render: () => <InspectionPanel />,
+  },
   { id: "health", label: "Property Health", render: () => <HealthPanel /> },
 ] as const;
 
@@ -24,7 +32,8 @@ const TABS = [
  * `connect_preview_viewed` once when it first enters view.
  */
 export function ConnectShowcase() {
-  const [active, setActive] = useState<(typeof TABS)[number]["id"]>("dashboard");
+  const [active, setActive] =
+    useState<(typeof TABS)[number]["id"]>("dashboard");
   const [seen, setSeen] = useState(false);
 
   useEffect(() => {
@@ -35,7 +44,11 @@ export function ConnectShowcase() {
 
   return (
     <div>
-      <div role="tablist" aria-label="NexaHaus Connect screens" className="flex flex-wrap gap-1.5">
+      <div
+        role="tablist"
+        aria-label="NexaHaus Connect screens"
+        className="flex flex-wrap gap-1.5"
+      >
         {TABS.map((t) => (
           <button
             key={t.id}

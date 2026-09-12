@@ -50,7 +50,10 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <PageHeader title="Reports" subtitle="Portfolio and property figures, on demand." />
+      <PageHeader
+        title="Reports"
+        subtitle="Portfolio and property figures, on demand."
+      />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <select
@@ -71,14 +74,20 @@ export default function ReportsPage() {
               onClick={() => setPeriod(p.value)}
               className={
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
-                (period === p.value ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+                (period === p.value
+                  ? "bg-navy-900 text-white"
+                  : "text-ink-muted hover:text-navy-900")
               }
             >
               {p.label}
             </button>
           ))}
         </div>
-        <Button size="sm" variant="secondary" onClick={() => void downloadCsv()}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => void downloadCsv()}
+        >
           Download CSV
         </Button>
       </div>
@@ -89,7 +98,9 @@ export default function ReportsPage() {
         <ErrorState onRetry={() => void report.refetch()} />
       ) : !r || r.columns.length === 0 ? (
         <Card>
-          <p className="text-sm text-ink-subtle">No data for this report and period.</p>
+          <p className="text-sm text-ink-subtle">
+            No data for this report and period.
+          </p>
         </Card>
       ) : (
         <Card className="overflow-x-auto p-0">
@@ -104,7 +115,9 @@ export default function ReportsPage() {
                     key={c.key}
                     className={
                       "px-4 py-2 font-medium " +
-                      (c.kind === "money" || c.kind === "number" || c.kind === "percent"
+                      (c.kind === "money" ||
+                      c.kind === "number" ||
+                      c.kind === "percent"
                         ? "text-right"
                         : "")
                     }
@@ -122,7 +135,9 @@ export default function ReportsPage() {
                       key={c.key}
                       className={
                         "px-4 py-2.5 " +
-                        (c.kind === "money" || c.kind === "number" || c.kind === "percent"
+                        (c.kind === "money" ||
+                        c.kind === "number" ||
+                        c.kind === "percent"
                           ? "text-right tabular-nums text-navy-900"
                           : "text-ink-muted")
                       }

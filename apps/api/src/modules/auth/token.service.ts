@@ -77,7 +77,10 @@ export class TokenService {
         revokedAt: true,
         expiresAt: true,
         user: {
-          select: { status: true, roles: { select: { role: { select: { key: true } } } } },
+          select: {
+            status: true,
+            roles: { select: { role: { select: { key: true } } } },
+          },
         },
       },
     });
@@ -90,7 +93,9 @@ export class TokenService {
         where: { userId: session.userId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
-      throw AppError.unauthenticated("Session has been revoked. Please sign in again.");
+      throw AppError.unauthenticated(
+        "Session has been revoked. Please sign in again.",
+      );
     }
 
     if (session.user.status !== "ACTIVE") {
@@ -121,7 +126,13 @@ export class TokenService {
       return created;
     });
 
-    return this.buildTokens(session.userId, roles, next.id, refreshToken, expiresAt);
+    return this.buildTokens(
+      session.userId,
+      roles,
+      next.id,
+      refreshToken,
+      expiresAt,
+    );
   }
 
   async revokeSession(sessionId: string, userId: string): Promise<void> {
@@ -131,7 +142,10 @@ export class TokenService {
     });
   }
 
-  async revokeAllSessions(userId: string, exceptSessionId?: string): Promise<void> {
+  async revokeAllSessions(
+    userId: string,
+    exceptSessionId?: string,
+  ): Promise<void> {
     await this.prisma.session.updateMany({
       where: {
         userId,

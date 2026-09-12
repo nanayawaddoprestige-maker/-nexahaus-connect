@@ -37,7 +37,8 @@ export class OutboxService {
         relayed += n;
         if (n < BATCH) break;
       }
-      if (relayed > 0) this.logger.debug(`Outbox: relayed ${relayed} event(s) to the queue`);
+      if (relayed > 0)
+        this.logger.debug(`Outbox: relayed ${relayed} event(s) to the queue`);
     } catch (err) {
       this.logger.error({ err }, "Outbox relay failed");
     } finally {

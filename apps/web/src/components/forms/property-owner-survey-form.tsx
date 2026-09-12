@@ -4,8 +4,20 @@ import { useMemo, useRef, useState } from "react";
 import { propertyOwnerSurveySchema } from "@nexahaus/validation";
 import { submitPublic } from "@/lib/submit-public";
 import { track } from "@/lib/analytics";
-import { COUNTRY_OPTIONS, PROPERTY_COUNT_OPTIONS, SERVICE_OPTIONS, parsePropertyCount } from "@/lib/form-options";
-import { TextInput, SelectInput, TextArea, ConsentCheckbox, Honeypot, FormError } from "./fields";
+import {
+  COUNTRY_OPTIONS,
+  PROPERTY_COUNT_OPTIONS,
+  SERVICE_OPTIONS,
+  parsePropertyCount,
+} from "@/lib/form-options";
+import {
+  TextInput,
+  SelectInput,
+  TextArea,
+  ConsentCheckbox,
+  Honeypot,
+  FormError,
+} from "./fields";
 import { ChoiceGroup, MultiChoice } from "./choice";
 import { useSteps, StepProgress, StepPanel, StepNav } from "./steps";
 
@@ -42,7 +54,12 @@ const CHALLENGES = [
   "Not knowing performance",
 ] as const;
 
-const REPORTING = ["Monthly", "Quarterly", "On request", "I don't need reports"] as const;
+const REPORTING = [
+  "Monthly",
+  "Quarterly",
+  "On request",
+  "I don't need reports",
+] as const;
 const TECH = ["Very important", "Somewhat important", "Not important"] as const;
 const WILLING = ["Yes", "Maybe", "No"] as const;
 
@@ -80,7 +97,13 @@ const INIT: State = {
   willingToUsePro: "",
 };
 
-const MGMT_OPTIONS = ["Self-managed", "Family member", "Caretaker", "Agent", "Management company"] as const;
+const MGMT_OPTIONS = [
+  "Self-managed",
+  "Family member",
+  "Caretaker",
+  "Agent",
+  "Management company",
+] as const;
 
 export function PropertyOwnerSurveyForm() {
   const [s, setS] = useState<State>(INIT);
@@ -104,7 +127,9 @@ export function PropertyOwnerSurveyForm() {
   const stepValid = useMemo(() => {
     switch (steps.current.id) {
       case "you":
-        return s.name.trim().length >= 2 && /.+@.+\..+/.test(s.email) && !!s.segment;
+        return (
+          s.name.trim().length >= 2 && /.+@.+\..+/.test(s.email) && !!s.segment
+        );
       case "properties":
         return !!s.propertyCount && !!s.currentManagement;
       case "challenges":
@@ -154,7 +179,8 @@ export function PropertyOwnerSurveyForm() {
       livesInGhana: s.country ? s.country === "Ghana" : undefined,
       propertyCount: parsePropertyCount(s.propertyCount),
       location: s.location.trim() || undefined,
-      biggestChallenge: s.biggestChallenge.trim() || (s.challenges[0] ?? undefined),
+      biggestChallenge:
+        s.biggestChallenge.trim() || (s.challenges[0] ?? undefined),
       serviceInterest: s.services.length ? s.services : undefined,
       answers,
       consent: { marketing: true as const, wording: CONSENT_WORDING },
@@ -162,26 +188,37 @@ export function PropertyOwnerSurveyForm() {
 
     const parsed = propertyOwnerSurveySchema.safeParse(payload);
     if (!parsed.success) {
-      setStepError("Something in your answers looks off. Please review and try again.");
+      setStepError(
+        "Something in your answers looks off. Please review and try again.",
+      );
       return;
     }
 
     setSubmitting(true);
-    const res = await submitPublic<{ message: string }>("/property-owner-survey", parsed.data);
+    const res = await submitPublic<{ message: string }>(
+      "/property-owner-survey",
+      parsed.data,
+    );
     setSubmitting(false);
     if (res.ok) {
       track("form_completed", { form: "property_owner_survey" });
       track("survey_completed", {});
-      setDone(res.data?.message ?? "Thank you — your response has been recorded.");
+      setDone(
+        res.data?.message ?? "Thank you — your response has been recorded.",
+      );
     } else {
-      setStepError(res.error ?? "We couldn't submit your response. Please try again.");
+      setStepError(
+        res.error ?? "We couldn't submit your response. Please try again.",
+      );
     }
   }
 
   if (done) {
     return (
       <div className="rounded-2xl border border-positive/30 bg-positive/5 p-8 text-center">
-        <p className="text-base font-semibold text-navy-900">Response recorded</p>
+        <p className="text-base font-semibold text-navy-900">
+          Response recorded
+        </p>
         <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted">{done}</p>
         <a
           href="/"
@@ -200,7 +237,9 @@ export function PropertyOwnerSurveyForm() {
       <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-navy-50">
         <div
           className="h-full rounded-full bg-navy-900 transition-all"
-          style={{ width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%` }}
+          style={{
+            width: `${Math.max(8, ((steps.index + 1) / steps.total) * 100)}%`,
+          }}
         />
       </div>
 
@@ -208,9 +247,28 @@ export function PropertyOwnerSurveyForm() {
         {steps.current.id === "you" && (
           <StepPanel stepKey="you" title="About you">
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextInput label="Your name" required value={s.name} onChange={(e) => set("name", e.target.value)} autoComplete="name" />
-              <TextInput label="Email" type="email" required value={s.email} onChange={(e) => set("email", e.target.value)} autoComplete="email" />
-              <SelectInput label="Where do you live?" options={COUNTRY_OPTIONS} value={s.country} onChange={(e) => set("country", e.target.value)} wrapClassName="sm:col-span-2" />
+              <TextInput
+                label="Your name"
+                required
+                value={s.name}
+                onChange={(e) => set("name", e.target.value)}
+                autoComplete="name"
+              />
+              <TextInput
+                label="Email"
+                type="email"
+                required
+                value={s.email}
+                onChange={(e) => set("email", e.target.value)}
+                autoComplete="email"
+              />
+              <SelectInput
+                label="Where do you live?"
+                options={COUNTRY_OPTIONS}
+                value={s.country}
+                onChange={(e) => set("country", e.target.value)}
+                wrapClassName="sm:col-span-2"
+              />
             </div>
             <ChoiceGroup
               label="Which best describes you?"
@@ -225,8 +283,19 @@ export function PropertyOwnerSurveyForm() {
         {steps.current.id === "properties" && (
           <StepPanel stepKey="properties" title="Your properties">
             <div className="grid gap-4 sm:grid-cols-2">
-              <SelectInput label="How many properties do you own?" options={PROPERTY_COUNT_OPTIONS} value={s.propertyCount} onChange={(e) => set("propertyCount", e.target.value)} required />
-              <TextInput label="Which areas?" placeholder="e.g. Accra, Kumasi" value={s.location} onChange={(e) => set("location", e.target.value)} />
+              <SelectInput
+                label="How many properties do you own?"
+                options={PROPERTY_COUNT_OPTIONS}
+                value={s.propertyCount}
+                onChange={(e) => set("propertyCount", e.target.value)}
+                required
+              />
+              <TextInput
+                label="Which areas?"
+                placeholder="e.g. Accra, Kumasi"
+                value={s.location}
+                onChange={(e) => set("location", e.target.value)}
+              />
             </div>
             <ChoiceGroup
               label="How are they managed today?"
@@ -239,7 +308,11 @@ export function PropertyOwnerSurveyForm() {
         )}
 
         {steps.current.id === "challenges" && (
-          <StepPanel stepKey="challenges" title="Your challenges" description="Pick everything that applies.">
+          <StepPanel
+            stepKey="challenges"
+            title="Your challenges"
+            description="Pick everything that applies."
+          >
             <MultiChoice
               label="What makes owning property harder than it should be?"
               options={CHALLENGES}
@@ -263,15 +336,45 @@ export function PropertyOwnerSurveyForm() {
               values={s.services}
               onChange={(v) => set("services", v)}
             />
-            <ChoiceGroup label="How often would you want reporting?" options={REPORTING as unknown as readonly string[]} value={s.reporting} onChange={(v) => set("reporting", v)} columns={2} />
-            <ChoiceGroup label="How important is online access to your property information?" options={TECH as unknown as readonly string[]} value={s.technology} onChange={(v) => set("technology", v)} columns={3} />
-            <ChoiceGroup label="Would you consider a professional management company?" options={WILLING as unknown as readonly string[]} value={s.willingToUsePro} onChange={(v) => set("willingToUsePro", v)} columns={3} />
+            <ChoiceGroup
+              label="How often would you want reporting?"
+              options={REPORTING as unknown as readonly string[]}
+              value={s.reporting}
+              onChange={(v) => set("reporting", v)}
+              columns={2}
+            />
+            <ChoiceGroup
+              label="How important is online access to your property information?"
+              options={TECH as unknown as readonly string[]}
+              value={s.technology}
+              onChange={(v) => set("technology", v)}
+              columns={3}
+            />
+            <ChoiceGroup
+              label="Would you consider a professional management company?"
+              options={WILLING as unknown as readonly string[]}
+              value={s.willingToUsePro}
+              onChange={(v) => set("willingToUsePro", v)}
+              columns={3}
+            />
           </StepPanel>
         )}
 
         {steps.current.id === "contact" && (
-          <StepPanel stepKey="contact" title="Contact" description="So we can share the findings and follow up if you'd like.">
-            <TextInput label="Phone" type="tel" required placeholder="+233…" value={s.phone} onChange={(e) => set("phone", e.target.value)} hint="Include the country code." />
+          <StepPanel
+            stepKey="contact"
+            title="Contact"
+            description="So we can share the findings and follow up if you'd like."
+          >
+            <TextInput
+              label="Phone"
+              type="tel"
+              required
+              placeholder="+233…"
+              value={s.phone}
+              onChange={(e) => set("phone", e.target.value)}
+              hint="Include the country code."
+            />
             <ConsentCheckbox
               checked={consent}
               onChange={(v) => {

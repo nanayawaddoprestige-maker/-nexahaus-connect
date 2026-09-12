@@ -54,7 +54,14 @@ export const convertLeadSchema = z
   .object({
     clientType: z.enum(["INDIVIDUAL", "COMPANY"]).default("INDIVIDUAL"),
     segment: z
-      .enum(["DIASPORA", "RESIDENT", "INVESTOR", "DEVELOPER", "COMMERCIAL", "OTHER"])
+      .enum([
+        "DIASPORA",
+        "RESIDENT",
+        "INVESTOR",
+        "DEVELOPER",
+        "COMMERCIAL",
+        "OTHER",
+      ])
       .default("OTHER"),
     servicePackage: z
       .enum(["BASIC", "PROFESSIONAL", "PREMIUM", "ENTERPRISE"])
@@ -114,7 +121,15 @@ export const propertyHealthCheckSchema = z
       .enum(["SELF", "CARETAKER", "AGENT", "MANAGER", "FAMILY", "OTHER"])
       .optional(),
     maintenanceHandler: z
-      .enum(["SELF", "CARETAKER", "AGENT", "MANAGER", "FAMILY", "AD_HOC", "OTHER"])
+      .enum([
+        "SELF",
+        "CARETAKER",
+        "AGENT",
+        "MANAGER",
+        "FAMILY",
+        "AD_HOC",
+        "OTHER",
+      ])
       .optional(),
     biggestChallenge: z.string().trim().max(1000).optional(),
     serviceInterest: z.array(z.string().trim().max(60)).max(12).optional(),
@@ -133,7 +148,9 @@ export const earlyAccessSchema = z
     livesInGhana: z.boolean().optional(),
     interest: z.string().trim().max(500).optional(),
     serviceInterest: z.array(z.string().trim().max(60)).max(12).optional(),
-    campaign: z.enum(["FOUNDING_100", "EARLY_ACCESS", "OWNER_CLUB"]).default("EARLY_ACCESS"),
+    campaign: z
+      .enum(["FOUNDING_100", "EARLY_ACCESS", "OWNER_CLUB"])
+      .default("EARLY_ACCESS"),
     attribution: attributionSchema.optional(),
     consent: marketingConsent,
   })
@@ -183,9 +200,19 @@ export const propertyRescueSchema = z
     propertyCount: z.number().int().min(1).max(1000).default(1),
     ownerLocation: z.enum(["GHANA", "ABROAD"]),
     answers: z.object({
-      occupancy: z.enum(["FULLY_OCCUPIED", "PARTLY_VACANT", "MOSTLY_VACANT", "VACANT"]),
+      occupancy: z.enum([
+        "FULLY_OCCUPIED",
+        "PARTLY_VACANT",
+        "MOSTLY_VACANT",
+        "VACANT",
+      ]),
       rentVsMarket: z.enum(["ABOVE", "AT", "BELOW", "NOT_SURE"]),
-      collectionReliability: z.enum(["ALWAYS", "USUALLY", "SOMETIMES", "RARELY"]),
+      collectionReliability: z.enum([
+        "ALWAYS",
+        "USUALLY",
+        "SOMETIMES",
+        "RARELY",
+      ]),
       arrears: z.boolean(),
       maintenanceBacklog: z.enum(["NONE", "MINOR", "SIGNIFICANT", "SEVERE"]),
       conditionConcerns: z.boolean(),
@@ -215,16 +242,23 @@ export const propertyOwnerSurveySchema = z
     location: z.string().trim().max(160).optional(),
     biggestChallenge: z.string().trim().max(1000).optional(),
     serviceInterest: z.array(z.string().trim().max(60)).max(20).optional(),
-    answers: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])),
+    answers: z.record(
+      z.string(),
+      z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
+    ),
     attribution: attributionSchema.optional(),
     consent: marketingConsent,
   })
   .strict();
 
-export type PropertyHealthCheckInput = z.infer<typeof propertyHealthCheckSchema>;
+export type PropertyHealthCheckInput = z.infer<
+  typeof propertyHealthCheckSchema
+>;
 export type EarlyAccessInput = z.infer<typeof earlyAccessSchema>;
 export type SurveyResponseInput = z.infer<typeof surveyResponseSchema>;
 export type AttributionInput = z.infer<typeof attributionSchema>;
 export type ContactEnquiryInput = z.infer<typeof contactEnquirySchema>;
 export type PropertyRescueInput = z.infer<typeof propertyRescueSchema>;
-export type PropertyOwnerSurveyInput = z.infer<typeof propertyOwnerSurveySchema>;
+export type PropertyOwnerSurveyInput = z.infer<
+  typeof propertyOwnerSurveySchema
+>;

@@ -11,7 +11,14 @@ import {
   SERVICE_OPTIONS,
   parsePropertyCount,
 } from "@/lib/form-options";
-import { TextInput, SelectInput, TextArea, ConsentCheckbox, Honeypot, FormError } from "./fields";
+import {
+  TextInput,
+  SelectInput,
+  TextArea,
+  ConsentCheckbox,
+  Honeypot,
+  FormError,
+} from "./fields";
 import { MultiChoice } from "./choice";
 
 const CONSENT_WORDING =
@@ -56,14 +63,20 @@ function EarlyAccessFormInner({ lockCampaign }: { lockCampaign?: Campaign }) {
   const [done, setDone] = useState<string | null>(null);
   const startedRef = useRef(false);
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    if (!startedRef.current) {
-      startedRef.current = true;
-      track("form_started", { form: "early_access", programme: campaign });
-    }
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-    setError(null);
-  };
+  const set =
+    (k: keyof typeof form) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) => {
+      if (!startedRef.current) {
+        startedRef.current = true;
+        track("form_started", { form: "early_access", programme: campaign });
+      }
+      setForm((f) => ({ ...f, [k]: e.target.value }));
+      setError(null);
+    };
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -93,12 +106,18 @@ function EarlyAccessFormInner({ lockCampaign }: { lockCampaign?: Campaign }) {
     }
 
     setSubmitting(true);
-    const res = await submitPublic<{ message: string }>("/early-access", parsed.data);
+    const res = await submitPublic<{ message: string }>(
+      "/early-access",
+      parsed.data,
+    );
     setSubmitting(false);
     if (res.ok) {
       track("form_completed", { form: "early_access" });
       track("early_access_joined", { programme: campaign });
-      setDone(res.data?.message ?? "You're on the list. We'll be in touch before launch.");
+      setDone(
+        res.data?.message ??
+          "You're on the list. We'll be in touch before launch.",
+      );
     } else {
       setError(res.error ?? "Something went wrong. Please try again.");
     }
@@ -126,12 +145,48 @@ function EarlyAccessFormInner({ lockCampaign }: { lockCampaign?: Campaign }) {
       <Honeypot value={honeypot} onChange={setHoneypot} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextInput label="Full name" required value={form.name} onChange={set("name")} autoComplete="name" />
-        <TextInput label="Email" type="email" required value={form.email} onChange={set("email")} autoComplete="email" />
-        <TextInput label="Phone" type="tel" required placeholder="+233…" value={form.phone} onChange={set("phone")} hint="Include the country code." />
-        <SelectInput label="Country" options={COUNTRY_OPTIONS} value={form.country} onChange={set("country")} />
-        <SelectInput label="How many properties?" options={PROPERTY_COUNT_OPTIONS} value={form.propertyCount} onChange={set("propertyCount")} />
-        <TextInput label="Location" placeholder="City / area" value={form.location} onChange={set("location")} />
+        <TextInput
+          label="Full name"
+          required
+          value={form.name}
+          onChange={set("name")}
+          autoComplete="name"
+        />
+        <TextInput
+          label="Email"
+          type="email"
+          required
+          value={form.email}
+          onChange={set("email")}
+          autoComplete="email"
+        />
+        <TextInput
+          label="Phone"
+          type="tel"
+          required
+          placeholder="+233…"
+          value={form.phone}
+          onChange={set("phone")}
+          hint="Include the country code."
+        />
+        <SelectInput
+          label="Country"
+          options={COUNTRY_OPTIONS}
+          value={form.country}
+          onChange={set("country")}
+        />
+        <SelectInput
+          label="How many properties?"
+          options={PROPERTY_COUNT_OPTIONS}
+          value={form.propertyCount}
+          onChange={set("propertyCount")}
+        />
+        <TextInput
+          label="Location"
+          placeholder="City / area"
+          value={form.location}
+          onChange={set("location")}
+        />
       </div>
 
       {!lockCampaign ? (
@@ -192,7 +247,11 @@ function EarlyAccessFormInner({ lockCampaign }: { lockCampaign?: Campaign }) {
 
 export function EarlyAccessForm({ lockCampaign }: { lockCampaign?: Campaign }) {
   return (
-    <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-surface-sunken" />}>
+    <Suspense
+      fallback={
+        <div className="h-64 animate-pulse rounded-xl bg-surface-sunken" />
+      }
+    >
       <EarlyAccessFormInner lockCampaign={lockCampaign} />
     </Suspense>
   );

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { z } from "zod";
 import type { Request } from "express";
@@ -49,7 +41,8 @@ export class MaintenanceController {
   @RequirePermission("maintenance:read")
   list(
     @CurrentUser() user: AuthUser,
-    @Query(new ZodValidationPipe(listMaintenanceQuery)) query: ListMaintenanceQuery,
+    @Query(new ZodValidationPipe(listMaintenanceQuery))
+    query: ListMaintenanceQuery,
   ) {
     return this.maintenance.list(user, query);
   }
@@ -65,7 +58,8 @@ export class MaintenanceController {
   @RequirePermission("maintenance:read")
   create(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(createMaintenanceSchema)) body: CreateMaintenanceInput,
+    @Body(new ZodValidationPipe(createMaintenanceSchema))
+    body: CreateMaintenanceInput,
     @Req() req: Request,
   ) {
     return this.maintenance.create(user, body, auditCtxFromRequest(req, user));
@@ -81,7 +75,12 @@ export class MaintenanceController {
     body: TransitionMaintenanceInput,
     @Req() req: Request,
   ) {
-    return this.maintenance.transition(user, id, body, auditCtxFromRequest(req, user));
+    return this.maintenance.transition(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/work-orders")
@@ -93,7 +92,12 @@ export class MaintenanceController {
     @Body(new ZodValidationPipe(assignVendorSchema)) body: AssignVendorInput,
     @Req() req: Request,
   ) {
-    return this.maintenance.assignVendor(user, id, body, auditCtxFromRequest(req, user));
+    return this.maintenance.assignVendor(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/work-orders/:workOrderId/complete")
@@ -103,7 +107,8 @@ export class MaintenanceController {
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
     @Param("workOrderId") workOrderId: string,
-    @Body(new ZodValidationPipe(completeWorkOrderSchema)) body: CompleteWorkOrderInput,
+    @Body(new ZodValidationPipe(completeWorkOrderSchema))
+    body: CompleteWorkOrderInput,
     @Req() req: Request,
   ) {
     return this.maintenance.completeWorkOrder(
@@ -121,7 +126,8 @@ export class MaintenanceController {
   addMedia(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(addMediaSchema)) body: z.infer<typeof addMediaSchema>,
+    @Body(new ZodValidationPipe(addMediaSchema))
+    body: z.infer<typeof addMediaSchema>,
     @Req() req: Request,
   ) {
     return this.maintenance.addMedia(

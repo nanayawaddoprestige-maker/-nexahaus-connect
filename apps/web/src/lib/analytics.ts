@@ -24,7 +24,10 @@ export type AnalyticsEvent =
   | "client_login_clicked"
   | "connect_preview_viewed";
 
-export type AnalyticsProps = Record<string, string | number | boolean | null | undefined>;
+export type AnalyticsProps = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
 
 interface AnalyticsAdapter {
   init(): void | Promise<void>;

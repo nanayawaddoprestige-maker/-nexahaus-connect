@@ -36,7 +36,12 @@ export class SchedulingService {
   }
 
   /** Manual trigger for staff / tests — always runs. */
-  runNow(): Promise<{ overdue: number; leases: number; documents: number; preventive: number }> {
+  runNow(): Promise<{
+    overdue: number;
+    leases: number;
+    documents: number;
+    preventive: number;
+  }> {
     return this.scan();
   }
 
@@ -70,10 +75,17 @@ export class SchedulingService {
     });
     for (const charge of due) {
       await this.prisma.$transaction(async (tx) => {
-        await tx.rentCharge.update({ where: { id: charge.id }, data: { status: "OVERDUE" } });
+        await tx.rentCharge.update({
+          where: { id: charge.id },
+          data: { status: "OVERDUE" },
+        });
         await this.events.emit(
           DomainEventType.RENT_OVERDUE,
-          { rentChargeId: charge.id, clientId: charge.clientId, propertyId: charge.propertyId },
+          {
+            rentChargeId: charge.id,
+            clientId: charge.clientId,
+            propertyId: charge.propertyId,
+          },
           tx,
         );
       });
@@ -85,7 +97,15 @@ export class SchedulingService {
     const reminders = await this.prisma.leaseReminder.findMany({
       where: { sentAt: null, remindAt: { lte: now } },
       include: {
-        lease: { select: { id: true, endDate: true, clientId: true, propertyId: true, status: true } },
+        lease: {
+          select: {
+            id: true,
+            endDate: true,
+            clientId: true,
+            propertyId: true,
+            status: true,
+          },
+        },
       },
       take: 500,
     });
@@ -95,9 +115,15 @@ export class SchedulingService {
         Math.ceil((r.lease.endDate.getTime() - now.getTime()) / 86_400_000),
       );
       await this.prisma.$transaction(async (tx) => {
-        await tx.leaseReminder.update({ where: { id: r.id }, data: { sentAt: now } });
+        await tx.leaseReminder.update({
+          where: { id: r.id },
+          data: { sentAt: now },
+        });
         if (r.lease.status === "ACTIVE" && inDays <= 90) {
-          await tx.lease.update({ where: { id: r.lease.id }, data: { status: "EXPIRING" } });
+          await tx.lease.update({
+            where: { id: r.lease.id },
+            data: { status: "EXPIRING" },
+          });
         }
         await this.events.emit(
           DomainEventType.LEASE_EXPIRING,
@@ -118,7 +144,15 @@ export class SchedulingService {
     const reminders = await this.prisma.documentExpiryReminder.findMany({
       where: { sentAt: null, remindAt: { lte: now } },
       include: {
-        document: { select: { id: true, scopeType: true, scopeId: true, expiresAt: true, title: true } },
+        document: {
+          select: {
+            id: true,
+            scopeType: true,
+            scopeId: true,
+            expiresAt: true,
+            title: true,
+          },
+        },
       },
       take: 500,
     });
@@ -126,7 +160,10 @@ export class SchedulingService {
       const propertyId =
         r.document.scopeType === "PROPERTY" ? r.document.scopeId : undefined;
       await this.prisma.$transaction(async (tx) => {
-        await tx.documentExpiryReminder.update({ where: { id: r.id }, data: { sentAt: now } });
+        await tx.documentExpiryReminder.update({
+          where: { id: r.id },
+          data: { sentAt: now },
+        });
         await this.events.emit(
           DomainEventType.DOCUMENT_EXPIRING,
           {
@@ -171,7 +208,12 @@ export class SchedulingService {
             title: `Scheduled: ${titleCase(plan.serviceType)}`,
             description: `Preventive maintenance due per the schedule for this property. [${dedupeRef}]`,
             status: "REPORTED",
-            statusHistory: { create: { toStatus: "REPORTED", note: "Raised by preventive schedule" } },
+            statusHistory: {
+              create: {
+                toStatus: "REPORTED",
+                note: "Raised by preventive schedule",
+              },
+            },
           },
         });
         await tx.preventiveMaintenancePlan.update({
@@ -198,7 +240,9 @@ export class SchedulingService {
 }
 
 function startOfDay(d: Date): Date {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  return new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+  );
 }
 function titleCase(v: string): string {
   return v

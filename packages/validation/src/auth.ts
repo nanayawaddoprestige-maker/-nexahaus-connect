@@ -22,7 +22,10 @@ export const loginSchema = z
     identifier: z.string().trim().min(3), // email or phone
     password: z.string().min(1),
     /** TOTP code, required only when the account has MFA enabled. */
-    mfaCode: z.string().regex(/^\d{6}$/).optional(),
+    mfaCode: z
+      .string()
+      .regex(/^\d{6}$/)
+      .optional(),
     deviceLabel: z.string().max(80).optional(),
   })
   .strict();

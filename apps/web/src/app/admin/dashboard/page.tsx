@@ -64,7 +64,10 @@ export default function AdminDashboardPage() {
             />
             <StatCard
               label="Collected this month"
-              value={formatMinor(data.rent.monthlyCollectedMinor, data.currency)}
+              value={formatMinor(
+                data.rent.monthlyCollectedMinor,
+                data.currency,
+              )}
               hint={`${formatPercent(data.rent.collectionRate)} of expected`}
               tone="positive"
             />
@@ -78,7 +81,10 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader title="Operational load" />
             <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-              <Metric label="Open maintenance" value={data.operations.openMaintenance} />
+              <Metric
+                label="Open maintenance"
+                value={data.operations.openMaintenance}
+              />
               <Metric
                 label="Urgent issues"
                 value={data.operations.urgentIssues}
@@ -87,24 +93,36 @@ export default function AdminDashboardPage() {
               <Metric
                 label="Pending approvals"
                 value={data.operations.pendingApprovals}
-                tone={data.operations.pendingApprovals > 0 ? "warning" : undefined}
+                tone={
+                  data.operations.pendingApprovals > 0 ? "warning" : undefined
+                }
               />
-              <Metric label="Inspections due" value={data.operations.inspectionsDue} />
+              <Metric
+                label="Inspections due"
+                value={data.operations.inspectionsDue}
+              />
               <Metric
                 label="Docs expiring"
                 value={data.operations.documentsExpiring}
-                tone={data.operations.documentsExpiring > 0 ? "warning" : undefined}
+                tone={
+                  data.operations.documentsExpiring > 0 ? "warning" : undefined
+                }
               />
               <Metric
                 label="Overdue charges"
                 value={data.operations.overdueCharges}
-                tone={data.operations.overdueCharges > 0 ? "critical" : undefined}
+                tone={
+                  data.operations.overdueCharges > 0 ? "critical" : undefined
+                }
               />
             </dl>
           </Card>
 
           <section className="grid grid-cols-2 gap-4 sm:max-w-md">
-            <StatCard label="Active clients" value={data.growth.activeClients} />
+            <StatCard
+              label="Active clients"
+              value={data.growth.activeClients}
+            />
             <StatCard label="New leads (30d)" value={data.growth.newLeads} />
           </section>
         </div>

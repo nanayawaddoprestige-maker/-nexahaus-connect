@@ -45,7 +45,9 @@ export class Money {
       value = BigInt(minor);
     } else {
       if (!/^-?\d+$/.test(minor)) {
-        throw new MoneyError(`Minor units string must be an integer, got "${minor}"`);
+        throw new MoneyError(
+          `Minor units string must be an integer, got "${minor}"`,
+        );
       }
       value = BigInt(minor);
     }
@@ -131,7 +133,9 @@ export class Money {
   multiply(factor: bigint | number): Money {
     const f = typeof factor === "bigint" ? factor : BigInt(factor);
     if (typeof factor === "number" && !Number.isInteger(factor)) {
-      throw new MoneyError("multiply() takes an integer factor; use percentage()");
+      throw new MoneyError(
+        "multiply() takes an integer factor; use percentage()",
+      );
     }
     return new Money(this.minor * f, this.currency);
   }

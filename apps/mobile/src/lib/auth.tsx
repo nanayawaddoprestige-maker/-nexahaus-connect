@@ -8,12 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { AuthUser } from "@nexahaus/types";
-import {
-  api,
-  setAccessToken,
-  storeRefreshToken,
-  tryRefresh,
-} from "./api";
+import { api, setAccessToken, storeRefreshToken, tryRefresh } from "./api";
 
 interface LoginResponse {
   user: AuthUser;
@@ -24,7 +19,11 @@ interface LoginResponse {
 interface AuthState {
   user: AuthUser | null;
   status: "loading" | "authenticated" | "unauthenticated";
-  login: (identifier: string, password: string, mfaCode?: string) => Promise<LoginResponse>;
+  login: (
+    identifier: string,
+    password: string,
+    mfaCode?: string,
+  ) => Promise<LoginResponse>;
   logout: () => Promise<void>;
 }
 

@@ -12,7 +12,9 @@ export function TrustStrip() {
         <ul className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
           {trustStrip.map((item) => (
             <li key={item.label}>
-              <p className="text-sm font-semibold text-navy-900">{item.label}</p>
+              <p className="text-sm font-semibold text-navy-900">
+                {item.label}
+              </p>
               <p className="mt-0.5 text-xs text-ink-subtle">{item.caption}</p>
             </li>
           ))}

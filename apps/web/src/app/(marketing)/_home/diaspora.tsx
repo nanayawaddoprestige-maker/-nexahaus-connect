@@ -17,7 +17,12 @@ export function DiasporaSection() {
       <FlowSteps steps={diaspora.flow} onNavy className="mt-10" />
 
       <div className="mt-10">
-        <Cta href={diaspora.cta.href} variant="gold" size="lg" eventProps={{ location: "home_diaspora" }}>
+        <Cta
+          href={diaspora.cta.href}
+          variant="gold"
+          size="lg"
+          eventProps={{ location: "home_diaspora" }}
+        >
           {diaspora.cta.label}
         </Cta>
       </div>

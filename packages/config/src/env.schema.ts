@@ -11,7 +11,10 @@ import { z } from "zod";
 const nonEmpty = z.string().min(1);
 const secret = z
   .string()
-  .min(32, "secrets must be at least 32 characters — generate a long random value");
+  .min(
+    32,
+    "secrets must be at least 32 characters — generate a long random value",
+  );
 const port = z.coerce.number().int().positive().max(65535);
 const seconds = z.coerce.number().int().positive();
 const bytes = z.coerce.number().int().positive();
@@ -20,7 +23,9 @@ const bool = z
   .transform((v) => v === "true" || v === "1");
 
 export const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "staging", "production"])
+    .default("development"),
   APP_URL: z.string().url(),
   API_URL: z.string().url(),
   API_PORT: port.default(4000),
@@ -29,13 +34,19 @@ export const envSchema = z.object({
   DEFAULT_LOCALE: nonEmpty.default("en-GH"),
   DEFAULT_TIMEZONE: nonEmpty.default("Africa/Accra"),
 
-  DATABASE_URL: z.string().url().refine((v) => v.startsWith("postgres"), {
-    message: "DATABASE_URL must be a postgres:// connection string",
-  }),
+  DATABASE_URL: z
+    .string()
+    .url()
+    .refine((v) => v.startsWith("postgres"), {
+      message: "DATABASE_URL must be a postgres:// connection string",
+    }),
 
-  REDIS_URL: z.string().url().refine((v) => v.startsWith("redis"), {
-    message: "REDIS_URL must be a redis:// connection string",
-  }),
+  REDIS_URL: z
+    .string()
+    .url()
+    .refine((v) => v.startsWith("redis"), {
+      message: "REDIS_URL must be a redis:// connection string",
+    }),
 
   // Background processing. WORKER_ENABLED=true creates the BullMQ consumers in
   // this process (dev / the dedicated worker); set it false on API-only

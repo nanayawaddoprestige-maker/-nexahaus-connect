@@ -23,14 +23,19 @@ export function scoreHealthCheck(a: HealthCheckAnswers): {
   s += a.occupied ? 18 : 4;
   s += a.managedProfessionally ? 14 : 4;
   s +=
-    { ALWAYS: 20, USUALLY: 14, SOMETIMES: 7, RARELY: 2 }[a.tenantsPayOnTime] ?? 0;
-  s += { MONTHLY: 14, QUARTERLY: 14, YEARLY: 8, NEVER: 0 }[a.inspectionFrequency] ?? 0;
+    { ALWAYS: 20, USUALLY: 14, SOMETIMES: 7, RARELY: 2 }[a.tenantsPayOnTime] ??
+    0;
+  s +=
+    { MONTHLY: 14, QUARTERLY: 14, YEARLY: 8, NEVER: 0 }[
+      a.inspectionFrequency
+    ] ?? 0;
   s += a.receivesFinancialReports ? 14 : 2;
   s += a.documentsInOrder ? 10 : 2;
   s += a.lastMaintenanceRecent ? 10 : 3;
 
   const score = Math.max(0, Math.min(100, Math.round(s)));
-  const band = score >= 80 ? "HEALTHY" : score >= 55 ? "NEEDS_ATTENTION" : "AT_RISK";
+  const band =
+    score >= 80 ? "HEALTHY" : score >= 55 ? "NEEDS_ATTENTION" : "AT_RISK";
   const headline =
     band === "HEALTHY"
       ? "Your property appears healthy, with only minor areas to watch."

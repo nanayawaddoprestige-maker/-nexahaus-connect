@@ -45,10 +45,15 @@ export class DistributionsController {
   @RequirePermission("distribution:write")
   create(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(createDistributionSchema)) body: CreateDistributionInput,
+    @Body(new ZodValidationPipe(createDistributionSchema))
+    body: CreateDistributionInput,
     @Req() req: Request,
   ) {
-    return this.distributions.create(user, body, auditCtxFromRequest(req, user));
+    return this.distributions.create(
+      user,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/approve")
@@ -66,10 +71,19 @@ export class DistributionsController {
   pay(
     @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(z.object({ reference: z.string().trim().max(120).optional() }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ reference: z.string().trim().max(120).optional() }).strict(),
+      ),
+    )
     body: { reference?: string },
     @Req() req: Request,
   ) {
-    return this.distributions.pay(user, id, body.reference, auditCtxFromRequest(req, user));
+    return this.distributions.pay(
+      user,
+      id,
+      body.reference,
+      auditCtxFromRequest(req, user),
+    );
   }
 }

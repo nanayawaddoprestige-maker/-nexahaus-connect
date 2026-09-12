@@ -62,7 +62,12 @@ export interface ApprovalRow {
 export interface ApprovalDetail extends ApprovalRow {
   decisionNote: string | null;
   decidedAt: string | null;
-  timeline: { action: string; note: string | null; at: string; byUserId: string | null }[];
+  timeline: {
+    action: string;
+    note: string | null;
+    at: string;
+    byUserId: string | null;
+  }[];
 }
 
 export interface InspectionRow {

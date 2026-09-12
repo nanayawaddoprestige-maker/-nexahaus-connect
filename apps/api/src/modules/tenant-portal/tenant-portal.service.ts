@@ -15,7 +15,8 @@ export class TenantPortalService {
   constructor(private readonly prisma: PrismaService) {}
 
   private tenantIdOrThrow(user: AuthUser): string {
-    if (!user.tenantId) throw AppError.forbidden("No tenancy is linked to this account.");
+    if (!user.tenantId)
+      throw AppError.forbidden("No tenancy is linked to this account.");
     return user.tenantId;
   }
 
@@ -47,7 +48,15 @@ export class TenantPortalService {
                 rentCurrency: true,
                 frequency: true,
                 status: true,
-                property: { select: { id: true, name: true, addressLine: true, city: true, region: true } },
+                property: {
+                  select: {
+                    id: true,
+                    name: true,
+                    addressLine: true,
+                    city: true,
+                    region: true,
+                  },
+                },
                 unit: { select: { label: true } },
               },
             },
@@ -77,7 +86,10 @@ export class TenantPortalService {
             unit: current.unit.label,
             startDate: current.startDate.toISOString(),
             endDate: current.endDate.toISOString(),
-            rent: { minor: current.rentMinor.toString(), currency: current.rentCurrency },
+            rent: {
+              minor: current.rentMinor.toString(),
+              currency: current.rentCurrency,
+            },
             frequency: current.frequency,
             status: current.status,
           }
@@ -92,10 +104,20 @@ export class TenantPortalService {
       include: {
         lease: {
           include: {
-            property: { select: { name: true, addressLine: true, city: true, region: true } },
+            property: {
+              select: {
+                name: true,
+                addressLine: true,
+                city: true,
+                region: true,
+              },
+            },
             unit: { select: { label: true, bedrooms: true, bathrooms: true } },
             parties: {
-              select: { isPrimary: true, tenant: { select: { fullName: true } } },
+              select: {
+                isPrimary: true,
+                tenant: { select: { fullName: true } },
+              },
             },
           },
         },
@@ -112,7 +134,10 @@ export class TenantPortalService {
       rent: { minor: l.rentMinor.toString(), currency: l.rentCurrency },
       frequency: l.frequency,
       deposit: l.depositMinor
-        ? { minor: l.depositMinor.toString(), currency: l.depositCurrency ?? "GHS" }
+        ? {
+            minor: l.depositMinor.toString(),
+            currency: l.depositCurrency ?? "GHS",
+          }
         : null,
       noticePeriodDays: l.noticePeriodDays,
       renewalStatus: l.renewalStatus,
@@ -136,7 +161,8 @@ export class TenantPortalService {
         select: { leaseId: true },
       })
     ).map((p) => p.leaseId);
-    if (leaseIds.length === 0) return { currency: "GHS", charges: [], summary: emptySummary() };
+    if (leaseIds.length === 0)
+      return { currency: "GHS", charges: [], summary: emptySummary() };
 
     const charges = await this.prisma.rentCharge.findMany({
       where: { leaseId: { in: leaseIds } },
@@ -215,7 +241,10 @@ export class TenantPortalService {
   async documents(user: AuthUser) {
     const tenantId = this.tenantIdOrThrow(user);
     const leaseIds = (
-      await this.prisma.leaseParty.findMany({ where: { tenantId }, select: { leaseId: true } })
+      await this.prisma.leaseParty.findMany({
+        where: { tenantId },
+        select: { leaseId: true },
+      })
     ).map((p) => p.leaseId);
 
     const docs = await this.prisma.document.findMany({
@@ -228,7 +257,13 @@ export class TenantPortalService {
         ],
       },
       orderBy: { createdAt: "desc" },
-      select: { id: true, title: true, category: true, mimeType: true, createdAt: true },
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        mimeType: true,
+        createdAt: true,
+      },
     });
     return {
       __list: true as const,

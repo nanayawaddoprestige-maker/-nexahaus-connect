@@ -66,7 +66,10 @@ export const LEAD_STAGES = [
   "LOST",
 ] as const;
 
-export const GRADE_TONE: Record<string, "positive" | "warning" | "info" | "neutral"> = {
+export const GRADE_TONE: Record<
+  string,
+  "positive" | "warning" | "info" | "neutral"
+> = {
   A: "positive",
   B: "info",
   C: "warning",

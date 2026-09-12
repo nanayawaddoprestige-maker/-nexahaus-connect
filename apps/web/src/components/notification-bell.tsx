@@ -8,7 +8,11 @@ import type { NotificationItem } from "@/lib/collab-resources";
 import { relativeDays } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export function NotificationBell({ viewAllHref = "/notifications" }: { viewAllHref?: string }) {
+export function NotificationBell({
+  viewAllHref = "/notifications",
+}: {
+  viewAllHref?: string;
+}) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -31,7 +35,8 @@ export function NotificationBell({ viewAllHref = "/notifications" }: { viewAllHr
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -66,7 +71,9 @@ export function NotificationBell({ viewAllHref = "/notifications" }: { viewAllHr
       {open ? (
         <div className="absolute right-0 z-20 mt-2 w-80 overflow-hidden rounded-xl border border-line bg-surface shadow-raised">
           <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-            <span className="text-sm font-semibold text-navy-900">Notifications</span>
+            <span className="text-sm font-semibold text-navy-900">
+              Notifications
+            </span>
             {unread > 0 ? (
               <button
                 onClick={() => markAll.mutate()}
@@ -100,7 +107,9 @@ export function NotificationBell({ viewAllHref = "/notifications" }: { viewAllHr
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0" />
                     )}
                     <div>
-                      <p className="text-sm font-medium text-navy-900">{n.title}</p>
+                      <p className="text-sm font-medium text-navy-900">
+                        {n.title}
+                      </p>
                       <p className="text-xs text-ink-muted">{n.body}</p>
                       <p className="mt-0.5 text-[11px] text-ink-subtle">
                         {relativeDays(n.createdAt)}

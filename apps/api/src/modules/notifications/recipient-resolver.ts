@@ -10,7 +10,10 @@ import { PrismaService } from "../../prisma/prisma.service";
 export class RecipientResolver {
   constructor(private readonly prisma: PrismaService) {}
 
-  async clientUsers(clientId: string, onlyApprovers = false): Promise<string[]> {
+  async clientUsers(
+    clientId: string,
+    onlyApprovers = false,
+  ): Promise<string[]> {
     const rows = await this.prisma.clientUser.findMany({
       where: {
         clientId,

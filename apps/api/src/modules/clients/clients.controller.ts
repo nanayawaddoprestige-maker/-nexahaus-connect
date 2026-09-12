@@ -101,7 +101,8 @@ export class ClientsController {
   @ScopedResource({ type: "client", param: "id" })
   inviteUser(
     @Param("id") id: string,
-    @Body(new ZodValidationPipe(inviteClientUserSchema)) body: InviteClientUserInput,
+    @Body(new ZodValidationPipe(inviteClientUserSchema))
+    body: InviteClientUserInput,
     @CurrentUser() user: AuthUser,
     @Req() req: Request,
   ) {
@@ -118,6 +119,10 @@ export class ClientsController {
     @CurrentUser() user: AuthUser,
     @Req() req: Request,
   ) {
-    return this.clients.advanceOnboarding(id, body, auditCtxFromRequest(req, user));
+    return this.clients.advanceOnboarding(
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 }

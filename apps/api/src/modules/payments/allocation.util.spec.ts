@@ -14,7 +14,12 @@ describe("allocateOldestFirst (spec §81)", () => {
   it("GHS 8,000 against an 8,000 charge → PAID, nothing outstanding", () => {
     const res = allocateOldestFirst(800_000n, [charge("c1", 800_000n)]);
     expect(res.allocations).toEqual([
-      { rentChargeId: "c1", amountMinor: 800_000n, newPaidMinor: 800_000n, newStatus: "PAID" },
+      {
+        rentChargeId: "c1",
+        amountMinor: 800_000n,
+        newPaidMinor: 800_000n,
+        newStatus: "PAID",
+      },
     ]);
     expect(res.unallocatedMinor).toBe(0n);
   });
@@ -30,7 +35,9 @@ describe("allocateOldestFirst (spec §81)", () => {
   });
 
   it("a later 3,000 top-up settles the same charge", () => {
-    const res = allocateOldestFirst(300_000n, [charge("c1", 800_000n, 500_000n)]);
+    const res = allocateOldestFirst(300_000n, [
+      charge("c1", 800_000n, 500_000n),
+    ]);
     expect(res.allocations[0]!.newStatus).toBe("PAID");
     expect(res.unallocatedMinor).toBe(0n);
   });
@@ -42,8 +49,18 @@ describe("allocateOldestFirst (spec §81)", () => {
       charge("mar", 800_000n),
     ]);
     expect(res.allocations).toEqual([
-      { rentChargeId: "jan", amountMinor: 800_000n, newPaidMinor: 800_000n, newStatus: "PAID" },
-      { rentChargeId: "feb", amountMinor: 700_000n, newPaidMinor: 700_000n, newStatus: "PARTIALLY_PAID" },
+      {
+        rentChargeId: "jan",
+        amountMinor: 800_000n,
+        newPaidMinor: 800_000n,
+        newStatus: "PAID",
+      },
+      {
+        rentChargeId: "feb",
+        amountMinor: 700_000n,
+        newPaidMinor: 700_000n,
+        newStatus: "PARTIALLY_PAID",
+      },
     ]);
     expect(res.unallocatedMinor).toBe(0n);
   });
@@ -88,14 +105,22 @@ describe("allocateExplicit", () => {
   it("rejects an allocation over a charge's outstanding balance", () => {
     const byId = new Map([["a", charge("a", 800_000n, 600_000n)]]);
     expect(() =>
-      allocateExplicit(500_000n, [{ rentChargeId: "a", amountMinor: 300_000n }], byId),
+      allocateExplicit(
+        500_000n,
+        [{ rentChargeId: "a", amountMinor: 300_000n }],
+        byId,
+      ),
     ).toThrow(/outstanding balance/);
   });
 
   it("rejects allocations exceeding the payment amount", () => {
     const byId = new Map([["a", charge("a", 800_000n)]]);
     expect(() =>
-      allocateExplicit(200_000n, [{ rentChargeId: "a", amountMinor: 300_000n }], byId),
+      allocateExplicit(
+        200_000n,
+        [{ rentChargeId: "a", amountMinor: 300_000n }],
+        byId,
+      ),
     ).toThrow(/exceed the payment/);
   });
 });

@@ -57,14 +57,17 @@ async function raw<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const url = new URL(BASE + path, window.location.origin);
   if (opts.query) {
     for (const [k, v] of Object.entries(opts.query)) {
-      if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
+      if (v !== undefined && v !== null && v !== "")
+        url.searchParams.set(k, String(v));
     }
   }
 
   const res = await fetch(url.toString(), {
     method: opts.method ?? "GET",
     headers: {
-      ...(opts.body !== undefined ? { "content-type": "application/json" } : {}),
+      ...(opts.body !== undefined
+        ? { "content-type": "application/json" }
+        : {}),
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
@@ -87,7 +90,8 @@ async function raw<T>(path: string, opts: RequestOptions = {}): Promise<T> {
       err.code !== "UNAUTHENTICATED"
     ) {
       const refreshed = await tryRefresh();
-      if (refreshed) return raw<T>(path, { ...opts, retryOnUnauthorized: false });
+      if (refreshed)
+        return raw<T>(path, { ...opts, retryOnUnauthorized: false });
     }
     if (res.status === 401) setAccessToken(null);
     throw new ApiError(res.status, err);
@@ -104,7 +108,8 @@ async function list<T>(
   const url = new URL(BASE + path, window.location.origin);
   if (opts.query) {
     for (const [k, v] of Object.entries(opts.query)) {
-      if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
+      if (v !== undefined && v !== null && v !== "")
+        url.searchParams.set(k, String(v));
     }
   }
   const res = await fetch(url.toString(), {
@@ -117,7 +122,8 @@ async function list<T>(
     const err = (json as ErrorResponse).error;
     if (res.status === 401 && (opts.retryOnUnauthorized ?? true)) {
       const refreshed = await tryRefresh();
-      if (refreshed) return list<T>(path, { ...opts, retryOnUnauthorized: false });
+      if (refreshed)
+        return list<T>(path, { ...opts, retryOnUnauthorized: false });
       setAccessToken(null);
     }
     throw new ApiError(res.status, err);
@@ -136,7 +142,9 @@ async function tryRefresh(): Promise<boolean> {
         credentials: "include",
       });
       if (!res.ok) return false;
-      const json = (await res.json()) as SuccessResponse<{ accessToken: string }>;
+      const json = (await res.json()) as SuccessResponse<{
+        accessToken: string;
+      }>;
       if (json.success && json.data.accessToken) {
         setAccessToken(json.data.accessToken);
         return true;
@@ -152,11 +160,15 @@ async function tryRefresh(): Promise<boolean> {
 }
 
 export const api = {
-  get: <T>(path: string, query?: RequestOptions["query"]) => raw<T>(path, { query }),
+  get: <T>(path: string, query?: RequestOptions["query"]) =>
+    raw<T>(path, { query }),
   list,
-  post: <T>(path: string, body?: unknown) => raw<T>(path, { method: "POST", body }),
-  patch: <T>(path: string, body?: unknown) => raw<T>(path, { method: "PATCH", body }),
-  put: <T>(path: string, body?: unknown) => raw<T>(path, { method: "PUT", body }),
+  post: <T>(path: string, body?: unknown) =>
+    raw<T>(path, { method: "POST", body }),
+  patch: <T>(path: string, body?: unknown) =>
+    raw<T>(path, { method: "PATCH", body }),
+  put: <T>(path: string, body?: unknown) =>
+    raw<T>(path, { method: "PUT", body }),
   del: <T>(path: string) => raw<T>(path, { method: "DELETE" }),
   refresh: tryRefresh,
 };

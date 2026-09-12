@@ -25,10 +25,17 @@ export function Field({
 }) {
   return (
     <div className={cn("block", className)}>
-      <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-navy-900">
+      <label
+        htmlFor={htmlFor}
+        className="mb-1 block text-sm font-medium text-navy-900"
+      >
         {label}
         {required ? <span className="text-critical"> *</span> : null}
-        {!required ? <span className="ml-1 text-xs font-normal text-ink-subtle">(optional)</span> : null}
+        {!required ? (
+          <span className="ml-1 text-xs font-normal text-ink-subtle">
+            (optional)
+          </span>
+        ) : null}
       </label>
       {hint ? <p className="mb-1 text-xs text-ink-subtle">{hint}</p> : null}
       {children}
@@ -48,11 +55,26 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   wrapClassName?: string;
 };
 
-export function TextInput({ label, error, hint, wrapClassName, id, required, ...props }: InputProps) {
+export function TextInput({
+  label,
+  error,
+  hint,
+  wrapClassName,
+  id,
+  required,
+  ...props
+}: InputProps) {
   const gen = useId();
   const fieldId = id ?? gen;
   return (
-    <Field label={label} htmlFor={fieldId} required={required} error={error} hint={hint} className={wrapClassName}>
+    <Field
+      label={label}
+      htmlFor={fieldId}
+      required={required}
+      error={error}
+      hint={hint}
+      className={wrapClassName}
+    >
       <input
         id={fieldId}
         required={required}
@@ -88,7 +110,14 @@ export function SelectInput({
   const gen = useId();
   const fieldId = id ?? gen;
   return (
-    <Field label={label} htmlFor={fieldId} required={required} error={error} hint={hint} className={wrapClassName}>
+    <Field
+      label={label}
+      htmlFor={fieldId}
+      required={required}
+      error={error}
+      hint={hint}
+      className={wrapClassName}
+    >
       <select
         id={fieldId}
         required={required}
@@ -118,11 +147,27 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   wrapClassName?: string;
 };
 
-export function TextArea({ label, error, hint, wrapClassName, id, required, rows = 4, ...props }: TextareaProps) {
+export function TextArea({
+  label,
+  error,
+  hint,
+  wrapClassName,
+  id,
+  required,
+  rows = 4,
+  ...props
+}: TextareaProps) {
   const gen = useId();
   const fieldId = id ?? gen;
   return (
-    <Field label={label} htmlFor={fieldId} required={required} error={error} hint={hint} className={wrapClassName}>
+    <Field
+      label={label}
+      htmlFor={fieldId}
+      required={required}
+      error={error}
+      hint={hint}
+      className={wrapClassName}
+    >
       <textarea
         id={fieldId}
         rows={rows}
@@ -150,7 +195,10 @@ export function ConsentCheckbox({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="flex items-start gap-2 text-sm text-ink-muted">
+      <label
+        htmlFor={id}
+        className="flex items-start gap-2 text-sm text-ink-muted"
+      >
         <input
           id={id}
           type="checkbox"
@@ -181,7 +229,10 @@ export function Honeypot({
   name?: string;
 }) {
   return (
-    <div aria-hidden className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+    <div
+      aria-hidden
+      className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+    >
       <label htmlFor={name}>Leave this field empty</label>
       <input
         id={name}

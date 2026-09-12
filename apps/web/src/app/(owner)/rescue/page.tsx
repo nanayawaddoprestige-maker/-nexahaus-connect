@@ -12,9 +12,17 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScoreRing } from "@/components/ui/score-ring";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { EmptyState, ErrorState, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  EmptyState,
+  ErrorState,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
-const SEVERITY_TONE: Record<string, "critical" | "warning" | "info" | "neutral"> = {
+const SEVERITY_TONE: Record<
+  string,
+  "critical" | "warning" | "info" | "neutral"
+> = {
   URGENT: "critical",
   HIGH: "critical",
   MEDIUM: "warning",
@@ -30,7 +38,8 @@ export default function PropertyRescuePage() {
 
   const properties = useQuery({
     queryKey: ["properties", "for-rescue"],
-    queryFn: () => api.list<PropertyListItem>("/properties", { query: { pageSize: 50 } }),
+    queryFn: () =>
+      api.list<PropertyListItem>("/properties", { query: { pageSize: 50 } }),
   });
 
   const rescue = useQuery({
@@ -48,17 +57,22 @@ export default function PropertyRescuePage() {
       setError(null);
       void qc.invalidateQueries({ queryKey: ["rescue", propertyId] });
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : "Could not run the assessment."),
+    onError: (e) =>
+      setError(
+        e instanceof ApiError ? e.message : "Could not run the assessment.",
+      ),
   });
 
   const setRec = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       api.patch(`/property-rescue/recommendations/${id}`, { status }),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["rescue", propertyId] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["rescue", propertyId] }),
   });
 
   const download = useMutation({
-    mutationFn: (docId: string) => api.get<{ url: string }>(`/documents/${docId}/download-url`),
+    mutationFn: (docId: string) =>
+      api.get<{ url: string }>(`/documents/${docId}/download-url`),
     onSuccess: (res) => window.open(res.url, "_blank", "noopener"),
   });
 
@@ -74,7 +88,9 @@ export default function PropertyRescuePage() {
       <Card className="mb-6">
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="mb-1 block font-medium text-navy-900">Property</span>
+            <span className="mb-1 block font-medium text-navy-900">
+              Property
+            </span>
             <select
               value={propertyId}
               onChange={(e) => setPropertyId(e.target.value)}
@@ -98,7 +114,10 @@ export default function PropertyRescuePage() {
       </Card>
 
       {!propertyId ? (
-        <EmptyState title="Choose a property" description="Select a property above to see its latest rescue assessment." />
+        <EmptyState
+          title="Choose a property"
+          description="Select a property above to see its latest rescue assessment."
+        />
       ) : rescue.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : rescue.isError ? (
@@ -106,18 +125,33 @@ export default function PropertyRescuePage() {
       ) : !a ? (
         <EmptyState
           title="No assessment yet"
-          description={staff ? "Run one with the button above." : "Ask your NexaHaus manager to run a Property Rescue assessment."}
+          description={
+            staff
+              ? "Run one with the button above."
+              : "Ask your NexaHaus manager to run a Property Rescue assessment."
+          }
         />
       ) : (
         <div className="space-y-6">
           <Card className="flex flex-wrap items-center gap-6">
-            <ScoreRing score={a.overallScore} size={92} label={`v${a.ref}`.replace("vPR", "PR")} />
+            <ScoreRing
+              score={a.overallScore}
+              size={92}
+              label={`v${a.ref}`.replace("vPR", "PR")}
+            />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-navy-900">Overall score {a.overallScore}/100</h2>
-                <StatusBadge status={a.status} tone={a.status === "FINAL" ? "positive" : "neutral"} />
+                <h2 className="text-lg font-semibold text-navy-900">
+                  Overall score {a.overallScore}/100
+                </h2>
+                <StatusBadge
+                  status={a.status}
+                  tone={a.status === "FINAL" ? "positive" : "neutral"}
+                />
               </div>
-              <p className="text-sm text-ink-subtle">Assessed {formatDate(a.assessedAt)} · {a.ref}</p>
+              <p className="text-sm text-ink-subtle">
+                Assessed {formatDate(a.assessedAt)} · {a.ref}
+              </p>
             </div>
             {a.pdfDocumentId ? (
               <Button
@@ -135,11 +169,19 @@ export default function PropertyRescuePage() {
             <CardHeader title="Findings" />
             <ul className="space-y-2 text-sm">
               {a.findings.map((f) => (
-                <li key={f.key} className="flex items-center justify-between gap-3">
+                <li
+                  key={f.key}
+                  className="flex items-center justify-between gap-3"
+                >
                   <span className="text-navy-900">{f.problem}</span>
                   <span className="flex items-center gap-2">
-                    <span className="tabular-nums text-ink-subtle">{Math.round(f.score * 100)}</span>
-                    <StatusBadge status={f.severity} tone={SEVERITY_TONE[f.severity]} />
+                    <span className="tabular-nums text-ink-subtle">
+                      {Math.round(f.score * 100)}
+                    </span>
+                    <StatusBadge
+                      status={f.severity}
+                      tone={SEVERITY_TONE[f.severity]}
+                    />
                   </span>
                 </li>
               ))}
@@ -149,7 +191,9 @@ export default function PropertyRescuePage() {
           <Card>
             <CardHeader title="Recommended actions" />
             {a.recommendations.length === 0 ? (
-              <p className="text-sm text-ink-subtle">No corrective actions needed — this property is performing well.</p>
+              <p className="text-sm text-ink-subtle">
+                No corrective actions needed — this property is performing well.
+              </p>
             ) : (
               <ol className="space-y-4">
                 {a.recommendations.map((r) => (
@@ -158,11 +202,16 @@ export default function PropertyRescuePage() {
                       <span className="text-sm font-medium text-navy-900">
                         {r.order + 1}. {r.title}
                       </span>
-                      <StatusBadge status={r.priority} tone={SEVERITY_TONE[r.priority]} />
+                      <StatusBadge
+                        status={r.priority}
+                        tone={SEVERITY_TONE[r.priority]}
+                      />
                     </div>
                     <p className="mt-1 text-sm text-ink-muted">{r.detail}</p>
                     <div className="mt-2 flex gap-1">
-                      {(["OPEN", "IN_PROGRESS", "DONE", "DISMISSED"] as const).map((s) => (
+                      {(
+                        ["OPEN", "IN_PROGRESS", "DONE", "DISMISSED"] as const
+                      ).map((s) => (
                         <button
                           key={s}
                           onClick={() => setRec.mutate({ id: r.id, status: s })}
@@ -185,8 +234,9 @@ export default function PropertyRescuePage() {
 
           <p className="text-xs text-ink-subtle">
             This is a preliminary desk assessment from the data held in NexaHaus
-            Connect — not a professional valuation or structural survey. Where an
-            action needs professional input, that is noted in the action itself.
+            Connect — not a professional valuation or structural survey. Where
+            an action needs professional input, that is noted in the action
+            itself.
           </p>
         </div>
       )}

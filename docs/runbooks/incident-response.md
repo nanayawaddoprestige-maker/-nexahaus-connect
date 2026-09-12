@@ -4,11 +4,11 @@ For a suspected outage, data exposure, financial discrepancy, or abuse.
 
 ## Severity
 
-| Sev | Definition | Response |
-|---|---|---|
+| Sev      | Definition                                                      | Response                                                      |
+| -------- | --------------------------------------------------------------- | ------------------------------------------------------------- |
 | **SEV1** | Data exposure / integrity loss, funds mis-recorded, full outage | Page on-call + IC + eng lead now; status page; 30-min updates |
-| **SEV2** | Partial outage, one tenant blocked, degraded auth/payments | Page on-call; 60-min updates |
-| **SEV3** | Elevated errors, single non-critical feature down | Business hours; ticket |
+| **SEV2** | Partial outage, one tenant blocked, degraded auth/payments      | Page on-call; 60-min updates                                  |
+| **SEV3** | Elevated errors, single non-critical feature down               | Business hours; ticket                                        |
 
 ## First 15 minutes
 
@@ -24,15 +24,15 @@ For a suspected outage, data exposure, financial discrepancy, or abuse.
 
 ## Contain (pick what applies)
 
-| Symptom | Action |
-|---|---|
-| Compromised / leaked credential or token | Revoke the user's sessions (`POST /auth/sessions/revoke-all` as admin, or `Session` update `revokedAt=now()` for the user); force password reset. |
-| Suspected key compromise (JWT / webhook / storage) | Rotate the secret in the secrets store; roll `api` + `worker`; old refresh tokens die on rotation, old webhook signatures rejected. |
-| Malicious document | Set the `Document` to `QUARANTINED`; presigned minting refuses non-`CLEAN`. |
-| Payment webhook abuse | Confirm HMAC failures in `PaymentProviderWebhookEvent`; block the source at the edge/WAF; signature check already drops them (400, nothing written). |
-| Bad deploy | [deploy.md](deploy.md) → Rollback. |
-| DB primary down / corrupt | [disaster-recovery.md](disaster-recovery.md). |
-| Runaway load | Scale `api`/`worker` replicas; lower `RATE_LIMIT_MAX` via config; shed at the edge. |
+| Symptom                                            | Action                                                                                                                                               |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compromised / leaked credential or token           | Revoke the user's sessions (`POST /auth/sessions/revoke-all` as admin, or `Session` update `revokedAt=now()` for the user); force password reset.    |
+| Suspected key compromise (JWT / webhook / storage) | Rotate the secret in the secrets store; roll `api` + `worker`; old refresh tokens die on rotation, old webhook signatures rejected.                  |
+| Malicious document                                 | Set the `Document` to `QUARANTINED`; presigned minting refuses non-`CLEAN`.                                                                          |
+| Payment webhook abuse                              | Confirm HMAC failures in `PaymentProviderWebhookEvent`; block the source at the edge/WAF; signature check already drops them (400, nothing written). |
+| Bad deploy                                         | [deploy.md](deploy.md) → Rollback.                                                                                                                   |
+| DB primary down / corrupt                          | [disaster-recovery.md](disaster-recovery.md).                                                                                                        |
+| Runaway load                                       | Scale `api`/`worker` replicas; lower `RATE_LIMIT_MAX` via config; shed at the edge.                                                                  |
 
 ## Eradicate & recover
 

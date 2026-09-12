@@ -39,7 +39,8 @@ const weightsSchema = z
   })
   .strict()
   .refine(
-    (v) => Math.abs(Object.values(v.weights).reduce((s, w) => s + w, 0) - 1) < 0.001,
+    (v) =>
+      Math.abs(Object.values(v.weights).reduce((s, w) => s + w, 0) - 1) < 0.001,
     { message: "weights must sum to 1", path: ["weights"] },
   );
 
@@ -59,10 +60,15 @@ export class PropertyHealthController {
   @RequirePermission("health:config")
   setConfig(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(weightsSchema)) body: z.infer<typeof weightsSchema>,
+    @Body(new ZodValidationPipe(weightsSchema))
+    body: z.infer<typeof weightsSchema>,
     @Req() req: Request,
   ) {
-    return this.health.setConfig(user, body.weights, auditCtxFromRequest(req, user));
+    return this.health.setConfig(
+      user,
+      body.weights,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post("recompute-all")
@@ -75,14 +81,20 @@ export class PropertyHealthController {
   @Get(":propertyId")
   @RequirePermission("health:read")
   @ScopedResource({ type: "property", param: "propertyId" })
-  latest(@CurrentUser() user: AuthUser, @Param("propertyId") propertyId: string) {
+  latest(
+    @CurrentUser() user: AuthUser,
+    @Param("propertyId") propertyId: string,
+  ) {
     return this.health.latest(user, propertyId);
   }
 
   @Get(":propertyId/history")
   @RequirePermission("health:read")
   @ScopedResource({ type: "property", param: "propertyId" })
-  history(@CurrentUser() user: AuthUser, @Param("propertyId") propertyId: string) {
+  history(
+    @CurrentUser() user: AuthUser,
+    @Param("propertyId") propertyId: string,
+  ) {
     return this.health.history(user, propertyId);
   }
 
@@ -95,6 +107,10 @@ export class PropertyHealthController {
     @Param("propertyId") propertyId: string,
     @Req() req: Request,
   ) {
-    return this.health.recompute(user, propertyId, auditCtxFromRequest(req, user));
+    return this.health.recompute(
+      user,
+      propertyId,
+      auditCtxFromRequest(req, user),
+    );
   }
 }

@@ -53,9 +53,12 @@ export function CookieBanner() {
         {!managing ? (
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <p className="max-w-2xl text-sm text-ink-muted">
-              We use essential cookies to run this site. With your permission we also
-              use analytics cookies to understand what is useful. See our{" "}
-              <Link href={routes.cookies} className="font-medium text-navy-700 underline underline-offset-2">
+              We use essential cookies to run this site. With your permission we
+              also use analytics cookies to understand what is useful. See our{" "}
+              <Link
+                href={routes.cookies}
+                className="font-medium text-navy-700 underline underline-offset-2"
+              >
                 Cookie Policy
               </Link>
               .
@@ -93,13 +96,15 @@ export function CookieBanner() {
             }}
             className="space-y-3"
           >
-            <p className="text-sm font-semibold text-navy-900">Cookie preferences</p>
+            <p className="text-sm font-semibold text-navy-900">
+              Cookie preferences
+            </p>
             <fieldset className="space-y-2 text-sm">
               <label className="flex items-start gap-2 text-ink-muted">
                 <input type="checkbox" checked disabled className="mt-1" />
                 <span>
-                  <span className="font-medium text-navy-900">Necessary</span> — always on.
-                  Required for the site to work.
+                  <span className="font-medium text-navy-900">Necessary</span> —
+                  always on. Required for the site to work.
                 </span>
               </label>
               <label className="flex items-start gap-2 text-ink-muted">
@@ -110,8 +115,8 @@ export function CookieBanner() {
                   onChange={(e) => setAnalytics(e.target.checked)}
                 />
                 <span>
-                  <span className="font-medium text-navy-900">Analytics</span> — anonymous
-                  usage measurement to improve the site.
+                  <span className="font-medium text-navy-900">Analytics</span> —
+                  anonymous usage measurement to improve the site.
                 </span>
               </label>
               <label className="flex items-start gap-2 text-ink-muted">
@@ -122,8 +127,8 @@ export function CookieBanner() {
                   onChange={(e) => setMarketing(e.target.checked)}
                 />
                 <span>
-                  <span className="font-medium text-navy-900">Marketing</span> — measure
-                  campaign performance.
+                  <span className="font-medium text-navy-900">Marketing</span> —
+                  measure campaign performance.
                 </span>
               </label>
             </fieldset>

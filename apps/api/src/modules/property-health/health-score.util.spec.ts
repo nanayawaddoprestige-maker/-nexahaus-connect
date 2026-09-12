@@ -1,4 +1,8 @@
-import { computeHealthScore, conditionToValue, type FactorInput } from "./health-score.util";
+import {
+  computeHealthScore,
+  conditionToValue,
+  type FactorInput,
+} from "./health-score.util";
 
 const f = (key: FactorInput["key"], value: number): FactorInput => ({
   key,
@@ -49,12 +53,19 @@ describe("computeHealthScore (spec §11)", () => {
   });
 
   it("changing the config weights changes the score", () => {
-    const heavyOnCollection = { ...WEIGHTS, RENT_COLLECTION: 0.5, OCCUPANCY: 0.05 };
+    const heavyOnCollection = {
+      ...WEIGHTS,
+      RENT_COLLECTION: 0.5,
+      OCCUPANCY: 0.05,
+    };
     const poorCollection = factors.map((x) =>
       x.key === "RENT_COLLECTION" ? f("RENT_COLLECTION", 0.4) : x,
     );
     const base = computeHealthScore(poorCollection, WEIGHTS).score;
-    const weighted = computeHealthScore(poorCollection, heavyOnCollection).score;
+    const weighted = computeHealthScore(
+      poorCollection,
+      heavyOnCollection,
+    ).score;
     expect(weighted).toBeLessThan(base);
   });
 

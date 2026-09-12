@@ -44,20 +44,24 @@ export default function Founding100Page() {
             Be Among the First 100 Property Owners to Join the NexaHaus Journey.
           </h1>
           <p className="mt-4 text-ink-muted">
-            The Founding 100 is a small group of owners who help shape NexaHaus before it
-            opens. Members get in early and have a real voice in how the service works.
+            The Founding 100 is a small group of owners who help shape NexaHaus
+            before it opens. Members get in early and have a real voice in how
+            the service works.
           </p>
           <ul className="mt-6 space-y-2 text-sm text-ink-muted">
             {BENEFITS.map((b) => (
               <li key={b} className="flex items-start gap-2">
-                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
+                <span
+                  aria-hidden
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500"
+                />
                 {b}
               </li>
             ))}
           </ul>
           <p className="mt-6 text-xs text-ink-subtle">
-            No financial commitment, and no promise of a discount — the value is early
-            access and influence.
+            No financial commitment, and no promise of a discount — the value is
+            early access and influence.
           </p>
         </div>
 

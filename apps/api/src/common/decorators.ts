@@ -23,7 +23,14 @@ export const RequirePermission = (
  * for the addressed resource, e.g. `@ScopedResource({ type: 'property', param: 'id' })`.
  */
 export interface ScopedResourceMeta {
-  type: "property" | "client" | "unit" | "lease" | "tenant" | "maintenance" | "inspection";
+  type:
+    | "property"
+    | "client"
+    | "unit"
+    | "lease"
+    | "tenant"
+    | "maintenance"
+    | "inspection";
   /** Route param that holds the resource id. Default: 'id'. */
   param?: string;
   /** If true, a missing/invalid id is allowed (e.g. create endpoints resolve scope from the body). */
@@ -36,7 +43,10 @@ export const ScopedResource = (
 
 /** Injects the authenticated user (populated by AuthGuard). */
 export const CurrentUser = createParamDecorator(
-  (data: keyof AuthUser | undefined, ctx: ExecutionContext): AuthUser | AuthUser[keyof AuthUser] => {
+  (
+    data: keyof AuthUser | undefined,
+    ctx: ExecutionContext,
+  ): AuthUser | AuthUser[keyof AuthUser] => {
     const request = ctx.switchToHttp().getRequest<{ user: AuthUser }>();
     return data ? request.user[data] : request.user;
   },

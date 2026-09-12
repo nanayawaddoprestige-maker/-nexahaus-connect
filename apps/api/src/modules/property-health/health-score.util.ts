@@ -1,6 +1,7 @@
 import type { HealthComponentKey } from "@nexahaus/types";
 
-export type ComponentKey = (typeof HealthComponentKey)[keyof typeof HealthComponentKey];
+export type ComponentKey =
+  (typeof HealthComponentKey)[keyof typeof HealthComponentKey];
 
 /** A single factor's normalised value in [0, 1] plus how it was derived. */
 export interface FactorInput {
@@ -27,13 +28,18 @@ export interface ScoreResult {
 
 const RECOMMENDATION_BY_KEY: Record<ComponentKey, string> = {
   OCCUPANCY: "Reduce vacancy — review pricing and marketing for empty units.",
-  RENT_COLLECTION: "Tighten rent collection — follow up arrears and consider payment reminders.",
-  MAINTENANCE: "Clear the maintenance backlog and set up preventive maintenance.",
+  RENT_COLLECTION:
+    "Tighten rent collection — follow up arrears and consider payment reminders.",
+  MAINTENANCE:
+    "Clear the maintenance backlog and set up preventive maintenance.",
   CONDITION: "Address the issues flagged in the latest inspection.",
-  TENANT_SATISFACTION: "Check in with tenants; unresolved issues drive turnover.",
-  DOCUMENTATION: "Upload the missing property documents and renew anything expiring.",
+  TENANT_SATISFACTION:
+    "Check in with tenants; unresolved issues drive turnover.",
+  DOCUMENTATION:
+    "Upload the missing property documents and renew anything expiring.",
   SECURITY: "Review security and compliance items for this property.",
-  FINANCIAL: "Review the property's cost base and rental position against the market.",
+  FINANCIAL:
+    "Review the property's cost base and rental position against the market.",
 };
 
 /**
@@ -48,7 +54,7 @@ export function computeHealthScore(
 ): ScoreResult {
   const totalWeight = Object.values(weights).reduce((s, w) => s + (w ?? 0), 0);
   const evenFallback =
-    factors.length > 0 ? Math.max(0, (1 - totalWeight)) / factors.length : 0;
+    factors.length > 0 ? Math.max(0, 1 - totalWeight) / factors.length : 0;
 
   const components: ScoreComponent[] = factors.map((f) => {
     const weight = weights[f.key] ?? evenFallback;
@@ -62,7 +68,8 @@ export function computeHealthScore(
   });
 
   const weightSum = components.reduce((s, c) => s + c.weight, 0) || 1;
-  const raw = components.reduce((s, c) => s + c.value * c.weight, 0) / weightSum;
+  const raw =
+    components.reduce((s, c) => s + c.value * c.weight, 0) / weightSum;
   const score = Math.max(0, Math.min(100, Math.round(raw * 100)));
 
   const recommendations = [...components]

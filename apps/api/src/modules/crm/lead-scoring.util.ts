@@ -37,7 +37,14 @@ export interface LeadScoreResult {
 }
 
 const DEFAULT: LeadScoreConfigShape["factors"] = {
-  propertyCount: { weight: 20, bands: [[1, 5], [2, 12], [4, 20]] },
+  propertyCount: {
+    weight: 20,
+    bands: [
+      [1, 5],
+      [2, 12],
+      [4, 20],
+    ],
+  },
   diaspora: { weight: 15 },
   managementNeed: { weight: 15 },
   assessmentCompleted: { weight: 20 },
@@ -69,7 +76,8 @@ export function computeLeadScore(
   const count = inputs.propertyCount ?? 0;
   let pcPoints = 0;
   for (const [threshold, pts] of bands) {
-    if (count >= threshold) pcPoints = Math.min(pts, f.propertyCount?.weight ?? 20);
+    if (count >= threshold)
+      pcPoints = Math.min(pts, f.propertyCount?.weight ?? 20);
   }
   total += add("propertyCount", pcPoints);
 
@@ -95,11 +103,18 @@ export function computeLeadScore(
   }
 
   // Engagement — 2 points per touch up to the weight.
-  const engPoints = Math.min((inputs.engagementTouches ?? 0) * 2, f.engagement?.weight ?? 10);
+  const engPoints = Math.min(
+    (inputs.engagementTouches ?? 0) * 2,
+    f.engagement?.weight ?? 10,
+  );
   total += add("engagement", engPoints);
 
   // Optional value + interest factors.
-  if (f.portfolioValue && inputs.portfolioValueMinor && f.portfolioValue.thresholdMinor) {
+  if (
+    f.portfolioValue &&
+    inputs.portfolioValueMinor &&
+    f.portfolioValue.thresholdMinor
+  ) {
     if (inputs.portfolioValueMinor >= BigInt(f.portfolioValue.thresholdMinor)) {
       total += add("portfolioValue", f.portfolioValue.weight);
     }
@@ -111,7 +126,13 @@ export function computeLeadScore(
   const score = Math.max(0, Math.min(100, Math.round(total)));
   const g = f.grades;
   const grade: LeadGrade =
-    score >= g.A ? LeadGrade.A : score >= g.B ? LeadGrade.B : score >= g.C ? LeadGrade.C : LeadGrade.D;
+    score >= g.A
+      ? LeadGrade.A
+      : score >= g.B
+        ? LeadGrade.B
+        : score >= g.C
+          ? LeadGrade.C
+          : LeadGrade.D;
 
   return { score, grade, breakdown };
 }

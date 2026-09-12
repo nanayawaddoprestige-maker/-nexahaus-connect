@@ -15,7 +15,13 @@ const UTM_FIELDS = [
   "utm_term",
 ] as const;
 
-const CLICK_IDS = ["gclid", "fbclid", "ttclid", "li_fat_id", "msclkid"] as const;
+const CLICK_IDS = [
+  "gclid",
+  "fbclid",
+  "ttclid",
+  "li_fat_id",
+  "msclkid",
+] as const;
 
 export interface Attribution {
   utm_source?: string;

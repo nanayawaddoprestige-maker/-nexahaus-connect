@@ -11,7 +11,11 @@ const HIGH_PRIORITY = new Set<string>([
   routes.propertyHealthCheck,
 ]);
 
-const LOW_PRIORITY = new Set<string>([routes.privacy, routes.terms, routes.cookies]);
+const LOW_PRIORITY = new Set<string>([
+  routes.privacy,
+  routes.terms,
+  routes.cookies,
+]);
 
 function priorityFor(path: string): number {
   if (path === routes.home) return 1;
@@ -34,12 +38,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: priorityFor(path),
   }));
 
-  const insightEntries: MetadataRoute.Sitemap = getAllInsightSlugs().map((slug) => ({
-    url: new URL(`${routes.insights}/${slug}`, SITE_URL).toString(),
-    lastModified: now,
-    changeFrequency: "yearly",
-    priority: 0.6,
-  }));
+  const insightEntries: MetadataRoute.Sitemap = getAllInsightSlugs().map(
+    (slug) => ({
+      url: new URL(`${routes.insights}/${slug}`, SITE_URL).toString(),
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.6,
+    }),
+  );
 
   return [...staticEntries, ...insightEntries];
 }

@@ -32,7 +32,10 @@ export class DocumentScopeService {
       case "TENANT":
       case "MAINTENANCE_REQUEST":
       case "INSPECTION": {
-        const map: Record<string, Parameters<ScopeResolverService["resolve"]>[0]> = {
+        const map: Record<
+          string,
+          Parameters<ScopeResolverService["resolve"]>[0]
+        > = {
           PROPERTY: "property",
           UNIT: "unit",
           LEASE: "lease",
@@ -43,7 +46,8 @@ export class DocumentScopeService {
         const owner = await this.resolver.resolve(map[scopeType]!, scopeId);
         if (!owner) return false;
         return (
-          (owner.clientId !== null && user.clientIds.includes(owner.clientId)) ||
+          (owner.clientId !== null &&
+            user.clientIds.includes(owner.clientId)) ||
           (owner.propertyId !== null &&
             user.assignedPropertyIds.includes(owner.propertyId)) ||
           (owner.tenantId !== null && owner.tenantId === user.tenantId)
@@ -73,7 +77,9 @@ export class DocumentScopeService {
         const wo = await this.prisma.workOrder.findUnique({
           where: { id: scopeId },
           select: {
-            request: { select: { property: { select: { id: true, clientId: true } } } },
+            request: {
+              select: { property: { select: { id: true, clientId: true } } },
+            },
           },
         });
         if (!wo) return false;

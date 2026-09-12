@@ -38,9 +38,7 @@ export class LeadsController {
 
   @Get()
   @RequirePermission("lead:read")
-  list(
-    @Query(new ZodValidationPipe(listLeadQuery)) query: ListLeadQuery,
-  ) {
+  list(@Query(new ZodValidationPipe(listLeadQuery)) query: ListLeadQuery) {
     return this.leads.list(query);
   }
 
@@ -60,11 +58,19 @@ export class LeadsController {
   @RequirePermission("settings:write")
   setScoreConfig(
     @CurrentUser() user: AuthUser,
-    @Body(new ZodValidationPipe(z.object({ factors: z.record(z.string(), z.unknown()) }).strict()))
+    @Body(
+      new ZodValidationPipe(
+        z.object({ factors: z.record(z.string(), z.unknown()) }).strict(),
+      ),
+    )
     body: { factors: Record<string, unknown> },
     @Req() req: Request,
   ) {
-    return this.leads.setScoreConfig(user, body.factors as never, auditCtxFromRequest(req, user));
+    return this.leads.setScoreConfig(
+      user,
+      body.factors as never,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Get(":id")
@@ -102,7 +108,12 @@ export class LeadsController {
     @Body(new ZodValidationPipe(leadActivitySchema)) body: LeadActivityInput,
     @Req() req: Request,
   ) {
-    return this.leads.addActivity(user, id, body, auditCtxFromRequest(req, user));
+    return this.leads.addActivity(
+      user,
+      id,
+      body,
+      auditCtxFromRequest(req, user),
+    );
   }
 
   @Post(":id/convert")

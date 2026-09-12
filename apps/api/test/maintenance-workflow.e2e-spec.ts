@@ -35,10 +35,15 @@ describe("Maintenance workflow (e2e)", () => {
   let owner: string;
   let propertyId: string;
   let requestId: string;
-  const cleanup: { users: string[]; clients: string[] } = { users: [], clients: [] };
+  const cleanup: { users: string[]; clients: string[] } = {
+    users: [],
+    clients: [],
+  };
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -79,7 +84,14 @@ describe("Maintenance workflow (e2e)", () => {
         type: "INDIVIDUAL",
         displayName: "Maint Client",
         status: "ACTIVE",
-        users: { create: { userId: ownerUser.id, relationship: "PRIMARY", canApprove: true, acceptedAt: new Date() } },
+        users: {
+          create: {
+            userId: ownerUser.id,
+            relationship: "PRIMARY",
+            canApprove: true,
+            acceptedAt: new Date(),
+          },
+        },
       },
     });
     cleanup.clients.push(client.id);
@@ -95,7 +107,9 @@ describe("Maintenance workflow (e2e)", () => {
         city: "Accra",
         region: "Greater Accra",
         unitCount: 1,
-        owners: { create: { clientId: client.id, sharePercent: 100, isPrimary: true } },
+        owners: {
+          create: { clientId: client.id, sharePercent: 100, isPrimary: true },
+        },
         agreements: {
           create: {
             feeType: "PERCENT_OF_COLLECTED",
@@ -117,9 +131,13 @@ describe("Maintenance workflow (e2e)", () => {
   });
 
   afterAll(async () => {
-    await prisma.approvalEvent.deleteMany({ where: { approval: { propertyId } } });
+    await prisma.approvalEvent.deleteMany({
+      where: { approval: { propertyId } },
+    });
     await prisma.approval.deleteMany({ where: { propertyId } });
-    await prisma.maintenanceStatusHistory.deleteMany({ where: { request: { propertyId } } });
+    await prisma.maintenanceStatusHistory.deleteMany({
+      where: { request: { propertyId } },
+    });
     await prisma.workOrder.deleteMany({ where: { request: { propertyId } } });
     await prisma.maintenanceRequest.deleteMany({ where: { propertyId } });
     await prisma.managementAgreement.deleteMany({ where: { propertyId } });
@@ -130,7 +148,11 @@ describe("Maintenance workflow (e2e)", () => {
     await app.close();
   });
 
-  const move = (token: string, to: string, body: Record<string, unknown> = {}) =>
+  const move = (
+    token: string,
+    to: string,
+    body: Record<string, unknown> = {},
+  ) =>
     request(app.getHttpServer())
       .post(`/api/v1/maintenance/${requestId}/transition`)
       .set("authorization", `Bearer ${token}`)
@@ -161,7 +183,9 @@ describe("Maintenance workflow (e2e)", () => {
   it("walks REPORTED → ACKNOWLEDGED → ASSIGNED → SCHEDULED", async () => {
     await move(staff, "ACKNOWLEDGED").expect(201);
     await move(staff, "ASSIGNED").expect(201);
-    await move(staff, "SCHEDULED", { scheduledFor: "2027-09-20T09:00:00.000Z" }).expect(201);
+    await move(staff, "SCHEDULED", {
+      scheduledFor: "2027-09-20T09:00:00.000Z",
+    }).expect(201);
   });
 
   it("an estimate over the threshold diverts IN_PROGRESS to AWAITING_APPROVAL and raises an Approval", async () => {
@@ -171,7 +195,11 @@ describe("Maintenance workflow (e2e)", () => {
     expect(res.body.data.status).toBe("AWAITING_APPROVAL");
 
     const approval = await prisma.approval.findFirst({
-      where: { subjectRefId: requestId, type: "MAINTENANCE_COST", status: "PENDING" },
+      where: {
+        subjectRefId: requestId,
+        type: "MAINTENANCE_COST",
+        status: "PENDING",
+      },
     });
     expect(approval).toBeTruthy();
     expect(approval!.amountMinor?.toString()).toBe("185000");
@@ -187,7 +215,9 @@ describe("Maintenance workflow (e2e)", () => {
       .send({ decision: "APPROVED" })
       .expect(201);
 
-    const reqRow = await prisma.maintenanceRequest.findUniqueOrThrow({ where: { id: requestId } });
+    const reqRow = await prisma.maintenanceRequest.findUniqueOrThrow({
+      where: { id: requestId },
+    });
     expect(reqRow.status).toBe("IN_PROGRESS");
     expect(reqRow.approvedCostMinor?.toString()).toBe("185000");
   });
@@ -196,7 +226,9 @@ describe("Maintenance workflow (e2e)", () => {
     await move(staff, "COMPLETED").expect(201);
     await move(staff, "VERIFIED").expect(201);
     await move(staff, "CLOSED").expect(201);
-    const reqRow = await prisma.maintenanceRequest.findUniqueOrThrow({ where: { id: requestId } });
+    const reqRow = await prisma.maintenanceRequest.findUniqueOrThrow({
+      where: { id: requestId },
+    });
     expect(reqRow.status).toBe("CLOSED");
     expect(reqRow.closedAt).not.toBeNull();
   });
@@ -238,7 +270,15 @@ describe("Maintenance workflow (e2e)", () => {
 
   it("emitted the maintenance domain events", async () => {
     const events = await prisma.domainEvent.findMany({
-      where: { type: { in: ["MAINTENANCE_CREATED", "MAINTENANCE_COMPLETED", "APPROVAL_REQUIRED"] } },
+      where: {
+        type: {
+          in: [
+            "MAINTENANCE_CREATED",
+            "MAINTENANCE_COMPLETED",
+            "APPROVAL_REQUIRED",
+          ],
+        },
+      },
       orderBy: { occurredAt: "asc" },
     });
     const types = new Set(events.map((e) => e.type));

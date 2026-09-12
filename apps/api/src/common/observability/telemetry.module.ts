@@ -1,4 +1,9 @@
-import { Global, Injectable, Module, type OnApplicationShutdown } from "@nestjs/common";
+import {
+  Global,
+  Injectable,
+  Module,
+  type OnApplicationShutdown,
+} from "@nestjs/common";
 import { stopTelemetry } from "../../instrumentation";
 
 /**

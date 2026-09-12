@@ -74,7 +74,9 @@ async function request<T>(path: string, opts: Options = {}): Promise<T> {
   const res = await fetch(url.toString(), {
     method: opts.method ?? "GET",
     headers: {
-      ...(opts.body !== undefined ? { "content-type": "application/json" } : {}),
+      ...(opts.body !== undefined
+        ? { "content-type": "application/json" }
+        : {}),
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
@@ -88,7 +90,11 @@ async function request<T>(path: string, opts: Options = {}): Promise<T> {
 
   if (!res.ok || json.success === false) {
     const err = (json as ErrorResponse).error;
-    if (res.status === 401 && (opts.retry ?? true) && err.code !== "UNAUTHENTICATED") {
+    if (
+      res.status === 401 &&
+      (opts.retry ?? true) &&
+      err.code !== "UNAUTHENTICATED"
+    ) {
       const ok = await tryRefresh();
       if (ok) return request<T>(path, { ...opts, retry: false });
     }
@@ -119,7 +125,8 @@ export async function tryRefresh(): Promise<boolean> {
       }>;
       if (json.success && json.data.accessToken) {
         setAccessToken(json.data.accessToken);
-        if (json.data.refreshToken) await storeRefreshToken(json.data.refreshToken);
+        if (json.data.refreshToken)
+          await storeRefreshToken(json.data.refreshToken);
         return true;
       }
       return false;
@@ -133,7 +140,8 @@ export async function tryRefresh(): Promise<boolean> {
 }
 
 export const api = {
-  get: <T>(path: string, query?: Options["query"]) => request<T>(path, { query }),
+  get: <T>(path: string, query?: Options["query"]) =>
+    request<T>(path, { query }),
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "POST", body }),
   patch: <T>(path: string, body?: unknown) =>

@@ -12,7 +12,12 @@ import type {
 import { formatDate, formatMinor, titleCase } from "@/lib/format";
 import { Card, CardHeader, StatCard } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ErrorState, LoadingCards, PageHeader, Skeleton } from "@/components/ui/states";
+import {
+  ErrorState,
+  LoadingCards,
+  PageHeader,
+  Skeleton,
+} from "@/components/ui/states";
 
 const PERIODS = [
   { value: "this_month", label: "This month" },
@@ -22,19 +27,23 @@ const PERIODS = [
 ] as const;
 
 export default function FinancePage() {
-  const [period, setPeriod] = useState<(typeof PERIODS)[number]["value"]>("this_month");
+  const [period, setPeriod] =
+    useState<(typeof PERIODS)[number]["value"]>("this_month");
 
   const fin = useQuery({
     queryKey: ["finance", "owner", period],
-    queryFn: () => api.get<OwnerFinancials>("/dashboard/owner/financials", { period }),
+    queryFn: () =>
+      api.get<OwnerFinancials>("/dashboard/owner/financials", { period }),
   });
   const payments = useQuery({
     queryKey: ["finance", "payments"],
-    queryFn: () => api.list<PaymentRow>("/payments", { query: { pageSize: 10 } }),
+    queryFn: () =>
+      api.list<PaymentRow>("/payments", { query: { pageSize: 10 } }),
   });
   const statements = useQuery({
     queryKey: ["finance", "statements"],
-    queryFn: () => api.list<StatementRow>("/statements", { query: { pageSize: 12 } }),
+    queryFn: () =>
+      api.list<StatementRow>("/statements", { query: { pageSize: 12 } }),
   });
 
   return (
@@ -50,7 +59,9 @@ export default function FinancePage() {
                 onClick={() => setPeriod(p.value)}
                 className={
                   "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
-                  (period === p.value ? "bg-navy-900 text-white" : "text-ink-muted hover:text-navy-900")
+                  (period === p.value
+                    ? "bg-navy-900 text-white"
+                    : "text-ink-muted hover:text-navy-900")
                 }
               >
                 {p.label}
@@ -69,21 +80,37 @@ export default function FinancePage() {
           <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatCard
               label="Gross rental income"
-              value={formatMinor(fin.data.grossRentalIncomeMinor, fin.data.currency)}
+              value={formatMinor(
+                fin.data.grossRentalIncomeMinor,
+                fin.data.currency,
+              )}
               tone="positive"
             />
             <StatCard
               label="Management fees"
-              value={formatMinor(fin.data.managementFeesMinor, fin.data.currency)}
-              hint={fin.data.managementFeesProjected ? "projected for this period" : undefined}
+              value={formatMinor(
+                fin.data.managementFeesMinor,
+                fin.data.currency,
+              )}
+              hint={
+                fin.data.managementFeesProjected
+                  ? "projected for this period"
+                  : undefined
+              }
             />
             <StatCard
               label="Maintenance"
-              value={formatMinor(fin.data.maintenanceExpensesMinor, fin.data.currency)}
+              value={formatMinor(
+                fin.data.maintenanceExpensesMinor,
+                fin.data.currency,
+              )}
             />
             <StatCard
               label="Other expenses"
-              value={formatMinor(fin.data.otherExpensesMinor, fin.data.currency)}
+              value={formatMinor(
+                fin.data.otherExpensesMinor,
+                fin.data.currency,
+              )}
             />
           </section>
 
@@ -94,13 +121,19 @@ export default function FinancePage() {
                 {formatMinor(fin.data.netOwnerIncomeMinor, fin.data.currency)}
               </p>
               <p className="mt-1 text-xs text-ink-subtle">
-                gross rent − management fees − maintenance − other approved expenses
+                gross rent − management fees − maintenance − other approved
+                expenses
               </p>
             </div>
             <StatCard
               label="Outstanding rent"
-              value={formatMinor(fin.data.outstandingRentMinor, fin.data.currency)}
-              tone={fin.data.outstandingRentMinor === "0" ? "default" : "warning"}
+              value={formatMinor(
+                fin.data.outstandingRentMinor,
+                fin.data.currency,
+              )}
+              tone={
+                fin.data.outstandingRentMinor === "0" ? "default" : "warning"
+              }
             />
             <StatCard
               label="Vacancy loss"
@@ -121,18 +154,26 @@ export default function FinancePage() {
           ) : (
             <ul className="divide-y divide-line text-sm">
               {payments.data!.items.map((p) => (
-                <li key={p.id} className="flex items-center justify-between py-2.5">
+                <li
+                  key={p.id}
+                  className="flex items-center justify-between py-2.5"
+                >
                   <div>
                     <p className="font-medium text-navy-900">
                       {formatMinor(p.amount.minor, p.amount.currency)}
-                      <span className="ml-2 text-xs text-ink-subtle">{titleCase(p.method)}</span>
+                      <span className="ml-2 text-xs text-ink-subtle">
+                        {titleCase(p.method)}
+                      </span>
                     </p>
                     <p className="text-xs text-ink-subtle">
                       {p.property?.name ?? "—"} · {formatDate(p.receivedAt)}
                       {p.unallocatedMinor !== "0" ? " · credit balance" : ""}
                     </p>
                   </div>
-                  <StatusBadge status={p.status} tone={p.status === "CONFIRMED" ? "positive" : "neutral"} />
+                  <StatusBadge
+                    status={p.status}
+                    tone={p.status === "CONFIRMED" ? "positive" : "neutral"}
+                  />
                 </li>
               ))}
             </ul>
@@ -150,13 +191,20 @@ export default function FinancePage() {
           ) : (
             <ul className="divide-y divide-line text-sm">
               {statements.data!.items.map((s) => (
-                <li key={s.id} className="flex items-center justify-between py-2.5">
-                  <Link href={`/finance/statements/${s.id}`} className="min-w-0">
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between py-2.5"
+                >
+                  <Link
+                    href={`/finance/statements/${s.id}`}
+                    className="min-w-0"
+                  >
                     <p className="font-medium text-navy-900">
                       {formatDate(s.periodStart)} – {formatDate(s.periodEnd)}
                     </p>
                     <p className="text-xs text-ink-subtle">
-                      {s.property} · net {formatMinor(s.netAmountMinor, s.currency)}
+                      {s.property} · net{" "}
+                      {formatMinor(s.netAmountMinor, s.currency)}
                     </p>
                   </Link>
                   <StatusBadge status={s.status} />

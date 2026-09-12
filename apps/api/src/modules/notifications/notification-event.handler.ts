@@ -26,13 +26,17 @@ export class NotificationEventHandler {
   async handle(event: DomainEventRow): Promise<void> {
     const p = (event.payload ?? {}) as Record<string, unknown>;
     const propertyId = str(p.propertyId);
-    const clientId = str(p.clientId) ?? (propertyId ? await this.recipients.propertyClientId(propertyId) : null);
+    const clientId =
+      str(p.clientId) ??
+      (propertyId ? await this.recipients.propertyClientId(propertyId) : null);
 
     switch (event.type) {
       case DomainEventType.APPROVAL_REQUIRED: {
         if (!clientId) return;
         const approvers = await this.recipients.clientUsers(clientId, true);
-        const fallback = approvers.length ? approvers : await this.recipients.clientUsers(clientId);
+        const fallback = approvers.length
+          ? approvers
+          : await this.recipients.clientUsers(clientId);
         await this.notifications.notifyMany(fallback, {
           type: "APPROVAL_REQUIRED",
           title: "Approval needed",
@@ -45,7 +49,9 @@ export class NotificationEventHandler {
       }
       case DomainEventType.APPROVAL_COMPLETED: {
         if (!clientId) return;
-        const staff = propertyId ? await this.recipients.assignedStaff(propertyId) : [];
+        const staff = propertyId
+          ? await this.recipients.assignedStaff(propertyId)
+          : [];
         await this.notifications.notifyMany(staff, {
           type: "APPROVAL_COMPLETED",
           title: `Approval ${String(p.decision ?? "decided").toLowerCase()}`,
@@ -63,7 +69,10 @@ export class NotificationEventHandler {
             type: "MAINTENANCE_CREATED",
             title: "New maintenance request",
             body: "A maintenance issue has been reported on a property you manage.",
-            data: { maintenanceRequestId: p.maintenanceRequestId, priority: p.priority },
+            data: {
+              maintenanceRequestId: p.maintenanceRequestId,
+              priority: p.priority,
+            },
             sourceEventId: event.id,
           },
         );
@@ -71,13 +80,16 @@ export class NotificationEventHandler {
       }
       case DomainEventType.MAINTENANCE_ASSIGNED: {
         if (!clientId) return;
-        await this.notifications.notifyMany(await this.recipients.clientUsers(clientId), {
-          type: "MAINTENANCE_ASSIGNED",
-          title: "Maintenance scheduled",
-          body: "A maintenance request on your property has been assigned and scheduled.",
-          data: { maintenanceRequestId: p.maintenanceRequestId },
-          sourceEventId: event.id,
-        });
+        await this.notifications.notifyMany(
+          await this.recipients.clientUsers(clientId),
+          {
+            type: "MAINTENANCE_ASSIGNED",
+            title: "Maintenance scheduled",
+            body: "A maintenance request on your property has been assigned and scheduled.",
+            data: { maintenanceRequestId: p.maintenanceRequestId },
+            sourceEventId: event.id,
+          },
+        );
         break;
       }
       case DomainEventType.MAINTENANCE_COMPLETED: {
@@ -97,13 +109,20 @@ export class NotificationEventHandler {
       case DomainEventType.PAYMENT_RECEIVED:
       case DomainEventType.RENT_RECEIVED: {
         if (event.type === DomainEventType.RENT_RECEIVED || !clientId) return; // dedupe: act on PAYMENT_RECEIVED only
-        await this.notifications.notifyMany(await this.recipients.clientUsers(clientId), {
-          type: "RENT_RECEIVED",
-          title: "Rent received",
-          body: "A rent payment has been recorded against your property.",
-          data: { paymentId: p.paymentId, amountMinor: p.amountMinor, currency: p.currency },
-          sourceEventId: event.id,
-        });
+        await this.notifications.notifyMany(
+          await this.recipients.clientUsers(clientId),
+          {
+            type: "RENT_RECEIVED",
+            title: "Rent received",
+            body: "A rent payment has been recorded against your property.",
+            data: {
+              paymentId: p.paymentId,
+              amountMinor: p.amountMinor,
+              currency: p.currency,
+            },
+            sourceEventId: event.id,
+          },
+        );
         break;
       }
       case DomainEventType.RENT_OVERDUE: {
@@ -111,7 +130,9 @@ export class NotificationEventHandler {
         await this.notifications.notifyMany(
           [
             ...(await this.recipients.clientUsers(clientId)),
-            ...(propertyId ? await this.recipients.assignedStaff(propertyId) : []),
+            ...(propertyId
+              ? await this.recipients.assignedStaff(propertyId)
+              : []),
           ],
           {
             type: "RENT_OVERDUE",
@@ -125,31 +146,45 @@ export class NotificationEventHandler {
       }
       case DomainEventType.INSPECTION_COMPLETED: {
         if (!clientId) return;
-        await this.notifications.notifyMany(await this.recipients.clientUsers(clientId), {
-          type: "INSPECTION_COMPLETED",
-          title: "Inspection report ready",
-          body: "An inspection on your property is complete and the report is available.",
-          data: { inspectionId: p.inspectionId, reportDocumentId: p.reportDocumentId },
-          sourceEventId: event.id,
-        });
+        await this.notifications.notifyMany(
+          await this.recipients.clientUsers(clientId),
+          {
+            type: "INSPECTION_COMPLETED",
+            title: "Inspection report ready",
+            body: "An inspection on your property is complete and the report is available.",
+            data: {
+              inspectionId: p.inspectionId,
+              reportDocumentId: p.reportDocumentId,
+            },
+            sourceEventId: event.id,
+          },
+        );
         break;
       }
       case DomainEventType.STATEMENT_GENERATED: {
         if (!clientId) return;
-        await this.notifications.notifyMany(await this.recipients.clientUsers(clientId), {
-          type: "STATEMENT_GENERATED",
-          title: "New owner statement",
-          body: "Your latest owner statement is available to view and download.",
-          data: { statementId: p.statementId, netAmountMinor: p.netAmountMinor },
-          sourceEventId: event.id,
-          channels: ["EMAIL"],
-        });
+        await this.notifications.notifyMany(
+          await this.recipients.clientUsers(clientId),
+          {
+            type: "STATEMENT_GENERATED",
+            title: "New owner statement",
+            body: "Your latest owner statement is available to view and download.",
+            data: {
+              statementId: p.statementId,
+              netAmountMinor: p.netAmountMinor,
+            },
+            sourceEventId: event.id,
+            channels: ["EMAIL"],
+          },
+        );
         break;
       }
       case DomainEventType.DOCUMENT_EXPIRING: {
         const recips = [
           ...(clientId ? await this.recipients.clientUsers(clientId) : []),
-          ...(propertyId ? await this.recipients.assignedStaff(propertyId) : []),
+          ...(propertyId
+            ? await this.recipients.assignedStaff(propertyId)
+            : []),
         ];
         await this.notifications.notifyMany(recips, {
           type: "DOCUMENT_EXPIRING",
@@ -163,7 +198,9 @@ export class NotificationEventHandler {
       case DomainEventType.LEASE_EXPIRING: {
         const recips = [
           ...(clientId ? await this.recipients.clientUsers(clientId) : []),
-          ...(propertyId ? await this.recipients.assignedStaff(propertyId) : []),
+          ...(propertyId
+            ? await this.recipients.assignedStaff(propertyId)
+            : []),
         ];
         await this.notifications.notifyMany(recips, {
           type: "LEASE_EXPIRING",
@@ -176,13 +213,16 @@ export class NotificationEventHandler {
       }
       case DomainEventType.HEALTH_SCORE_UPDATED: {
         if (!clientId) return;
-        await this.notifications.notifyMany(await this.recipients.clientUsers(clientId), {
-          type: "HEALTH_SCORE_UPDATED",
-          title: "Property Health Score updated",
-          body: `Your property's health score is now ${String(p.score ?? "")}/100.`,
-          data: { propertyId, score: p.score },
-          sourceEventId: event.id,
-        });
+        await this.notifications.notifyMany(
+          await this.recipients.clientUsers(clientId),
+          {
+            type: "HEALTH_SCORE_UPDATED",
+            title: "Property Health Score updated",
+            body: `Your property's health score is now ${String(p.score ?? "")}/100.`,
+            data: { propertyId, score: p.score },
+            sourceEventId: event.id,
+          },
+        );
         break;
       }
       case DomainEventType.MESSAGE_RECEIVED: {

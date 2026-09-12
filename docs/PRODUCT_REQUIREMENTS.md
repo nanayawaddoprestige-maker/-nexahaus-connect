@@ -38,19 +38,19 @@ just to learn basic property status. Show explicit dates: _"Last inspected: 3 Se
 
 ## 4. Roles (RBAC)
 
-| Role | Scope summary |
-|---|---|
-| `SUPER_ADMIN` | Full platform access + configuration |
-| `MANAGING_DIRECTOR` | Company-wide operational & financial visibility, strategic dashboards, approvals, reports |
-| `PROPERTY_MANAGER` | Assigned clients/properties: tenants, leases, maintenance, inspections, comms, operations |
-| `FINANCE_OFFICER` | Rent, payments, expenses, statements, reconciliations, financial reporting |
-| `MAINTENANCE_OFFICER` | Maintenance requests, work orders, vendors, scheduling, completion reports |
-| `INSPECTOR` | Assigned inspections: forms, photos/videos, reports |
-| `LEASING_OFFICER` | Leasing workflow (where licensed): applications, lease records, vacancy |
-| `SUPPORT_STAFF` | Limited client/property communication |
-| `VENDOR` | Only assigned work orders |
-| `OWNER` | Own portfolio only |
-| `TENANT` | Own tenancy/property information only |
+| Role                  | Scope summary                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `SUPER_ADMIN`         | Full platform access + configuration                                                      |
+| `MANAGING_DIRECTOR`   | Company-wide operational & financial visibility, strategic dashboards, approvals, reports |
+| `PROPERTY_MANAGER`    | Assigned clients/properties: tenants, leases, maintenance, inspections, comms, operations |
+| `FINANCE_OFFICER`     | Rent, payments, expenses, statements, reconciliations, financial reporting                |
+| `MAINTENANCE_OFFICER` | Maintenance requests, work orders, vendors, scheduling, completion reports                |
+| `INSPECTOR`           | Assigned inspections: forms, photos/videos, reports                                       |
+| `LEASING_OFFICER`     | Leasing workflow (where licensed): applications, lease records, vacancy                   |
+| `SUPPORT_STAFF`       | Limited client/property communication                                                     |
+| `VENDOR`              | Only assigned work orders                                                                 |
+| `OWNER`               | Own portfolio only                                                                        |
+| `TENANT`              | Own tenancy/property information only                                                     |
 
 Authorization = **role permissions + resource-level permissions + client assignment +
 property assignment + least privilege**, enforced **server-side**. UI hiding is not a
@@ -66,6 +66,7 @@ query enforces the ownership/tenant boundary. Unauthorized access returns a gene
 ## 6. Module scope
 
 ### 6.1 Owner application
+
 Navigation: Dashboard · My Properties · Tenants · Rent & Finance · Maintenance ·
 Inspections · Documents · Messages · Approvals · Reports · Property Health · Profile ·
 Settings.
@@ -78,6 +79,7 @@ collection rate, expenses, occupancy trend, maintenance cost, health trend. Date
 this month / 3 / 6 / 12 months / custom.
 
 ### 6.2 Properties
+
 Unique `Property ID` (`NH-000001`). Profile: basic info, management terms (assigned
 manager, agreement, **configurable management fee**, inspection frequency, maintenance
 approval threshold), financials (rental value, expected/collected/outstanding, expenses,
@@ -89,18 +91,21 @@ Structure: Property → Building → Floor → Unit. Property types: office, ret
 mixed-use, apartment, house, land, short-stay, other.
 
 ### 6.3 Property Health Score (0–100)
+
 Transparent, **admin-configurable** weights. Components: occupancy, rent collection,
 maintenance, property condition, tenant satisfaction, documentation, security/compliance,
 financial performance. Store score, date, component scores, methodology version,
 recommendations. History retained. **No business rules hardcoded in frontend.**
 
 ### 6.4 Property Rescue
+
 Identifies underperforming properties; examines occupancy, pricing, vacancy, collection,
 maintenance backlog, condition, tenant issues, security, documentation, expenses, revenue
 leakage, estimated market rent, asset performance. Produces a stored **Property Rescue
 Report** (overall score, problems, ranked recommendations); PDF export.
 
 ### 6.5 Tenants & leases
+
 Tenant profile with protected sensitive fields. Lease entity: property, unit, tenant,
 owner, dates, rent, frequency, deposit, renewal, notice period, document, status
 (`DRAFT, ACTIVE, EXPIRING, EXPIRED, TERMINATED, RENEWED`). Automated reminders for expiry
@@ -108,6 +113,7 @@ owner, dates, rent, frequency, deposit, renewal, notice period, document, status
 auto-enforced.
 
 ### 6.6 Rent & payments
+
 Schedules: monthly / quarterly / biannual / annual / configurable. Rent state: expected,
 paid, partially paid, outstanding, overdue, waived, refunded. Every payment records id,
 tenant, property, unit, owner, amount, currency, date, method, reference, status,
@@ -116,6 +122,7 @@ Online, Other. System **discourages and phases out manual cash**. Duplicate webh
 must never create duplicate payments.
 
 ### 6.7 Finance & statements
+
 Owner financial dashboard: gross rental income, management fees, maintenance expenses,
 other expenses, **net owner income/distribution**, outstanding rent, vacancy loss.
 Monthly **owner statements** (branded, opening→closing balance, all lines), viewable
@@ -125,11 +132,13 @@ Expenses: id, property, vendor, category, description, amount, tax, invoice, dat
 approval status, payment status, created/approved by, audit history.
 
 ### 6.8 Owner approvals
+
 Configurable thresholds (e.g. maintenance cost > GHS X → `PENDING OWNER APPROVAL`). Owner
 sees property, issue, estimated cost, recommended vendor, photos, expected completion.
 Actions: Approve / Decline / Request more information. **Every decision logged.**
 
 ### 6.9 Maintenance
+
 Lifecycle: `REPORTED, ACKNOWLEDGED, ASSIGNED, SCHEDULED, IN_PROGRESS, AWAITING_APPROVAL,
 COMPLETED, VERIFIED, CLOSED, CANCELLED`. Request carries category, priority
 (`LOW/MEDIUM/HIGH/URGENT`), description, media, assignee, vendor, estimated/approved/actual
@@ -138,6 +147,7 @@ maintenance: recurring schedules with automatic reminders. Notifications on assi
 completion (with report + photos).
 
 ### 6.10 Inspections
+
 Types: `INITIAL, ROUTINE, MOVE_IN, MOVE_OUT, MAINTENANCE, EMERGENCY, PRE_HANDOVER,
 POST_MAINTENANCE, ANNUAL`. Workflow: `ASSIGNED, SCHEDULED, IN_PROGRESS, COMPLETED,
 REVIEWED, REPORT_ISSUED`. Configurable area/item templates; each item rated `GOOD,
@@ -145,23 +155,27 @@ ATTENTION_REQUIRED, URGENT, NOT_APPLICABLE` with photos/videos/notes/recommendat
 inspector signature, owner review. Branded PDF report.
 
 ### 6.11 Document Vault
+
 Categories per spec §26. Types: PDF, JPG, PNG, WEBP, DOCX. File-type validation, size
 limits, malware-scan hook, private storage, **signed/expiring URLs only** (never public
 permanent URLs), access control, expiry dates + notifications, versioning, access audit
 log.
 
 ### 6.12 Communication centre
+
 In-app threads: Owner↔NexaHaus, Tenant↔NexaHaus, Internal staff, Maintenance. Text,
 images, attachments, timestamps, read status, notifications. No messaging outside
 authorization scope.
 
 ### 6.13 Notification centre
+
 Events per spec §29/§51 (`RENT_RECEIVED, RENT_OVERDUE, MAINTENANCE_*, INSPECTION_COMPLETED,
 APPROVAL_REQUIRED, DOCUMENT_EXPIRING, LEASE_EXPIRING, STATEMENT_GENERATED,
 MESSAGE_RECEIVED, HEALTH_SCORE_UPDATED, …`). Channels: in-app, push, email, SMS, WhatsApp.
 Event-driven; user-configurable preferences.
 
 ### 6.14 Reporting & asset performance
+
 Owner reports: portfolio summary, rental income, collection, outstanding, expenses, net
 income, occupancy, maintenance, health, inspection, asset performance. Management reports:
 portfolio counts/status, occupancy/vacancy, collection, outstanding, maintenance volume &
@@ -170,10 +184,12 @@ CSV/PDF export. Asset performance clearly labels **actual vs estimate vs assumpt
 manually-entered valuation**. Never present an estimate as a verified valuation.
 
 ### 6.15 Admin dashboard
+
 Navigation per spec §42. Overview KPIs + operational alerts (urgent maintenance, approvals
 due, documents expiring, inspections due, new leads).
 
 ### 6.16 CRM & pre-launch marketing
+
 Lead pipeline (Lead → Prospect → Consultation → Assessment → Proposal → Onboarding →
 Active/Inactive). Lead sources & campaigns. Configurable **lead scoring** → grades
 A/B/C/D. Property Owner Survey (configurable questions, consent). Public **Property Health
@@ -182,12 +198,14 @@ assessment. Early Access, Founding 100, Property Owner Club scaffolding. Referra
 (no financial commissions without approval).
 
 ### 6.17 Tenant portal
+
 Architecture in place from Phase 1; screens delivered Phase 8. Tenant sees current
 property, lease, rent, payment history, maintenance, documents, messages, notifications;
 can report maintenance, pay, download receipts, view lease, message NexaHaus. **Never**
 sees owner financials.
 
 ### 6.18 Client & property onboarding
+
 Digital 10-step client onboarding with progress indicator (account → verify → profile →
 KYC → properties → documents → management agreement → e-sign where lawful → onboarding
 inspection → `ACTIVE`). Property onboarding checklist with completion percentage.

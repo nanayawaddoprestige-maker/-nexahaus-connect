@@ -42,7 +42,9 @@ export function HealthGauge({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduce || typeof IntersectionObserver === "undefined") {
       setDisplay(clamped);
       return;
@@ -127,7 +129,9 @@ export function HealthGauge({
       <span className="mt-1 text-sm font-medium" style={{ color: stroke }}>
         {label}
       </span>
-      {caption ? <span className="mt-1 text-xs text-ink-subtle">{caption}</span> : null}
+      {caption ? (
+        <span className="mt-1 text-xs text-ink-subtle">{caption}</span>
+      ) : null}
     </div>
   );
 }

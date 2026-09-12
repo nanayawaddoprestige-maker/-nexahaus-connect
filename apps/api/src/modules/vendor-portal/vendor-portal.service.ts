@@ -21,7 +21,8 @@ export class VendorPortalService {
   ) {}
 
   private vendorIdOrThrow(user: AuthUser): string {
-    if (!user.vendorId) throw AppError.forbidden("No vendor account is linked to this login.");
+    if (!user.vendorId)
+      throw AppError.forbidden("No vendor account is linked to this login.");
     return user.vendorId;
   }
 
@@ -29,7 +30,17 @@ export class VendorPortalService {
     const vendorId = this.vendorIdOrThrow(user);
     const v = await this.prisma.vendor.findUniqueOrThrow({
       where: { id: vendorId },
-      select: { id: true, ref: true, name: true, categories: true, phone: true, email: true, rating: true, status: true, insuranceExpiryAt: true },
+      select: {
+        id: true,
+        ref: true,
+        name: true,
+        categories: true,
+        phone: true,
+        email: true,
+        rating: true,
+        status: true,
+        insuranceExpiryAt: true,
+      },
     });
     return {
       ...v,
@@ -43,7 +54,9 @@ export class VendorPortalService {
     const rows = await this.prisma.workOrder.findMany({
       where: {
         vendorId,
-        ...(openOnly ? { status: { in: ["DRAFT", "ISSUED", "IN_PROGRESS"] } } : {}),
+        ...(openOnly
+          ? { status: { in: ["DRAFT", "ISSUED", "IN_PROGRESS"] } }
+          : {}),
       },
       orderBy: [{ scheduledFor: "asc" }, { createdAt: "desc" }],
       include: {
@@ -69,7 +82,9 @@ export class VendorPortalService {
         status: w.status,
         scheduledFor: w.scheduledFor?.toISOString() ?? null,
         completedAt: w.completedAt?.toISOString() ?? null,
-        cost: w.costMinor ? { minor: w.costMinor.toString(), currency: w.currency ?? "GHS" } : null,
+        cost: w.costMinor
+          ? { minor: w.costMinor.toString(), currency: w.currency ?? "GHS" }
+          : null,
         request: {
           id: w.request.id,
           ref: w.request.ref,
@@ -101,7 +116,10 @@ export class VendorPortalService {
             status: true,
             property: { select: { name: true, addressLine: true, city: true } },
             unit: { select: { label: true } },
-            media: { where: { kind: { in: ["REPORTED", "BEFORE"] } }, select: { documentId: true, kind: true } },
+            media: {
+              where: { kind: { in: ["REPORTED", "BEFORE"] } },
+              select: { documentId: true, kind: true },
+            },
           },
         },
       },
@@ -114,7 +132,9 @@ export class VendorPortalService {
       scheduledFor: w.scheduledFor?.toISOString() ?? null,
       startedAt: w.startedAt?.toISOString() ?? null,
       completedAt: w.completedAt?.toISOString() ?? null,
-      cost: w.costMinor ? { minor: w.costMinor.toString(), currency: w.currency ?? "GHS" } : null,
+      cost: w.costMinor
+        ? { minor: w.costMinor.toString(), currency: w.currency ?? "GHS" }
+        : null,
       completionNotes: w.completionNotes,
       request: {
         ref: w.request.ref,
@@ -125,7 +145,10 @@ export class VendorPortalService {
         status: w.request.status,
         location: `${w.request.property.name}${w.request.unit ? ` · ${w.request.unit.label}` : ""}`,
         address: `${w.request.property.addressLine}, ${w.request.property.city}`,
-        photos: w.request.media.map((m) => ({ documentId: m.documentId, kind: m.kind })),
+        photos: w.request.media.map((m) => ({
+          documentId: m.documentId,
+          kind: m.kind,
+        })),
       },
     };
   }
@@ -134,14 +157,20 @@ export class VendorPortalService {
     const vendorId = this.vendorIdOrThrow(user);
     const w = await this.prisma.workOrder.findFirst({
       where: { id, vendorId },
-      include: { request: { select: { id: true, status: true, propertyId: true } } },
+      include: {
+        request: { select: { id: true, status: true, propertyId: true } },
+      },
     });
     if (!w) throw AppError.notFound("work order");
     if (!["DRAFT", "ISSUED"].includes(w.status)) {
-      throw AppError.illegalTransition(`A ${w.status} work order cannot be started.`);
+      throw AppError.illegalTransition(
+        `A ${w.status} work order cannot be started.`,
+      );
     }
     if (w.request.status === "AWAITING_APPROVAL") {
-      throw AppError.approvalRequired("This job is still awaiting owner approval.");
+      throw AppError.approvalRequired(
+        "This job is still awaiting owner approval.",
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -187,12 +216,24 @@ export class VendorPortalService {
     const vendorId = this.vendorIdOrThrow(user);
     const w = await this.prisma.workOrder.findFirst({
       where: { id, vendorId },
-      include: { request: { select: { id: true, status: true, propertyId: true, property: { select: { clientId: true } } } } },
+      include: {
+        request: {
+          select: {
+            id: true,
+            status: true,
+            propertyId: true,
+            property: { select: { clientId: true } },
+          },
+        },
+      },
     });
     if (!w) throw AppError.notFound("work order");
-    if (w.status === "COMPLETED") throw AppError.conflict("This work order is already completed.");
+    if (w.status === "COMPLETED")
+      throw AppError.conflict("This work order is already completed.");
     if (w.request.status === "AWAITING_APPROVAL") {
-      throw AppError.approvalRequired("This job is still awaiting owner approval.");
+      throw AppError.approvalRequired(
+        "This job is still awaiting owner approval.",
+      );
     }
     const actualMinor = BigInt(input.actualCost.minor);
 

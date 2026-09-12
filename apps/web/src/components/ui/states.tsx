@@ -3,7 +3,9 @@ import { cn } from "@/lib/cn";
 import { Button } from "./button";
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-navy-50", className)} />;
+  return (
+    <div className={cn("animate-pulse rounded-md bg-navy-50", className)} />
+  );
 }
 
 export function LoadingCards({ count = 4 }: { count?: number }) {
@@ -76,7 +78,12 @@ export function ErrorState({
       <h3 className="text-sm font-semibold text-navy-900">{title}</h3>
       <p className="mt-1 max-w-sm text-sm text-ink-muted">{description}</p>
       {onRetry ? (
-        <Button className="mt-4" size="sm" variant="secondary" onClick={onRetry}>
+        <Button
+          className="mt-4"
+          size="sm"
+          variant="secondary"
+          onClick={onRetry}
+        >
           Retry
         </Button>
       ) : null}
@@ -97,7 +104,9 @@ export function PageHeader({
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-xl font-semibold text-navy-900">{title}</h1>
-        {subtitle ? <p className="mt-1 text-sm text-ink-muted">{subtitle}</p> : null}
+        {subtitle ? (
+          <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
+        ) : null}
       </div>
       {action}
     </div>

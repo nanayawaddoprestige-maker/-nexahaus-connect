@@ -15,16 +15,32 @@ import { propertyScopeWhere, propertyInScope } from "../authz/scope.util";
 import { AuthUserService } from "../authz/auth-user.service";
 import { periodRange, type FinancePeriod } from "../finance/period.util";
 
-const SORTABLE = ["createdAt", "name", "ref", "status", "city", "region"] as const;
+const SORTABLE = [
+  "createdAt",
+  "name",
+  "ref",
+  "status",
+  "city",
+  "region",
+] as const;
 
 interface AgreementInput {
-  feeType: "PERCENT_OF_COLLECTED" | "PERCENT_OF_EXPECTED" | "FIXED_MONTHLY" | "CUSTOM";
+  feeType:
+    | "PERCENT_OF_COLLECTED"
+    | "PERCENT_OF_EXPECTED"
+    | "FIXED_MONTHLY"
+    | "CUSTOM";
   feePercent?: number;
   feeFixedMinor?: string;
   feeCurrency: string;
   startDate: string;
   endDate?: string;
-  inspectionFrequency: "MONTHLY" | "QUARTERLY" | "BIANNUAL" | "ANNUAL" | "CUSTOM";
+  inspectionFrequency:
+    | "MONTHLY"
+    | "QUARTERLY"
+    | "BIANNUAL"
+    | "ANNUAL"
+    | "CUSTOM";
   maintenanceApprovalThresholdMinor: string;
   thresholdCurrency: string;
   documentId?: string;
@@ -32,7 +48,12 @@ interface AgreementInput {
 
 interface AssignManagerInput {
   userId: string;
-  role: "PROPERTY_MANAGER" | "MAINTENANCE_OFFICER" | "INSPECTOR" | "LEASING_OFFICER" | "SUPPORT_STAFF";
+  role:
+    | "PROPERTY_MANAGER"
+    | "MAINTENANCE_OFFICER"
+    | "INSPECTOR"
+    | "LEASING_OFFICER"
+    | "SUPPORT_STAFF";
   startDate: string;
   endDate?: string;
 }
@@ -58,7 +79,9 @@ export class PropertiesService {
         propertyScopeWhere(user),
         query.status ? { status: query.status } : {},
         query.type ? { type: query.type } : {},
-        query.region ? { region: { equals: query.region, mode: "insensitive" } } : {},
+        query.region
+          ? { region: { equals: query.region, mode: "insensitive" } }
+          : {},
         query.city ? { city: { equals: query.city, mode: "insensitive" } } : {},
         query.clientId ? { clientId: query.clientId } : {},
         query.managerId
@@ -158,7 +181,9 @@ export class PropertiesService {
             user: { select: { id: true, fullName: true } },
           },
         },
-        _count: { select: { units: true, maintenanceRequests: true, inspections: true } },
+        _count: {
+          select: { units: true, maintenanceRequests: true, inspections: true },
+        },
       },
     });
 
@@ -166,26 +191,40 @@ export class PropertiesService {
       throw AppError.notFound("property");
     }
 
-    const [occupancy, financeThisMonth, latestInspection, latestHealth, lastRent] =
-      await Promise.all([
-        this.occupancyByProperty([id]),
-        this.financeByProperty([id], periodRange("this_month")),
-        this.prisma.inspection.findFirst({
-          where: { propertyId: id, status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] } },
-          orderBy: { completedAt: "desc" },
-          select: { id: true, ref: true, type: true, completedAt: true, overallCondition: true },
-        }),
-        this.prisma.propertyHealthScore.findFirst({
-          where: { propertyId: id },
-          orderBy: { scoredAt: "desc" },
-          select: { score: true, scoredAt: true, methodologyVersion: true },
-        }),
-        this.prisma.payment.findFirst({
-          where: { propertyId: id, status: "CONFIRMED" },
-          orderBy: { receivedAt: "desc" },
-          select: { receivedAt: true, amountMinor: true, currency: true },
-        }),
-      ]);
+    const [
+      occupancy,
+      financeThisMonth,
+      latestInspection,
+      latestHealth,
+      lastRent,
+    ] = await Promise.all([
+      this.occupancyByProperty([id]),
+      this.financeByProperty([id], periodRange("this_month")),
+      this.prisma.inspection.findFirst({
+        where: {
+          propertyId: id,
+          status: { in: ["COMPLETED", "REVIEWED", "REPORT_ISSUED"] },
+        },
+        orderBy: { completedAt: "desc" },
+        select: {
+          id: true,
+          ref: true,
+          type: true,
+          completedAt: true,
+          overallCondition: true,
+        },
+      }),
+      this.prisma.propertyHealthScore.findFirst({
+        where: { propertyId: id },
+        orderBy: { scoredAt: "desc" },
+        select: { score: true, scoredAt: true, methodologyVersion: true },
+      }),
+      this.prisma.payment.findFirst({
+        where: { propertyId: id, status: "CONFIRMED" },
+        orderBy: { receivedAt: "desc" },
+        select: { receivedAt: true, amountMinor: true, currency: true },
+      }),
+    ]);
 
     return {
       ...serializeProperty(property),
@@ -271,9 +310,7 @@ export class PropertiesService {
       collectedRentMinor: finance.collectedRentMinor,
       outstandingRentMinor: finance.outstandingRentMinor,
       maintenanceExpenseMinor: maintenanceExpenseMinor.toString(),
-      managementFee: feeAgreement
-        ? serializeAgreement(feeAgreement)
-        : null,
+      managementFee: feeAgreement ? serializeAgreement(feeAgreement) : null,
     };
   }
 
@@ -350,7 +387,11 @@ export class PropertiesService {
           action: "property.create",
           resourceType: "property",
           resourceId: created.id,
-          after: { ref: created.ref, name: created.name, clientId: input.clientId },
+          after: {
+            ref: created.ref,
+            name: created.name,
+            clientId: input.clientId,
+          },
         },
         tx,
       );
@@ -381,7 +422,9 @@ export class PropertiesService {
       throw AppError.notFound("property");
     }
     if (user.roles.includes("OWNER") && !user.scopeExempt) {
-      throw AppError.forbidden("Property details are maintained by your NexaHaus manager.");
+      throw AppError.forbidden(
+        "Property details are maintained by your NexaHaus manager.",
+      );
     }
 
     const data: Prisma.PropertyUpdateInput = {
@@ -437,7 +480,9 @@ export class PropertiesService {
           propertyId,
           feeType: input.feeType,
           feePercent: input.feePercent ?? null,
-          feeFixedMinor: input.feeFixedMinor ? BigInt(input.feeFixedMinor) : null,
+          feeFixedMinor: input.feeFixedMinor
+            ? BigInt(input.feeFixedMinor)
+            : null,
           feeCurrency: input.feeCurrency,
           startDate: new Date(input.startDate),
           endDate: input.endDate ? new Date(input.endDate) : null,
@@ -491,7 +536,8 @@ export class PropertiesService {
       where: { id: input.userId, deletedAt: null, status: "ACTIVE" },
       select: { id: true, fullName: true },
     });
-    if (!staff) throw AppError.validation("That staff member could not be found.");
+    if (!staff)
+      throw AppError.validation("That staff member could not be found.");
 
     const assignment = await this.prisma.propertyAssignment.upsert({
       where: {
@@ -592,7 +638,9 @@ export class PropertiesService {
       where: { id: { in: clientIds }, deletedAt: null },
     });
     if (found !== new Set(clientIds).size) {
-      throw AppError.validation("One or more owner clients could not be found.");
+      throw AppError.validation(
+        "One or more owner clients could not be found.",
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -611,7 +659,12 @@ export class PropertiesService {
           action: "property.owners.set",
           resourceType: "property",
           resourceId: propertyId,
-          after: { owners: owners.map((o) => ({ clientId: o.clientId, share: o.sharePercent })) },
+          after: {
+            owners: owners.map((o) => ({
+              clientId: o.clientId,
+              share: o.sharePercent,
+            })),
+          },
         },
         tx,
       );
@@ -626,21 +679,28 @@ export class PropertiesService {
   private async occupancyByProperty(
     propertyIds: string[],
   ): Promise<Map<string, { total: number; occupied: number; rate: number }>> {
-    const result = new Map<string, { total: number; occupied: number; rate: number }>();
+    const result = new Map<
+      string,
+      { total: number; occupied: number; rate: number }
+    >();
     if (propertyIds.length === 0) return result;
     const grouped = await this.prisma.unit.groupBy({
       by: ["propertyId", "status"],
       where: { propertyId: { in: propertyIds }, deletedAt: null },
       _count: { _all: true },
     });
-    for (const id of propertyIds) result.set(id, { total: 0, occupied: 0, rate: 0 });
+    for (const id of propertyIds)
+      result.set(id, { total: 0, occupied: 0, rate: 0 });
     for (const row of grouped) {
       const entry = result.get(row.propertyId)!;
       entry.total += row._count._all;
       if (row.status === "OCCUPIED") entry.occupied += row._count._all;
     }
     for (const entry of result.values()) {
-      entry.rate = entry.total === 0 ? 0 : Math.round((entry.occupied / entry.total) * 100);
+      entry.rate =
+        entry.total === 0
+          ? 0
+          : Math.round((entry.occupied / entry.total) * 100);
     }
     return result;
   }
@@ -716,12 +776,20 @@ function serializeProperty(p: {
     name: p.name,
     type: p.type,
     status: p.status,
-    address: { line: p.addressLine, city: p.city, region: p.region, country: p.country },
+    address: {
+      line: p.addressLine,
+      city: p.city,
+      region: p.region,
+      country: p.country,
+    },
     bedrooms: p.bedrooms,
     bathrooms: p.bathrooms,
     unitCount: p.unitCount,
     estimatedValue: p.estimatedValueMinor
-      ? { minor: p.estimatedValueMinor.toString(), currency: p.estimatedValueCurrency ?? "GHS" }
+      ? {
+          minor: p.estimatedValueMinor.toString(),
+          currency: p.estimatedValueCurrency ?? "GHS",
+        }
       : null,
     onboardingComplete: p.onboardingComplete,
     createdAt: p.createdAt.toISOString(),

@@ -17,11 +17,16 @@ import { HttpExceptionFilter } from "../src/common/http-exception.filter";
 import { ResponseInterceptor } from "../src/common/response.interceptor";
 
 const prisma = new PrismaClient();
-const SECRET = process.env.PAYMENT_WEBHOOK_SECRET ?? "test-webhook-secret-0123456789abcdef0123";
+const SECRET =
+  process.env.PAYMENT_WEBHOOK_SECRET ??
+  "test-webhook-secret-0123456789abcdef0123";
 const stamp = Date.now();
 
 function sign(body: string): string {
-  return "sha256=" + createHmac("sha256", SECRET).update(Buffer.from(body)).digest("hex");
+  return (
+    "sha256=" +
+    createHmac("sha256", SECRET).update(Buffer.from(body)).digest("hex")
+  );
 }
 
 describe("Payment webhook (e2e)", () => {
@@ -32,7 +37,9 @@ describe("Payment webhook (e2e)", () => {
   let clientId: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix("api/v1", { exclude: ["health", "ready"] });
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -40,7 +47,12 @@ describe("Payment webhook (e2e)", () => {
     await app.init();
 
     const client = await prisma.client.create({
-      data: { ref: `CL-WH-${stamp}`, type: "INDIVIDUAL", displayName: "WH Client", status: "ACTIVE" },
+      data: {
+        ref: `CL-WH-${stamp}`,
+        type: "INDIVIDUAL",
+        displayName: "WH Client",
+        status: "ACTIVE",
+      },
     });
     clientId = client.id;
     const property = await prisma.property.create({
@@ -58,10 +70,20 @@ describe("Payment webhook (e2e)", () => {
     });
     propertyId = property.id;
     const unit = await prisma.unit.create({
-      data: { propertyId, ref: `NHU-WH-${stamp}`, label: "Whole", status: "OCCUPIED" },
+      data: {
+        propertyId,
+        ref: `NHU-WH-${stamp}`,
+        label: "Whole",
+        status: "OCCUPIED",
+      },
     });
     const tenant = await prisma.tenant.create({
-      data: { ref: `TN-WH-${stamp}`, fullName: "WH Tenant", phone: "+233209990001", status: "ACTIVE" },
+      data: {
+        ref: `TN-WH-${stamp}`,
+        fullName: "WH Tenant",
+        phone: "+233209990001",
+        status: "ACTIVE",
+      },
     });
     leaseRef = `LS-WH${String(stamp).slice(-4)}`;
     const lease = await prisma.lease.create({
@@ -100,7 +122,9 @@ describe("Payment webhook (e2e)", () => {
   });
 
   afterAll(async () => {
-    await prisma.paymentAllocation.deleteMany({ where: { payment: { propertyId } } });
+    await prisma.paymentAllocation.deleteMany({
+      where: { payment: { propertyId } },
+    });
     await prisma.payment.deleteMany({ where: { propertyId } });
     await prisma.transaction.deleteMany({ where: { propertyId } });
     await prisma.paymentProviderWebhookEvent.deleteMany({
@@ -154,7 +178,9 @@ describe("Payment webhook (e2e)", () => {
 
     const payments = await prisma.payment.findMany({ where: { propertyId } });
     expect(payments).toHaveLength(1);
-    const txns = await prisma.transaction.findMany({ where: { propertyId, type: "RENT_PAYMENT" } });
+    const txns = await prisma.transaction.findMany({
+      where: { propertyId, type: "RENT_PAYMENT" },
+    });
     expect(txns).toHaveLength(1);
     const charges = await prisma.rentCharge.findMany({
       where: { leaseId },
@@ -179,7 +205,9 @@ describe("Payment webhook (e2e)", () => {
 
     expect(await prisma.payment.count({ where: { propertyId } })).toBe(1);
     expect(
-      await prisma.transaction.count({ where: { propertyId, type: "RENT_PAYMENT" } }),
+      await prisma.transaction.count({
+        where: { propertyId, type: "RENT_PAYMENT" },
+      }),
     ).toBe(1);
   });
 
@@ -200,6 +228,8 @@ describe("Payment webhook (e2e)", () => {
     });
     // charge[0] already PAID; charge[1] now 500,000 of 800,000
     expect(charges[1]!.status).toBe("PARTIALLY_PAID");
-    expect((charges[1]!.amountMinor - charges[1]!.paidMinor).toString()).toBe("300000");
+    expect((charges[1]!.amountMinor - charges[1]!.paidMinor).toString()).toBe(
+      "300000",
+    );
   });
 });

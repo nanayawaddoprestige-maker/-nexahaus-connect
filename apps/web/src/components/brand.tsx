@@ -17,7 +17,12 @@ export function BrandMark({ className }: { className?: string }) {
         fill="none"
         strokeLinejoin="round"
       />
-      <path d="M12 22v-6h8v6" className="stroke-gold-400" strokeWidth="2" fill="none" />
+      <path
+        d="M12 22v-6h8v6"
+        className="stroke-gold-400"
+        strokeWidth="2"
+        fill="none"
+      />
     </svg>
   );
 }
@@ -29,7 +34,9 @@ export function BrandLockup({ subtle = false }: { subtle?: boolean }) {
       <div className="leading-tight">
         <p className="text-sm font-semibold text-navy-900">NexaHaus Connect</p>
         {!subtle ? (
-          <p className="text-[11px] text-ink-subtle">Managing Properties. Maximizing Assets.</p>
+          <p className="text-[11px] text-ink-subtle">
+            Managing Properties. Maximizing Assets.
+          </p>
         ) : null}
       </div>
     </div>

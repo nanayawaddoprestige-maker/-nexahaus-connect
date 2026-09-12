@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 import type { AuthUser } from "@nexahaus/types";
 import { PrismaService } from "../../prisma/prisma.service";
 import { propertyScopeWhere } from "../authz/scope.util";
-import { periodRange, monthsIn, type FinancePeriod } from "../finance/period.util";
+import {
+  periodRange,
+  monthsIn,
+  type FinancePeriod,
+} from "../finance/period.util";
 import { computeManagementFee } from "../finance/management-fee.util";
 
 /**
@@ -106,9 +110,7 @@ export class DashboardService {
         occupiedProperties,
         vacantProperties,
         occupancyRate:
-          totalUnits === 0
-            ? 0
-            : Math.round((occupiedUnits / totalUnits) * 100),
+          totalUnits === 0 ? 0 : Math.round((occupiedUnits / totalUnits) * 100),
         totalUnits,
         occupiedUnits,
       },
@@ -161,66 +163,78 @@ export class DashboardService {
       return this.emptyFinancials(period, range);
     }
 
-    const [rentPayments, feeTxns, expenseTxns, distributionTxns, rentCharges, vacantUnits] =
-      await Promise.all([
-        this.prisma.transaction.aggregate({
-          where: {
-            propertyId: { in: propertyIds },
-            type: "RENT_PAYMENT",
-            status: "POSTED",
-            occurredAt: { gte: range.start, lt: range.end },
-          },
-          _sum: { amountMinor: true },
-        }),
-        this.prisma.transaction.aggregate({
-          where: {
-            propertyId: { in: propertyIds },
-            type: "MANAGEMENT_FEE",
-            status: "POSTED",
-            occurredAt: { gte: range.start, lt: range.end },
-          },
-          _sum: { amountMinor: true },
-        }),
-        this.prisma.transaction.groupBy({
-          by: ["category"],
-          where: {
-            propertyId: { in: propertyIds },
-            type: "EXPENSE",
-            status: "POSTED",
-            occurredAt: { gte: range.start, lt: range.end },
-          },
-          _sum: { amountMinor: true },
-        }),
-        this.prisma.transaction.aggregate({
-          where: {
-            propertyId: { in: propertyIds },
-            type: "OWNER_DISTRIBUTION",
-            status: "POSTED",
-            occurredAt: { gte: range.start, lt: range.end },
-          },
-          _sum: { amountMinor: true },
-        }),
-        this.prisma.rentCharge.aggregate({
-          where: {
-            propertyId: { in: propertyIds },
-            dueDate: { gte: range.start, lt: range.end },
-            status: { not: "WAIVED" },
-          },
-          _sum: { amountMinor: true, paidMinor: true },
-        }),
-        this.prisma.unit.findMany({
-          where: {
-            propertyId: { in: propertyIds },
-            deletedAt: null,
-            status: { in: ["VACANT", "UNAVAILABLE"] },
-          },
-          select: { marketRentMinor: true },
-        }),
-      ]);
+    const [
+      rentPayments,
+      feeTxns,
+      expenseTxns,
+      distributionTxns,
+      rentCharges,
+      vacantUnits,
+    ] = await Promise.all([
+      this.prisma.transaction.aggregate({
+        where: {
+          propertyId: { in: propertyIds },
+          type: "RENT_PAYMENT",
+          status: "POSTED",
+          occurredAt: { gte: range.start, lt: range.end },
+        },
+        _sum: { amountMinor: true },
+      }),
+      this.prisma.transaction.aggregate({
+        where: {
+          propertyId: { in: propertyIds },
+          type: "MANAGEMENT_FEE",
+          status: "POSTED",
+          occurredAt: { gte: range.start, lt: range.end },
+        },
+        _sum: { amountMinor: true },
+      }),
+      this.prisma.transaction.groupBy({
+        by: ["category"],
+        where: {
+          propertyId: { in: propertyIds },
+          type: "EXPENSE",
+          status: "POSTED",
+          occurredAt: { gte: range.start, lt: range.end },
+        },
+        _sum: { amountMinor: true },
+      }),
+      this.prisma.transaction.aggregate({
+        where: {
+          propertyId: { in: propertyIds },
+          type: "OWNER_DISTRIBUTION",
+          status: "POSTED",
+          occurredAt: { gte: range.start, lt: range.end },
+        },
+        _sum: { amountMinor: true },
+      }),
+      this.prisma.rentCharge.aggregate({
+        where: {
+          propertyId: { in: propertyIds },
+          dueDate: { gte: range.start, lt: range.end },
+          status: { not: "WAIVED" },
+        },
+        _sum: { amountMinor: true, paidMinor: true },
+      }),
+      this.prisma.unit.findMany({
+        where: {
+          propertyId: { in: propertyIds },
+          deletedAt: null,
+          status: { in: ["VACANT", "UNAVAILABLE"] },
+        },
+        select: { marketRentMinor: true },
+      }),
+    ]);
 
     const MAINT = new Set([
-      "PLUMBING", "ELECTRICAL", "PAINTING", "AIR_CONDITIONING", "PEST_CONTROL",
-      "REPAIRS", "CLEANING", "LANDSCAPING",
+      "PLUMBING",
+      "ELECTRICAL",
+      "PAINTING",
+      "AIR_CONDITIONING",
+      "PEST_CONTROL",
+      "REPAIRS",
+      "CLEANING",
+      "LANDSCAPING",
     ]);
     let maintenanceMinor = 0n;
     let otherExpensesMinor = 0n;
@@ -265,7 +279,10 @@ export class DashboardService {
       0n,
     );
     const netOwnerIncomeMinor =
-      grossRentalIncomeMinor - managementFeesMinor - maintenanceMinor - otherExpensesMinor;
+      grossRentalIncomeMinor -
+      managementFeesMinor -
+      maintenanceMinor -
+      otherExpensesMinor;
     const distributionsMinor = distributionTxns._sum.amountMinor
       ? -distributionTxns._sum.amountMinor
       : 0n;
@@ -286,7 +303,10 @@ export class DashboardService {
     };
   }
 
-  private emptyFinancials(period: FinancePeriod, range: { start: Date; end: Date }) {
+  private emptyFinancials(
+    period: FinancePeriod,
+    range: { start: Date; end: Date },
+  ) {
     const zero = "0";
     return {
       period,

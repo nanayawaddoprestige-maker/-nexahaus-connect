@@ -12,7 +12,14 @@ import {
   SERVICE_OPTIONS,
   parsePropertyCount,
 } from "@/lib/form-options";
-import { TextInput, SelectInput, TextArea, ConsentCheckbox, Honeypot, FormError } from "./fields";
+import {
+  TextInput,
+  SelectInput,
+  TextArea,
+  ConsentCheckbox,
+  Honeypot,
+  FormError,
+} from "./fields";
 
 const CONSENT_WORDING =
   "I agree that NexaHaus may contact me about my enquiry and its services. I can opt out at any time.";
@@ -45,7 +52,9 @@ const EMPTY: Values = {
 
 export function ContactForm() {
   const [values, setValues] = useState<Values>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof Values | "consent", string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof Values | "consent", string>>
+  >({});
   const [consent, setConsent] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
@@ -53,14 +62,20 @@ export function ContactForm() {
   const [successMsg, setSuccessMsg] = useState("");
   const startedRef = useRef(false);
 
-  const set = (key: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    if (!startedRef.current) {
-      startedRef.current = true;
-      track("form_started", { form: "contact" });
-    }
-    setValues((v) => ({ ...v, [key]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [key]: undefined }));
-  };
+  const set =
+    (key: keyof Values) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) => {
+      if (!startedRef.current) {
+        startedRef.current = true;
+        track("form_started", { form: "contact" });
+      }
+      setValues((v) => ({ ...v, [key]: e.target.value }));
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    };
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,7 +92,10 @@ export function ContactForm() {
       propertyCount: parsePropertyCount(values.propertyCount),
       serviceNeeded: values.serviceNeeded || undefined,
       message: values.message.trim(),
-      preferredContact: values.preferredContact as "EMAIL" | "PHONE" | "WHATSAPP",
+      preferredContact: values.preferredContact as
+        | "EMAIL"
+        | "PHONE"
+        | "WHATSAPP",
       livesInGhana: values.country ? values.country === "Ghana" : undefined,
       consent: { marketing: true as const, wording: CONSENT_WORDING },
     };
@@ -98,11 +116,18 @@ export function ContactForm() {
     }
 
     setStatus("submitting");
-    const result = await submitPublic<{ message: string }>("/contact", parsed.data);
+    const result = await submitPublic<{ message: string }>(
+      "/contact",
+      parsed.data,
+    );
     if (result.ok) {
       track("form_completed", { form: "contact" });
-      track("contact_submitted", { service: payload.serviceNeeded ?? "unspecified" });
-      setSuccessMsg(result.data?.message ?? "Thank you. Your enquiry has been received.");
+      track("contact_submitted", {
+        service: payload.serviceNeeded ?? "unspecified",
+      });
+      setSuccessMsg(
+        result.data?.message ?? "Thank you. Your enquiry has been received.",
+      );
       setStatus("done");
     } else {
       setStatus("idle");
@@ -114,12 +139,28 @@ export function ContactForm() {
     return (
       <div className="rounded-2xl border border-positive/30 bg-positive/5 p-8 text-center">
         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-positive/10 text-positive">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M4 10.5l4 4 8-9"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
-        <p className="mt-3 text-base font-semibold text-navy-900">Enquiry received</p>
-        <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted">{successMsg}</p>
+        <p className="mt-3 text-base font-semibold text-navy-900">
+          Enquiry received
+        </p>
+        <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted">
+          {successMsg}
+        </p>
       </div>
     );
   }
@@ -129,14 +170,69 @@ export function ContactForm() {
       <Honeypot value={honeypot} onChange={setHoneypot} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextInput label="Full name" autoComplete="name" required value={values.name} onChange={set("name")} error={errors.name} />
-        <TextInput label="Email" type="email" autoComplete="email" required value={values.email} onChange={set("email")} error={errors.email} />
-        <TextInput label="Phone" type="tel" inputMode="tel" placeholder="+233…" required value={values.phone} onChange={set("phone")} error={errors.phone} hint="Include the country code." />
-        <SelectInput label="Country" options={COUNTRY_OPTIONS} value={values.country} onChange={set("country")} error={errors.country} />
-        <TextInput label="Property location" placeholder="e.g. East Legon, Accra" value={values.propertyLocation} onChange={set("propertyLocation")} error={errors.propertyLocation} />
-        <SelectInput label="Property type" options={PROPERTY_TYPES} value={values.propertyType} onChange={set("propertyType")} error={errors.propertyType} />
-        <SelectInput label="Number of properties" options={PROPERTY_COUNT_OPTIONS} value={values.propertyCount} onChange={set("propertyCount")} error={errors.propertyCount} />
-        <SelectInput label="Service needed" options={SERVICE_OPTIONS} value={values.serviceNeeded} onChange={set("serviceNeeded")} error={errors.serviceNeeded} />
+        <TextInput
+          label="Full name"
+          autoComplete="name"
+          required
+          value={values.name}
+          onChange={set("name")}
+          error={errors.name}
+        />
+        <TextInput
+          label="Email"
+          type="email"
+          autoComplete="email"
+          required
+          value={values.email}
+          onChange={set("email")}
+          error={errors.email}
+        />
+        <TextInput
+          label="Phone"
+          type="tel"
+          inputMode="tel"
+          placeholder="+233…"
+          required
+          value={values.phone}
+          onChange={set("phone")}
+          error={errors.phone}
+          hint="Include the country code."
+        />
+        <SelectInput
+          label="Country"
+          options={COUNTRY_OPTIONS}
+          value={values.country}
+          onChange={set("country")}
+          error={errors.country}
+        />
+        <TextInput
+          label="Property location"
+          placeholder="e.g. East Legon, Accra"
+          value={values.propertyLocation}
+          onChange={set("propertyLocation")}
+          error={errors.propertyLocation}
+        />
+        <SelectInput
+          label="Property type"
+          options={PROPERTY_TYPES}
+          value={values.propertyType}
+          onChange={set("propertyType")}
+          error={errors.propertyType}
+        />
+        <SelectInput
+          label="Number of properties"
+          options={PROPERTY_COUNT_OPTIONS}
+          value={values.propertyCount}
+          onChange={set("propertyCount")}
+          error={errors.propertyCount}
+        />
+        <SelectInput
+          label="Service needed"
+          options={SERVICE_OPTIONS}
+          value={values.serviceNeeded}
+          onChange={set("serviceNeeded")}
+          error={errors.serviceNeeded}
+        />
       </div>
 
       <TextArea
@@ -150,7 +246,9 @@ export function ContactForm() {
       />
 
       <fieldset>
-        <legend className="mb-1 block text-sm font-medium text-navy-900">Preferred contact method</legend>
+        <legend className="mb-1 block text-sm font-medium text-navy-900">
+          Preferred contact method
+        </legend>
         <div className="flex flex-wrap gap-2">
           {PREFERRED_CONTACT.map((opt) => (
             <label
@@ -176,7 +274,15 @@ export function ContactForm() {
         </div>
       </fieldset>
 
-      <ConsentCheckbox checked={consent} onChange={(v) => { setConsent(v); setErrors((p) => ({ ...p, consent: undefined })); }} wording={CONSENT_WORDING} error={errors.consent} />
+      <ConsentCheckbox
+        checked={consent}
+        onChange={(v) => {
+          setConsent(v);
+          setErrors((p) => ({ ...p, consent: undefined }));
+        }}
+        wording={CONSENT_WORDING}
+        error={errors.consent}
+      />
 
       <FormError message={formError} />
 

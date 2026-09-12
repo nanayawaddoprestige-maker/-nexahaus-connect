@@ -45,7 +45,11 @@ export interface RescueAssessment {
 export interface TabularReport {
   title: string;
   period?: { start: string; end: string };
-  columns: { key: string; label: string; kind?: "money" | "number" | "percent" | "text" }[];
+  columns: {
+    key: string;
+    label: string;
+    kind?: "money" | "number" | "percent" | "text";
+  }[];
   rows: Record<string, string | number>[];
   notes?: string[];
 }

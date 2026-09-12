@@ -53,7 +53,9 @@ export function InsightCard({
             {article.title}
           </Link>
         </h3>
-        <p className="mt-2 line-clamp-3 text-sm text-ink-muted">{article.description}</p>
+        <p className="mt-2 line-clamp-3 text-sm text-ink-muted">
+          {article.description}
+        </p>
         <div className="mt-4 flex items-center gap-2 text-xs text-ink-subtle">
           <time dateTime={article.publishedAt}>
             {DATE_FMT.format(new Date(article.publishedAt))}

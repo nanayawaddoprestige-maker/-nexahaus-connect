@@ -52,7 +52,10 @@ export function consentGranted(category: ConsentCategory): boolean {
   return readConsent()?.[category] === true;
 }
 
-export function writeConsent(choice: { analytics: boolean; marketing: boolean }): ConsentState {
+export function writeConsent(choice: {
+  analytics: boolean;
+  marketing: boolean;
+}): ConsentState {
   const state: ConsentState = {
     necessary: true,
     analytics: choice.analytics,
