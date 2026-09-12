@@ -11,8 +11,9 @@ Last updated: 2026-09-09 · Branch: `feat/marketing-site`
 ## Guardrails (every phase)
 
 - Keep the site production-ready. `tsc` clean; `next build` green (bar the known
-  Windows-only `output:"standalone"` symlink step and the repo-wide `next lint`
-  breakage — see `docs/TECHNICAL_ARCHITECTURE.md` §8).
+  Windows-only `output:"standalone"` symlink step — see
+  `docs/TECHNICAL_ARCHITECTURE.md` §8). `next lint` and `format:check` are
+  fixed repo-wide as of Phase 7.
 - No fabricated facts. Configurable placeholders / "Coming Soon" / launch
   messaging where a real value is missing. Illustrative UI always labelled.
 - Reuse existing tokens, `BrandMark`, `ScoreRing`, UI primitives and the NestJS
@@ -267,15 +268,15 @@ whenever a project key exists.
       the report's own `notes` field documents actual, not billed, income).
       `pnpm lint` now passes clean, repo-wide, matching exactly what CI's
       `static` job runs.
-- [ ] **Found in the process, not yet fixed:** `pnpm format:check` also
-      fails repo-wide — most of the pre-existing codebase (not code touched
-      by this pass) doesn't match the repo's own Prettier config. This is
-      independent of the `next lint` issue and was not listed under "Known
-      blockers" before now. A `prettier --write` across the whole repo does
-      resolve it cleanly (verified), but reformats ~260 files with no
-      semantic change — too large a diff to fold into this pass. CI's
-      `static` job will still fail on `format:check` until that repo-wide
-      reformat is deliberately done (and reviewed) on its own.
+- [x] **`pnpm format:check` fixed repo-wide.** Found while fixing the
+      `next lint` issue above (an independent problem, not previously
+      listed under "Known blockers"): most of the pre-existing codebase
+      didn't match the repo's own Prettier config. Applied
+      `prettier --write` across the whole repo as its own isolated commit —
+      zero logic changes, every diff spot-checked as line-wrapping/
+      quote-style only. `pnpm lint`, `typecheck`, `test` and `next build`
+      all still green; `format:check` now passes clean, matching CI's
+      `static` job.
 - [ ] WCAG 2.2 AA sweep (axe + manual keyboard / SR).
 - [ ] Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 / 1440 / 1920.
 - [ ] Performance: Lighthouse / CWV against the budget; image + font audit.
@@ -308,9 +309,8 @@ whenever a project key exists.
 - ~~`next lint` broken repo-wide (ESLint 9 vs `eslint-config-next@14` +
   canary `eslint-plugin-react-hooks`).~~ Fixed in Phase 7 (flat-config
   migration + plugin overrides) — see that section for the full breakdown.
-- `pnpm format:check` fails repo-wide — found while fixing the above; not
-  fixed (see Phase 7's last bullet: the correct fix is a large, separately
-  reviewed reformat, not something to bundle into an unrelated change).
+- ~~`pnpm format:check` fails repo-wide.~~ Fixed in Phase 7 — a repo-wide
+  `prettier --write`, committed on its own with no logic changes.
 - `output:"standalone"` local build step fails on Windows (symlink EPERM); builds
   clean with `VERCEL=1` and on Linux hosts. Environmental only.
 - Shared packages (`@nexahaus/types`, `@nexahaus/validation`) must be built
