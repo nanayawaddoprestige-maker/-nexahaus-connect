@@ -134,12 +134,14 @@ Org/WebSite; email templates; CSP; a11y/perf sweep.
 - [x] `(marketing)` no longer mounts the auth probe: `auth-context.tsx` now
       skips `api.refresh()` unless the path is under a known portal prefix.
 
-**Blocked / deferred:** the API cannot be built or typechecked — `apps/api/prisma/schema.prisma`
-does not parse (`:2433`, plus a second validation error), so `prisma generate`
-fails and every `apps/api` file that references the Prisma client errors. This
-predates the marketing work and is the API team's to fix. The new
-`modules/public` code follows the established patterns and will compile once the
-client is regenerated. Frontend `next build` is unaffected (web imports only the
+**Resolved:** `apps/api/prisma/schema.prisma` used `/** */` block comments, which
+Prisma's schema language doesn't parse (only `///` / `//`); fixing that surfaced a
+handful of further pre-existing drift between the schema and the service layer
+(non-existent relation includes, a readonly-array filter, an OpenTelemetry API
+mismatch, a Jest module-resolution gap for `packages/*`'s `.js`-suffixed
+specifiers). All fixed — `prisma generate`, `tsc --noEmit` and `pnpm test` are
+green on `apps/api`. See the "Fix Prisma schema parse error…" commit for the
+full list. Frontend `next build` was unaffected throughout (web imports only the
 built `@nexahaus/validation` / `@nexahaus/types`).
 
 ## Phase 4 — NexaHaus Connect preview  ✅ _this pass_
@@ -160,12 +162,27 @@ built `@nexahaus/validation` / `@nexahaus/types`).
       "private by default" data section linking the Privacy Policy, an access
       band (Join Early Access + Client Login), closing CTA band.
 
-## Phase 5 — Insights
+## Phase 5 — Insights  ✅ _this pass_
 
-- Fill `src/content/insights.ts` (4–5 education-first articles, no fabricated
-  data). `/insights` listing (categories, featured), `/insights/[slug]` template
-  (hero, meta, reading time, body renderer, related, lead CTA), `ArticleJsonLd`,
-  share intents, ISR.
+- [x] `src/content/insights.ts` filled with 5 education-first articles (no
+      fabricated statistics, clients or case studies) across Property
+      Management, Asset Management, Diaspora, Maintenance and Ghana Property
+      Market. `getInsight` now also computes `readingMinutes` (previously only
+      `stripBody()`'d list views did, so the detail page silently omitted it).
+- [x] `/insights` listing rebuilt: hero, category filter chips (`?category=`,
+      server-rendered, no client JS), Featured grid, full grid.
+- [x] `/insights/[slug]` template: hero (breadcrumb, category, title, byline,
+      date, reading time), `InsightBlock` renderer (p/h2/h3/ul/quote/callout),
+      `ArticleShare` (WhatsApp/LinkedIn/X intents + copy link — same
+      no-SDK pattern as `WhatsAppButton`), related articles, `ArticleJsonLd`,
+      closing `CtaBand`. `generateStaticParams` prerenders every slug.
+- [x] Homepage `InsightsTeaser` and `sitemap.ts` needed no changes — both
+      already consumed `getFeaturedInsights` / `getAllInsightSlugs`.
+
+**Scope note:** no ISR config added — articles are file-based content that
+only changes on deploy, so `generateStaticParams` (full static generation) is
+sufficient; there is no revalidation need until Insights moves to a CMS/API
+(the seam `getInsight`/`getAllInsights`/etc. already exists for that move).
 
 ## Phase 6 — SEO / analytics / email
 
