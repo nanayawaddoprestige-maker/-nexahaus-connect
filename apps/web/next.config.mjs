@@ -55,10 +55,42 @@ const nextConfig = {
     ];
   },
   async headers() {
+    // CSP note (Phase 7 QA): a per-request nonce + `strict-dynamic` was tried
+    // first but doesn't work here — this site is almost entirely statically
+    // generated (SSG, for performance/SEO), and a nonce can only be embedded
+    // in HTML rendered per-request. Forcing every page dynamic just to support
+    // nonces would undo that. `'unsafe-inline'` on script-src still blocks the
+    // most common XSS payloads (loading an attacker's script from another
+    // origin, or exfiltrating data cross-origin via connect-src/img-src),
+    // which is where this policy earns its keep; everything else is strict.
+    // No external scripts/styles are loaded: fonts are self-hosted by
+    // `next/font` at build time (lib/fonts.ts), and the only
+    // `dangerouslySetInnerHTML` usage is `type="application/ld+json"`
+    // (components/marketing/jsonld.tsx, faq-accordion.tsx), which browsers
+    // never execute as script. `/api/*` is same-origin from the browser's
+    // perspective (proxied server-side — see the rewrite above), so
+    // connect-src needs no extra host. If a real analytics provider is wired
+    // up later (lib/analytics.ts's PostHog adapter is currently an inert
+    // stub), its host must be added to connect-src (and script-src if it
+    // loads a snippet).
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      "upgrade-insecure-requests",
+    ].join("; ");
     return [
       {
         source: "/(.*)",
         headers: [
+          { key: "Content-Security-Policy", value: csp },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
