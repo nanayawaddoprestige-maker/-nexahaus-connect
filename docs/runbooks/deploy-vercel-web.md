@@ -57,6 +57,47 @@ browser talks only to the Vercel domain and the HttpOnly refresh cookie stays fi
 The web app holds no secrets — the access token lives in memory, the refresh token in the
 proxied cookie.
 
+### Marketing site vars
+
+Everything below is `NEXT_PUBLIC_*` (readable in the browser; inlined at build time — a
+Preview vs Production value requires a **redeploy**, not just an env var change). All have
+safe defaults and the UI hides itself rather than showing a placeholder, so none of these
+are required to deploy — set only what's official. Full reference with defaults:
+[`.env.example`](../../.env.example).
+
+```
+NEXT_PUBLIC_SITE_URL=https://www.nexahaus.com   # canonical origin: metadata, canonical URLs, sitemap
+NEXT_PUBLIC_PRE_LAUNCH_MODE=true                # true = "Launching in Accra December 2027" messaging
+NEXT_PUBLIC_LAUNCH_DATE=2027-12-01
+NEXT_PUBLIC_LAUNCH_CITY=Accra
+NEXT_PUBLIC_LAUNCH_LABEL=December 2027
+NEXT_PUBLIC_CLIENT_PORTAL_URL=/login            # point at the Connect app in prod, e.g. https://app.nexahaus.com
+NEXT_PUBLIC_API_BASE=/api/v1/public
+NEXT_PUBLIC_ALLOW_INDEXING=true                 # set false on staging/preview to block all crawlers
+NEXT_PUBLIC_WHATSAPP_NUMBER=                    # E.164 without "+"; blank hides the chat button
+NEXT_PUBLIC_CONTACT_EMAIL=
+NEXT_PUBLIC_CONTACT_PHONE=
+NEXT_PUBLIC_CONTACT_ADDRESS=
+NEXT_PUBLIC_CONTACT_CITY=Accra
+NEXT_PUBLIC_CONTACT_COUNTRY=Ghana
+NEXT_PUBLIC_SOCIAL_LINKEDIN=
+NEXT_PUBLIC_SOCIAL_INSTAGRAM=
+NEXT_PUBLIC_SOCIAL_FACEBOOK=
+NEXT_PUBLIC_SOCIAL_TIKTOK=
+NEXT_PUBLIC_SOCIAL_YOUTUBE=
+NEXT_PUBLIC_ANALYTICS_PROVIDER=noop             # noop (default) or posthog; no IDs hard-coded
+NEXT_PUBLIC_ANALYTICS_KEY=
+NEXT_PUBLIC_ANALYTICS_HOST=
+NEXT_PUBLIC_HERO_IMAGE=                         # root-relative or absolute URL; blank = design fallback
+NEXT_PUBLIC_HERO_IMAGE_ALT=A contemporary residential property in Accra, Ghana
+NEXT_PUBLIC_OG_IMAGE=
+```
+
+Important: **never invent a value** for the contact/social/WhatsApp vars to make the UI look
+more complete — an empty value intentionally hides that element until the real detail is
+official (see the `.env.example` comments). Setting `NEXT_PUBLIC_ALLOW_INDEXING=false` on
+Preview deployments is recommended so unfinished pages don't get crawled.
+
 ## 3. Point the API back at the web origin
 
 On the **API** host, set:

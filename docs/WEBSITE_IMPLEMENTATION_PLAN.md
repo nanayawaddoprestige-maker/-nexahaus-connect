@@ -336,11 +336,52 @@ whenever a project key exists.
       (`lib/fonts.ts`), so neither Lighthouse's image nor font-display
       audits found anything.
 
-## Phase 8 — Acceptance & deploy
+## Phase 8 — Acceptance & deploy ✅ _this pass_
 
-- Walk the brief §68 checklist.
-- Update deploy runbooks with the new `NEXT_PUBLIC_*` vars.
-- `pnpm build` (turbo, full) green on a Linux target.
+- [x] **Walked the brief §68 checklist.** The brief itself isn't in this repo,
+      so the walk was grounded in `docs/WEBSITE_PRD.md`'s own §5-§9
+      requirements instead:
+  - All 19 routes in the §6 page inventory return 200; a non-existent route
+    returns 404; all 4 legacy redirects (`/welcome`, `/health-check`,
+    `/property-rescue-service`, `/resources`) fire correctly.
+  - §7 nav/CTA hierarchy verified against the live rendered header and mobile
+    menu, not just the source: primary nav order (Property Management ·
+    Asset Management · Diaspora · Property Rescue · About · Insights ·
+    Contact), plus Client Login and the primary CTA, matches exactly; the
+    CTA hierarchy in `lib/routes.ts` (`primary`/`secondary`/`tertiary`)
+    matches §7's Request Property Assessment → Join Early Access → Check
+    Your Property Health → Client Login ordering.
+  - Found and fixed a real gap: the honeypot field was validated by nothing
+    server-side, so a bot posting straight to the API bypassed it entirely.
+    `packages/validation/src/crm.ts` now rejects a filled honeypot at the
+    Zod layer on all 5 public forms (`apps/api/src/modules/public/
+honeypot.spec.ts`, 15 cases).
+  - Found and fixed a regression from Phase 7's CSP: the static
+    `script-src 'self' 'unsafe-inline'` policy blocks `next dev`'s
+    eval()-based Fast Refresh, so `pnpm dev` rendered every page via SSR but
+    never hydrated. `apps/web/next.config.mjs` now only drops `'unsafe-eval'`
+    when `NODE_ENV === "production"`; confirmed fixed by a real
+    `pnpm dev` session — clean console, mobile menu opens and is fully
+    interactive.
+  - §8 funnel/consent/attribution and §9 non-functional requirements were
+    already verified in Phases 6-7 (UTM capture, Lighthouse/axe audit,
+    security headers) and re-confirmed here as part of the same pass; §5
+    non-fabrication rules hold (no invented contact details, socials, or
+    photography — all config-gated empty by default, see `.env.example`).
+- [x] **Updated deploy runbooks with the `NEXT_PUBLIC_*` vars.** None of
+      these vars were introduced this pass (all date to Phase 1), but
+      `docs/runbooks/deploy-vercel-web.md` — the runbook that actually owns
+      deploying `apps/web` — never documented them at all. Added a full
+      reference table with descriptions, cross-linked to `.env.example`, and
+      a note against inventing placeholder contact/social values.
+      `deploy-render.md`/`deploy-railway.md` are API/worker-only and
+      `deploy.md`'s Docker flow reads from a `.env.$ENV` file rather than
+      enumerating vars, so neither needed a change.
+- [x] **`pnpm build` (turbo, full) green.** Ran at the repo root (not just
+      `@nexahaus/web`) with `VERCEL=1` — the documented workaround for the
+      Windows-only `output:"standalone"` symlink `EPERM` (see Known
+      blockers below); all 5 build tasks passed. `pnpm lint` and
+      `pnpm typecheck` (9 tasks each, full monorepo) also green.
 
 ---
 
