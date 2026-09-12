@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
+import { routes } from "@/lib/routes";
 
-export const metadata: Metadata = { title: "Terms" };
+export const metadata: Metadata = buildMetadata({
+  title: "Terms",
+  description: "The terms that govern use of the NexaHaus website and its forms.",
+  path: routes.terms,
+});
 
 export default function TermsPage() {
   return (

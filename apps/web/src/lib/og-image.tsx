@@ -2,16 +2,16 @@ import { ImageResponse } from "next/og";
 import { COMPANY } from "@/lib/site-config";
 
 /**
- * Default social share image, generated on the edge runtime (the supported
- * target for `next/og`). Pages that need a bespoke image pass `image` to
- * `buildMetadata`; everything else inherits this.
+ * Shared per-page OG image renderer (edge runtime). The root
+ * `app/opengraph-image.tsx` covers every page by default; a route folder
+ * that wants a distinct card adds its own `opengraph-image.tsx` calling this
+ * with a page-specific headline/eyebrow — Next.js's file convention prefers
+ * the nearest one up the tree automatically, no change needed on the page
+ * itself.
  */
-export const runtime = "edge";
-export const alt = `${COMPANY.shortName} — ${COMPANY.tagline}`;
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const OG_SIZE = { width: 1200, height: 630 };
 
-export default function OgImage() {
+export function renderOgImage(eyebrow: string, headline: string) {
   return new ImageResponse(
     (
       <div
@@ -42,18 +42,20 @@ export default function OgImage() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ fontSize: 26, fontWeight: 600, color: "#e8c766", textTransform: "uppercase", letterSpacing: 1 }}>
+            {eyebrow}
+          </div>
           <div
             style={{
-              fontSize: 62,
+              fontSize: 58,
               fontWeight: 600,
-              lineHeight: 1.1,
+              lineHeight: 1.15,
               letterSpacing: -1.5,
-              maxWidth: 940,
+              maxWidth: 980,
             }}
           >
-            Property &amp; asset management for owners who expect visibility.
+            {headline}
           </div>
-          <div style={{ fontSize: 30, color: "#a7b6d3" }}>{COMPANY.tagline}</div>
         </div>
 
         <div style={{ display: "flex", fontSize: 24, color: "#7b91bd" }}>
@@ -61,6 +63,6 @@ export default function OgImage() {
         </div>
       </div>
     ),
-    { ...size },
+    { ...OG_SIZE },
   );
 }

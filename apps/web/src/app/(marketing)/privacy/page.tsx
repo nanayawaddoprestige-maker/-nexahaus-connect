@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
+import { routes } from "@/lib/routes";
 
-export const metadata: Metadata = { title: "Privacy Policy" };
+export const metadata: Metadata = buildMetadata({
+  title: "Privacy Policy",
+  description:
+    "How NexaHaus Properties & Asset Management Ltd. collects, uses and protects personal data submitted through this website.",
+  path: routes.privacy,
+});
 
 export default function PrivacyPage() {
   return (
