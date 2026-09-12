@@ -277,11 +277,30 @@ whenever a project key exists.
       quote-style only. `pnpm lint`, `typecheck`, `test` and `next build`
       all still green; `format:check` now passes clean, matching CI's
       `static` job.
+- [x] **Security: CSP added, headers re-checked, lead-data exposure
+      confirmed clean.** Tried a per-request nonce + `strict-dynamic` first
+      (the strongest pattern, Next's own documented approach) — doesn't
+      work here: this site is almost entirely static (SSG), and a nonce
+      can only be embedded in per-request HTML. Verified concretely: with
+      the nonce middleware in place, a real production build+server
+      blocked every script, including Next's own hydration bundle.
+      Fell back to a static CSP via `next.config.mjs`'s existing
+      `headers()` — `script-src 'self' 'unsafe-inline'` (still blocks
+      cross-origin script loading / data exfiltration); `frame-ancestors`,
+      `object-src`, `base-uri` and `form-action` are all strict (`'none'`
+      / `'self'` / `'self'` / `'self'`) with no exceptions needed. Verified
+      against a real production server (not dev mode): no CSP violations, the mobile nav
+      menu and NexaHaus Connect showcase's client tabs both still work
+      (confirmed via the accessibility tree, not just a screenshot), and a
+      same-origin API fetch isn't blocked by `connect-src`. Separately
+      confirmed no lead-data exposure: every public form submission is a
+      POST with the payload in the body (`lib/submit-public.ts`), never a
+      query string; every `track()` call across the 5 lead-capture forms
+      sends only non-PII metadata (score, band, category) — name/email/
+      phone are never passed to analytics.
 - [ ] WCAG 2.2 AA sweep (axe + manual keyboard / SR).
 - [ ] Responsive verification at 320 / 375 / 390 / 768 / 1024 / 1280 / 1440 / 1920.
 - [ ] Performance: Lighthouse / CWV against the budget; image + font audit.
-- [ ] Security: add CSP (+ `frame-ancestors 'none'`); re-check headers; confirm no
-      lead-data exposure.
 
 ## Phase 8 — Acceptance & deploy
 
