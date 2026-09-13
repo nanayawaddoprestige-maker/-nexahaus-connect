@@ -203,7 +203,7 @@ export default function Finance() {
           </Text>
         ) : (
           statements.data!.map((s) => (
-            <Link key={s.id} href={`/finance/${s.id}`} asChild>
+            <Link key={s.id} href={`/more/finance/${s.id}`} asChild>
               <Pressable style={styles.listRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.listRowTitle}>

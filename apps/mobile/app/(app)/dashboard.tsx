@@ -37,7 +37,7 @@ interface OwnerDashboard {
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ["dashboard", "owner"],
     queryFn: () => api.get<OwnerDashboard>("/dashboard/owner"),
@@ -109,11 +109,12 @@ export default function Dashboard() {
               label="Pending approvals"
               value={data.attention.pendingApprovals}
               tone={data.attention.pendingApprovals ? "warning" : undefined}
-              onPress={() => router.push("/approvals")}
+              onPress={() => router.push("/more/approvals")}
             />
             <Row
               label="Inspections due"
               value={data.attention.inspectionsDue}
+              onPress={() => router.push("/more/inspections")}
             />
           </View>
 
@@ -127,10 +128,6 @@ export default function Dashboard() {
           </View>
         </>
       )}
-
-      <Pressable onPress={() => void logout()} style={styles.signOut}>
-        <Text style={styles.signOutText}>Sign out</Text>
-      </Pressable>
     </ScrollView>
   );
 }
@@ -261,6 +258,4 @@ const styles = StyleSheet.create({
     borderColor: theme.color.line,
   },
   retryText: { color: theme.color.navy900, fontWeight: "600" },
-  signOut: { marginTop: 28, alignItems: "center", padding: 12 },
-  signOutText: { color: theme.color.inkSubtle, fontSize: theme.font.size.sm },
 });

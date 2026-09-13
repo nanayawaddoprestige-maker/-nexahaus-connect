@@ -52,7 +52,7 @@ export default function InspectionsList() {
         </Text>
       }
       renderItem={({ item }) => (
-        <Link href={`/inspections/${item.id}`} asChild>
+        <Link href={`/more/inspections/${item.id}`} asChild>
           <Pressable style={styles.card}>
             <View style={styles.cardTop}>
               <Text style={styles.title}>
