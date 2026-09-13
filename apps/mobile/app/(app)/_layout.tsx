@@ -38,6 +38,11 @@ export default function AppLayout() {
         options={{ title: "Maintenance", headerShown: false }}
       />
       <Tabs.Screen name="approvals" options={{ title: "Approvals" }} />
+      <Tabs.Screen
+        name="messages"
+        options={{ title: "Messages", headerShown: false }}
+      />
+      <Tabs.Screen name="notifications" options={{ title: "Notifications" }} />
     </Tabs>
   );
 }

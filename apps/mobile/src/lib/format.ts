@@ -28,6 +28,18 @@ export function date(iso: string | null | undefined): string {
       });
 }
 
+export function relativeDays(iso: string | null | undefined): string {
+  if (!iso) return "no record";
+  const d = new Date(iso).getTime();
+  if (Number.isNaN(d)) return "no record";
+  const days = Math.round((Date.now() - d) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.round(days / 30);
+  return months === 1 ? "1 month ago" : `${months} months ago`;
+}
+
 export function titleCase(v: string): string {
   return v
     .toLowerCase()
