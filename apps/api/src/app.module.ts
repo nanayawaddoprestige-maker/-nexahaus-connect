@@ -20,6 +20,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { PropertiesModule } from "./modules/properties/properties.module";
 import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { AdminModule } from "./modules/admin/admin.module";
+import { UsersModule } from "./modules/users/users.module";
 import { ClientsModule } from "./modules/clients/clients.module";
 import { UnitsModule } from "./modules/units/units.module";
 import { TenantsModule } from "./modules/tenants/tenants.module";
@@ -130,6 +131,7 @@ const config = loadConfig();
     IntegrationsModule,
     DashboardModule,
     AdminModule,
+    UsersModule,
   ],
   providers: [
     // Order matters: rate-limit, then authenticate, then permission, then scope.

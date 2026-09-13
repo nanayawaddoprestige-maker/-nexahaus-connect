@@ -18,6 +18,7 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/admin/",
           "/login",
+          "/accept-invite",
           "/dashboard",
           "/properties",
           "/finance",

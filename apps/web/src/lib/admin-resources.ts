@@ -141,6 +141,16 @@ export interface LeadScoreConfig {
   } | null;
 }
 
+export interface StaffUserRow {
+  id: string;
+  email: string | null;
+  fullName: string;
+  status: "PENDING_VERIFICATION" | "ACTIVE" | "SUSPENDED" | "DISABLED";
+  role: { key: string; name: string } | null;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
 export interface AuditLogRow {
   id: string;
   at: string;
