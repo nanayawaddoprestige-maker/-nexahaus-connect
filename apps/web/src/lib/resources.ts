@@ -157,3 +157,18 @@ export interface LoginResponse {
   };
   mfaRequired: boolean;
 }
+
+export interface DocumentRow {
+  id: string;
+  title: string;
+  category: string;
+  scopeType: string;
+  scopeId: string;
+  mimeType: string;
+  sizeBytes: string;
+  version: number;
+  expiresAt: string | null;
+  scanStatus: string;
+  downloadable: boolean;
+  createdAt: string;
+}
