@@ -51,6 +51,7 @@ export default function AppLayout() {
         name="finance"
         options={{ title: "Finance", headerShown: false }}
       />
+      <Tabs.Screen name="reports" options={{ title: "Reports" }} />
     </Tabs>
   );
 }
