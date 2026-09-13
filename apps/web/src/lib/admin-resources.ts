@@ -119,3 +119,35 @@ export interface LeaseRow {
   primaryTenant: { id: string; fullName: string } | null;
   daysToExpiry: number;
 }
+
+export interface LeadScoreFactor {
+  weight: number;
+  bands?: [number, number][];
+  thresholdMinor?: string;
+}
+
+export interface LeadScoreConfig {
+  version: number;
+  factors: {
+    propertyCount?: LeadScoreFactor;
+    diaspora?: LeadScoreFactor;
+    managementNeed?: LeadScoreFactor;
+    assessmentCompleted?: LeadScoreFactor;
+    consultationBooked?: LeadScoreFactor;
+    engagement?: LeadScoreFactor;
+    portfolioValue?: LeadScoreFactor;
+    serviceInterest?: LeadScoreFactor;
+    grades: { A: number; B: number; C: number; D: number };
+  } | null;
+}
+
+export interface AuditLogRow {
+  id: string;
+  at: string;
+  actor: { id: string; fullName: string } | null;
+  actorRoleKey: string | null;
+  action: string;
+  resourceType: string;
+  resourceId: string | null;
+  ip: string | null;
+}

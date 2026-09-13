@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { paginate, pageParams } from "../common/pagination";
 
 export interface AuditContext {
   actorUserId?: string | null;
@@ -32,6 +33,73 @@ export class AuditService {
   private readonly logger = new Logger(AuditService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Browsable audit trail for the admin console (`audit:read`, docs/SECURITY.md §8). */
+  async list(query: {
+    page?: number;
+    pageSize?: number;
+    resourceType?: string;
+    actorUserId?: string;
+    action?: string;
+    from?: string;
+    to?: string;
+  }) {
+    const { skip, take, page, pageSize } = pageParams(query);
+    const where: Prisma.AuditLogWhereInput = {
+      ...(query.resourceType ? { resourceType: query.resourceType } : {}),
+      ...(query.actorUserId ? { actorUserId: query.actorUserId } : {}),
+      ...(query.action
+        ? { action: { contains: query.action, mode: "insensitive" } }
+        : {}),
+      ...(query.from || query.to
+        ? {
+            at: {
+              ...(query.from ? { gte: new Date(query.from) } : {}),
+              ...(query.to ? { lte: new Date(query.to) } : {}),
+            },
+          }
+        : {}),
+    };
+
+    const [rows, totalItems] = await this.prisma.$transaction([
+      this.prisma.auditLog.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { at: "desc" },
+      }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+
+    const actorIds = [
+      ...new Set(
+        rows.map((r) => r.actorUserId).filter((id): id is string => !!id),
+      ),
+    ];
+    const actors = actorIds.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: actorIds } },
+          select: { id: true, fullName: true },
+        })
+      : [];
+    const actorById = new Map(actors.map((a) => [a.id, a]));
+
+    return paginate(
+      rows.map((r) => ({
+        id: r.id,
+        at: r.at.toISOString(),
+        actor: r.actorUserId ? (actorById.get(r.actorUserId) ?? null) : null,
+        actorRoleKey: r.actorRoleKey,
+        action: r.action,
+        resourceType: r.resourceType,
+        resourceId: r.resourceId,
+        ip: r.ip,
+      })),
+      totalItems,
+      page,
+      pageSize,
+    );
+  }
 
   async record(
     entry: AuditEntry,
