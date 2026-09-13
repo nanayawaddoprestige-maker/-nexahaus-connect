@@ -37,6 +37,7 @@ export default function AppLayout() {
         name="maintenance"
         options={{ title: "Maintenance", headerShown: false }}
       />
+      <Tabs.Screen name="approvals" options={{ title: "Approvals" }} />
     </Tabs>
   );
 }

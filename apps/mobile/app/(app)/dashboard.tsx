@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Pressable,
 } from "react-native";
+import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -96,16 +97,19 @@ export default function Dashboard() {
             <Row
               label="Open maintenance"
               value={data.attention.openMaintenance}
+              onPress={() => router.push("/maintenance")}
             />
             <Row
               label="Urgent"
               value={data.attention.urgentMaintenance}
               tone={data.attention.urgentMaintenance ? "critical" : undefined}
+              onPress={() => router.push("/maintenance")}
             />
             <Row
               label="Pending approvals"
               value={data.attention.pendingApprovals}
               tone={data.attention.pendingApprovals ? "warning" : undefined}
+              onPress={() => router.push("/approvals")}
             />
             <Row
               label="Inspections due"
@@ -160,13 +164,15 @@ function Row({
   label,
   value,
   tone,
+  onPress,
 }: {
   label: string;
   value: number;
   tone?: "warning" | "critical";
+  onPress?: () => void;
 }) {
   return (
-    <View style={styles.rowLine}>
+    <Pressable onPress={onPress} disabled={!onPress} style={styles.rowLine}>
       <Text style={styles.rowLabel}>{label}</Text>
       <Text
         style={[
@@ -177,7 +183,7 @@ function Row({
       >
         {value}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
