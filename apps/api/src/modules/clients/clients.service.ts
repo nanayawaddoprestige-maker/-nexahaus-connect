@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { createHash, randomBytes } from "node:crypto";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
+import type { AppConfig } from "@nexahaus/config";
 import type { AuthUser } from "@nexahaus/types";
 import type {
   ClientContactInput,
@@ -8,6 +10,7 @@ import type {
   ListClientQuery,
   UpdateClientInput,
 } from "@nexahaus/validation";
+import { APP_CONFIG } from "../../config/config.module";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { RefService } from "../../common/ref.service";
@@ -15,6 +18,10 @@ import { AuditService, type AuditContext } from "../../audit/audit.service";
 import { pageParams, paginate, parseSort } from "../../common/pagination";
 import { clientScopeWhere, clientInScope } from "../authz/scope.util";
 import { periodRange } from "../finance/period.util";
+import { EmailAdapter } from "../notifications/channels/channel-adapter";
+import { ownerInviteEmail } from "./client-invite-email";
+
+const INVITE_TTL_HOURS = 72;
 
 const SORTABLE = ["createdAt", "displayName", "ref", "status"] as const;
 
@@ -33,10 +40,14 @@ const ONBOARDING_STEPS = [
 
 @Injectable()
 export class ClientsService {
+  private readonly logger = new Logger(ClientsService.name);
+
   constructor(
+    @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly prisma: PrismaService,
     private readonly refs: RefService,
     private readonly audit: AuditService,
+    private readonly emailAdapter: EmailAdapter,
   ) {}
 
   async list(user: AuthUser, query: ListClientQuery) {
@@ -325,10 +336,14 @@ export class ClientsService {
     input: InviteClientUserInput,
     ctx: AuditContext,
   ) {
-    await this.assertExists(id);
+    const client = await this.prisma.client.findFirst({
+      where: { id, deletedAt: null },
+      select: { displayName: true },
+    });
+    if (!client) throw AppError.notFound("client");
     const email = input.email?.toLowerCase() ?? null;
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       let targetUser = await tx.user.findFirst({
         where: {
           OR: [
@@ -339,9 +354,14 @@ export class ClientsService {
         select: { id: true },
       });
 
+      let activationToken: string | null = null;
+      let isNewUser = false;
+
       if (!targetUser) {
         // Placeholder user in PENDING_VERIFICATION; they set a password on
-        // accepting the invitation (invitation-token flow — Phase 2 follow-up).
+        // accepting the invitation via the same account-activation token flow
+        // used for staff invites (users.service.ts).
+        isNewUser = true;
         targetUser = await tx.user.create({
           data: {
             email,
@@ -356,6 +376,18 @@ export class ClientsService {
         if (ownerRole) {
           await tx.userRole.create({
             data: { userId: targetUser.id, roleId: ownerRole.id },
+          });
+        }
+        if (email) {
+          activationToken = randomBytes(32).toString("base64url");
+          await tx.accountActivationToken.create({
+            data: {
+              userId: targetUser.id,
+              tokenHash: createHash("sha256")
+                .update(activationToken)
+                .digest("hex"),
+              expiresAt: new Date(Date.now() + INVITE_TTL_HOURS * 3_600_000),
+            },
           });
         }
       }
@@ -385,8 +417,54 @@ export class ClientsService {
         },
         tx,
       );
-      return { clientUserId: link.id, userId: targetUser.id };
+      return {
+        clientUserId: link.id,
+        userId: targetUser.id,
+        isNewUser,
+        activationToken,
+      };
     });
+
+    if (result.isNewUser && result.activationToken && email) {
+      this.sendInviteEmail(
+        email,
+        input.fullName,
+        client.displayName,
+        result.activationToken,
+      );
+    }
+
+    return {
+      clientUserId: result.clientUserId,
+      userId: result.userId,
+    };
+  }
+
+  /** Best-effort — the account is already created; email failure is logged,
+   *  not fatal. */
+  private sendInviteEmail(
+    to: string,
+    fullName: string,
+    clientName: string,
+    token: string,
+  ): void {
+    const inviteUrl = `${this.config.urls.app}/accept-invite?token=${token}`;
+    const template = ownerInviteEmail(
+      fullName,
+      clientName,
+      inviteUrl,
+      INVITE_TTL_HOURS,
+    );
+    this.emailAdapter
+      .send({
+        to,
+        subject: template.subject,
+        body: template.text,
+        html: template.html,
+      })
+      .catch((err: unknown) =>
+        this.logger.warn(`Owner invite email to ${to} failed: ${String(err)}`),
+      );
   }
 
   async advanceOnboarding(

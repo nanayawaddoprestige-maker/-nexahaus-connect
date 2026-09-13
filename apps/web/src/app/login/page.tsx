@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
@@ -98,6 +99,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className={inputClass}
               />
+              <Link
+                href="/forgot-password"
+                className="mt-1.5 inline-block text-xs text-ink-subtle hover:underline"
+              >
+                Forgot your password?
+              </Link>
             </Field>
             {mfaRequired ? (
               <Field label="Authentication code">

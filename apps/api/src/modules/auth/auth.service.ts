@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { authenticator } from "otplib";
 import type { AppConfig } from "@nexahaus/config";
 import {
@@ -20,9 +20,14 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
 import { AuditService } from "../../audit/audit.service";
 import { AuthUserService } from "../authz/auth-user.service";
+import {
+  EmailAdapter,
+  SmsAdapter,
+} from "../notifications/channels/channel-adapter";
 import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
 import { OtpService } from "./otp.service";
+import { passwordResetEmail } from "./password-reset-email";
 
 interface RequestMeta {
   ip?: string | null;
@@ -34,6 +39,8 @@ const LOCK_MINUTES = 15;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly prisma: PrismaService,
@@ -42,6 +49,8 @@ export class AuthService {
     private readonly otp: OtpService,
     private readonly audit: AuditService,
     private readonly authUsers: AuthUserService,
+    private readonly emailAdapter: EmailAdapter,
+    private readonly smsAdapter: SmsAdapter,
   ) {}
 
   // --------------------------------------------------------------------------
@@ -332,16 +341,51 @@ export class AuthService {
     // Always return success — never disclose whether the account exists.
     if (user) {
       const token = randomBytes(32).toString("base64url");
+      const ttlMs = 60 * 60 * 1000;
       await this.prisma.passwordResetToken.create({
         data: {
           userId: user.id,
           tokenHash: createHash("sha256").update(token).digest("hex"),
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          expiresAt: new Date(Date.now() + ttlMs),
         },
       });
-      // TODO(phase-5): email the reset link containing `token`.
+      this.sendPasswordResetLink(user, token, ttlMs / 60_000);
     }
     return { requested: true };
+  }
+
+  /** Best-effort — the token is already persisted; delivery failure is
+   *  logged, not fatal (the caller never learns whether the account exists). */
+  private sendPasswordResetLink(
+    user: { email: string | null; phone: string | null; fullName: string },
+    token: string,
+    ttlMinutes: number,
+  ): void {
+    const resetUrl = `${this.config.urls.app}/reset-password?token=${token}`;
+    if (user.email) {
+      const template = passwordResetEmail(user.fullName, resetUrl, ttlMinutes);
+      this.emailAdapter
+        .send({
+          to: user.email,
+          subject: template.subject,
+          body: template.text,
+          html: template.html,
+        })
+        .catch((err: unknown) =>
+          this.logger.warn(`Password reset email failed: ${String(err)}`),
+        );
+      return;
+    }
+    if (user.phone) {
+      this.smsAdapter
+        .send({
+          to: user.phone,
+          body: `NexaHaus: reset your password here (expires in ${ttlMinutes} min): ${resetUrl}`,
+        })
+        .catch((err: unknown) =>
+          this.logger.warn(`Password reset SMS failed: ${String(err)}`),
+        );
+    }
   }
 
   async resetPassword(

@@ -5,6 +5,11 @@ import type { OtpPurpose } from "@nexahaus/types";
 import { APP_CONFIG } from "../../config/config.module";
 import { PrismaService } from "../../prisma/prisma.service";
 import { AppError } from "../../common/app-error";
+import {
+  EmailAdapter,
+  SmsAdapter,
+} from "../notifications/channels/channel-adapter";
+import { otpEmail, otpSms } from "./otp-templates";
 
 /**
  * One-time codes for email/phone verification, MFA-over-OTP and password reset
@@ -19,6 +24,8 @@ export class OtpService {
   constructor(
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly prisma: PrismaService,
+    private readonly emailAdapter: EmailAdapter,
+    private readonly smsAdapter: SmsAdapter,
   ) {}
 
   private hash(code: string): string {
@@ -55,7 +62,7 @@ export class OtpService {
         `OTP for ${destination} (${purpose}): ${code} [dev only]`,
       );
     }
-    // TODO(phase-5): dispatch via EmailAdapter / SmsAdapter based on destination.
+    this.dispatch(destination, purpose, code);
 
     return { challengeId: challenge.id };
   }
@@ -101,5 +108,33 @@ export class OtpService {
       data: { consumedAt: new Date() },
     });
     return { userId: challenge.userId, destination: challenge.destination };
+  }
+
+  /** Best-effort — the challenge is already persisted; delivery failure is
+   *  logged, not fatal, so the caller (register/login) doesn't hard-fail. */
+  private dispatch(
+    destination: string,
+    purpose: OtpPurpose,
+    code: string,
+  ): void {
+    const ttlMinutes = Math.round(this.config.auth.otpTtl / 60);
+    const isEmail = destination.includes("@");
+    const send = isEmail
+      ? (() => {
+          const template = otpEmail(code, purpose, ttlMinutes);
+          return this.emailAdapter.send({
+            to: destination,
+            subject: template.subject,
+            body: template.text,
+            html: template.html,
+          });
+        })()
+      : this.smsAdapter.send({
+          to: destination,
+          body: otpSms(code, purpose, ttlMinutes),
+        });
+    send.catch((err: unknown) =>
+      this.logger.warn(`OTP delivery to ${destination} failed: ${String(err)}`),
+    );
   }
 }
