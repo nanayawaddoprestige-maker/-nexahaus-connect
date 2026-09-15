@@ -1,0 +1,17 @@
+## Deploys apps/web (the marketing site + owner/admin portal) to Netlify.
+## See docs/runbooks/deploy-vercel-web.md's "Netlify equivalent" section.
+## This file is the source of truth once present — it overrides whatever
+## Base directory / Build command / Publish directory are set in the Netlify
+## dashboard UI for this site.
+
+[build]
+  base = "apps/web"
+  command = "corepack enable && npx --yes pnpm@9.12.0 install --no-frozen-lockfile --filter=@nexahaus/web... && npx --yes pnpm@9.12.0 --filter=@nexahaus/web... build"
+  publish = ".next"
+
+[build.environment]
+  NPM_FLAGS = "--version"
+  NETLIFY_USE_PNPM = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

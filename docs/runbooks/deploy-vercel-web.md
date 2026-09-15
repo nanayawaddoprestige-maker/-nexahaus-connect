@@ -124,13 +124,23 @@ Open the site, sign in, load the owner dashboard.
 
 If you use Netlify instead:
 
-- **Base directory:** `apps/web`
-- **Build command:** `corepack enable && pnpm --filter=@nexahaus/web... build`
-- **Publish directory:** `apps/web/.next`
-- Add the official **@netlify/plugin-nextjs**.
-- Environment: `NPM_FLAGS=--version` and `NETLIFY_USE_PNPM=true` (or set
-  `PNPM_FLAGS=--no-frozen-lockfile`); Netlify runs `pnpm install` from the repo root when
-  it sees `pnpm-workspace.yaml`. Set the same `API_ORIGIN` var.
+Config: a repo-root [`netlify.toml`](../../netlify.toml) sets Base directory, Build command
+and Publish directory for you (`base = "apps/web"`, the pnpm-filtered install + build, and
+`.next`). **This file takes precedence over whatever Base directory / Build command /
+Publish directory are set in the Netlify dashboard UI for the site** — if a Netlify site
+for this repo was created before this file existed (or was pointed at the wrong directory,
+e.g. `apps/mobile`), pushing this file to the deployed branch is what fixes it, not editing
+the dashboard.
+
+- Add the official **@netlify/plugin-nextjs** (declared in `netlify.toml`; Netlify should
+  offer to install it automatically the first time it reads the file).
+- Environment (set in the Netlify dashboard, not the toml — these are secrets): `API_ORIGIN`
+  plus the `NEXT_PUBLIC_*` vars from §2 above.
+- Only one deployment platform is authoritative at a time. If a Netlify site for this repo
+  was previously built with a different Base directory (e.g. `apps/mobile`, from before
+  `netlify.toml` existed — Expo/React Native has no web build story here, so a stray site
+  configured that way was a mistake, not an alternate deploy target), trigger a fresh deploy
+  after this file lands; the toml's settings should override the stale ones.
 
 Everything else (API, worker, DB, Redis, storage) is identical to the table in the answer
 above. Use Vercel **or** Netlify, not both.
