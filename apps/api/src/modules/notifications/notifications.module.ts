@@ -35,6 +35,13 @@ import {
     { provide: WhatsAppAdapter, useClass: NoopWhatsAppAdapter },
     { provide: PushAdapter, useClass: NoopPushAdapter },
   ],
-  exports: [NotificationsService, NotificationEventHandler],
+  exports: [
+    NotificationsService,
+    NotificationEventHandler,
+    EmailAdapter,
+    SmsAdapter,
+    WhatsAppAdapter,
+    PushAdapter,
+  ],
 })
 export class NotificationsModule {}
